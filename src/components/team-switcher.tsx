@@ -13,18 +13,16 @@ export const TeamSwitcher = () => {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton size="lg">
-          <Link href="/projects" className="flex w-full items-center gap-3">
-            <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-              <CalculatorIcon className="size-4" />
-            </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">Software Estimator</span>
-              <span className="text-muted-foreground truncate text-xs">
-                Sistema de estimaciones
-              </span>
-            </div>
-          </Link>
+        <SidebarMenuButton size="lg" render={<Link href="/projects" />}>
+          <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <CalculatorIcon className="size-4" />
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-semibold">Software Estimator</span>
+            <span className="text-muted-foreground truncate text-xs">
+              Sistema de estimaciones
+            </span>
+          </div>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
