@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-const HomePage = () => {
+const ProtectedIndexPage = () => {
   redirect("/projects");
 };
 
-export default HomePage;
+export default ProtectedIndexPage;
