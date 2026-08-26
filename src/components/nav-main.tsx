@@ -30,11 +30,7 @@ interface NavItem {
   }[]
 }
 
-export const NavMain = ({
-  items,
-}: {
-  items: NavItem[]
-}) => {
+export const NavMain = ({ items }: { items: NavItem[] }) => {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Plataforma</SidebarGroupLabel>
@@ -45,7 +41,10 @@ export const NavMain = ({
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton tooltip={item.title}>
-                  <Link href={item.url} className="flex w-full items-center gap-2">
+                  <Link
+                    href={item.url}
+                    className="flex w-full items-center gap-2"
+                  >
                     {Icon && <Icon className="size-4" />}
                     <span>{item.title}</span>
                   </Link>
@@ -62,7 +61,10 @@ export const NavMain = ({
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger className="w-full">
-                  <SidebarMenuButton tooltip={item.title} className="w-full justify-between">
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    className="w-full justify-between"
+                  >
                     <div className="flex items-center gap-2">
                       {Icon && <Icon className="size-4" />}
                       <span>{item.title}</span>

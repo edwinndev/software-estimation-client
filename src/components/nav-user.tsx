@@ -1,10 +1,6 @@
 "use client"
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +16,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon, UserIcon, SettingsIcon, LogOutIcon } from "lucide-react"
+import {
+  ChevronsUpDownIcon,
+  UserIcon,
+  SettingsIcon,
+  LogOutIcon,
+} from "lucide-react"
 import Link from "next/link"
 
 interface UserProps {
@@ -29,11 +30,7 @@ interface UserProps {
   avatar: string
 }
 
-export const NavUser = ({
-  user,
-}: {
-  user: UserProps
-}) => {
+export const NavUser = ({ user }: { user: UserProps }) => {
   const { isMobile } = useSidebar()
 
   return (
@@ -41,14 +38,19 @@ export const NavUser = ({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger className="w-full">
-            <SidebarMenuButton size="lg" className="aria-expanded:bg-muted w-full">
+            <SidebarMenuButton
+              size="lg"
+              className="aria-expanded:bg-muted w-full"
+            >
               <Avatar className="size-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">SE</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                <span className="text-muted-foreground truncate text-xs">
+                  {user.email}
+                </span>
               </div>
               <ChevronsUpDownIcon className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -68,7 +70,9 @@ export const NavUser = ({
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                    <span className="text-muted-foreground truncate text-xs">
+                      {user.email}
+                    </span>
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -82,7 +86,10 @@ export const NavUser = ({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="/profiles" className="flex w-full items-center gap-2">
+                <Link
+                  href="/profiles"
+                  className="flex w-full items-center gap-2"
+                >
                   <SettingsIcon className="size-4" />
                   <span>Perfiles técnicos</span>
                 </Link>
@@ -90,7 +97,10 @@ export const NavUser = ({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href="/login" className="flex w-full items-center gap-2 text-destructive">
+              <Link
+                href="/login"
+                className="text-destructive flex w-full items-center gap-2"
+              >
                 <LogOutIcon className="size-4" />
                 <span>Cerrar sesión</span>
               </Link>

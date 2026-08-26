@@ -88,7 +88,9 @@ const currentUser = {
   avatar: "/avatars/admin.jpg",
 }
 
-export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
+export const AppSidebar = ({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) => {
   const pathname = usePathname()
 
   return (
@@ -105,15 +107,17 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
             <SidebarMenu>
               {projectModules.map((item) => {
                 const Icon = item.icon
-                const isActive = pathname === item.url || (item.url !== "/projects" && pathname.startsWith(item.url))
+                const isActive =
+                  pathname === item.url ||
+                  (item.url !== "/projects" && pathname.startsWith(item.url))
 
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      tooltip={item.title}
-                    >
-                      <Link href={item.url} className="flex w-full items-center gap-3">
+                    <SidebarMenuButton isActive={isActive} tooltip={item.title}>
+                      <Link
+                        href={item.url}
+                        className="flex w-full items-center gap-3"
+                      >
                         <Icon className="size-4 shrink-0" />
                         <span className="truncate">{item.title}</span>
                       </Link>
@@ -132,15 +136,16 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
             <SidebarMenu>
               {administrationModules.map((item) => {
                 const Icon = item.icon
-                const isActive = pathname === item.url || pathname.startsWith(item.url)
+                const isActive =
+                  pathname === item.url || pathname.startsWith(item.url)
 
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      tooltip={item.title}
-                    >
-                      <Link href={item.url} className="flex w-full items-center gap-3">
+                    <SidebarMenuButton isActive={isActive} tooltip={item.title}>
+                      <Link
+                        href={item.url}
+                        className="flex w-full items-center gap-3"
+                      >
                         <Icon className="size-4 shrink-0" />
                         <span className="truncate">{item.title}</span>
                       </Link>

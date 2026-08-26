@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
+import Link from "next/link"
+import { buttonVariants } from "@/components/ui/button"
 
 const NewProjectPage = () => {
   return (
@@ -7,7 +7,7 @@ const NewProjectPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Nuevo proyecto</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Registra un nuevo proyecto con estado inicial borrador.
           </p>
         </div>
@@ -19,7 +19,7 @@ const NewProjectPage = () => {
         </Link>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default NewProjectPage;
+export default NewProjectPage

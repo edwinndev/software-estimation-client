@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
+import Link from "next/link"
+import { buttonVariants } from "@/components/ui/button"
 
 const ProjectsPage = () => {
   return (
@@ -7,7 +7,7 @@ const ProjectsPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Proyectos</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Gestiona tus proyectos de software y sus estimaciones asociadas.
           </p>
         </div>
@@ -16,7 +16,7 @@ const ProjectsPage = () => {
         </Link>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProjectsPage;
+export default ProjectsPage

@@ -1,7 +1,7 @@
-import { ProjectNavTabs } from "@/components/project-nav-tabs";
+import { ProjectNavTabs } from "@/components/project-nav-tabs"
 
 interface ProjectLayoutProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 const ProjectLayout = ({ children }: ProjectLayoutProps) => {
@@ -10,7 +10,7 @@ const ProjectLayout = ({ children }: ProjectLayoutProps) => {
       <ProjectNavTabs />
       <div>{children}</div>
     </div>
-  );
-};
+  )
+}
 
-export default ProjectLayout;
+export default ProjectLayout

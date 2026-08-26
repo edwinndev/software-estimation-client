@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation"
 
 const ProtectedIndexPage = () => {
-  redirect("/projects");
-};
+  redirect("/projects")
+}
 
-export default ProtectedIndexPage;
+export default ProtectedIndexPage

@@ -17,11 +17,7 @@ interface ProjectItem {
   icon: LucideIcon
 }
 
-export const NavProjects = ({
-  projects,
-}: {
-  projects: ProjectItem[]
-}) => {
+export const NavProjects = ({ projects }: { projects: ProjectItem[] }) => {
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Acciones rápidas</SidebarGroupLabel>
@@ -31,7 +27,10 @@ export const NavProjects = ({
           return (
             <SidebarMenuItem key={item.name}>
               <SidebarMenuButton>
-                <Link href={item.url} className="flex w-full items-center gap-2">
+                <Link
+                  href={item.url}
+                  className="flex w-full items-center gap-2"
+                >
                   <Icon className="size-4" />
                   <span>{item.name}</span>
                 </Link>
@@ -41,7 +40,10 @@ export const NavProjects = ({
         })}
         <SidebarMenuItem>
           <SidebarMenuButton>
-            <Link href="/projects/new" className="flex w-full items-center gap-2 text-primary font-medium">
+            <Link
+              href="/projects/new"
+              className="text-primary flex w-full items-center gap-2 font-medium"
+            >
               <PlusCircleIcon className="size-4" />
               <span>Nuevo proyecto</span>
             </Link>
