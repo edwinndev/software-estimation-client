@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Software Estimation Client
 
-## Getting Started
+Cliente Next.js para estimar software. Auth y usuarios viven en `localStorage` (API mock) hasta que exista backend.
 
-First, run the development server:
+## Arranque
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usuario inicial
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Se crea solo si `localStorage` no tiene usuarios:
 
-## Learn More
+| Campo      | Valor                    |
+| ---------- | ------------------------ |
+| Correo     | `jcvargas.dev@gmail.com` |
+| Contraseña | `admin123`               |
+| Rol        | Administrador            |
 
-To learn more about Next.js, take a look at the following resources:
+Si ya hay datos viejos, limpia `localStorage` del origen `localhost:3000` y recarga.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Rutas
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Ruta                      | Qué hace                |
+| ------------------------- | ----------------------- |
+| `/login`                  | Iniciar sesión          |
+| `/forgot-password`        | Pedir código OTP        |
+| `/forgot-password/verify` | Ingresar el código      |
+| `/forgot-password/reset`  | Nueva contraseña        |
+| `/users`                  | Listado (15 por página) |
+| `/users/new`              | Crear usuario           |
+| `/users/[userId]/edit`    | Editar usuario          |
 
-## Deploy on Vercel
+## Reset de contraseña (OTP)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. En `/login` entra a **Olvidé mi contraseña**.
+2. Usa un correo que exista (el admin o uno que hayas creado).
+3. Abre DevTools → **Console**. El mock imprime:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+[OTP] Password reset code { email: "...", code: "123456" }
+```
+
+4. Copia el código de 6 dígitos (vale 10 minutos).
+5. Define una clave nueva: mínimo 8 caracteres, con letra y número.
+6. Vuelve a `/login` e ingresa con la clave nueva.
+
+## Toasts
+
+Arriba a la derecha. Se disparan desde la UI (no desde hooks):
+
+- Login: éxito y error
+- OTP: código enviado, verificado, contraseña actualizada (y error)
+- Usuarios: creado, actualizado, eliminado (y error)
+
+## Checklist manual
+
+1. Login con clave mala → toast de error arriba a la derecha.
+2. Login con el admin → toast de éxito y entra a proyectos.
+3. Olvidé mi contraseña con un correo que no existe → toast de error.
+4. Correo válido → toast de éxito y código en consola.
+5. Código mal / bien → toast de error o éxito.
+6. Nueva contraseña → toast de éxito, login con la clave nueva.
+7. `/users` → crear, editar y eliminar (no puedes borrar tu propia cuenta).
+8. `/users`: buscar en la tabla, abrir **Filtros** (drawer), aplicar/limpiar rol. 20 filas por página (`docs/users.md`).
+
+## Datos locales
+
+Claves en `localStorage`:
+
+- `software-estimation:users`
+- `software-estimation:session`
+- `software-estimation:password-reset`
+
+## Docs
+
+- Usuarios: `docs/users.md`
+- Convenciones del agente: `AGENTS.md`
