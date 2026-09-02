@@ -18,6 +18,9 @@ import {
 } from "@/components/ui/sidebar"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
+import { usePermissions } from "@/features/auth/hooks/use-permissions"
+import { useSession } from "@/features/auth/hooks/use-session"
+import { PERMISSIONS } from "@/features/auth/constants/permissions"
 import {
   FolderKanbanIcon,
   ListTodoIcon,
@@ -74,24 +77,25 @@ const administrationModules = [
     title: "Perfiles técnicos (CER)",
     url: "/profiles",
     icon: LayersIcon,
+    permission: PERMISSIONS.PROFILE_READ,
   },
   {
     title: "Gestión de usuarios",
     url: "/users",
     icon: UsersIcon,
+    permission: PERMISSIONS.USER_READ,
   },
 ]
-
-const currentUser = {
-  name: "Administrador",
-  email: "admin@software-estimation.com",
-  avatar: "/avatars/admin.jpg",
-}
 
 export const AppSidebar = ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const { hasPermission } = usePermissions()
+  const visibleAdministration = administrationModules.filter((item) =>
+    hasPermission(item.permission)
+  )
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -128,36 +132,41 @@ export const AppSidebar = ({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Configuración y Maestros */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Administración</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {administrationModules.map((item) => {
-                const Icon = item.icon
-                const isActive =
-                  pathname === item.url || pathname.startsWith(item.url)
+        {visibleAdministration.length > 0 ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administración</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {visibleAdministration.map((item) => {
+                  const Icon = item.icon
+                  const isActive =
+                    pathname === item.url || pathname.startsWith(item.url)
 
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      tooltip={item.title}
-                      render={<Link href={item.url} />}
-                    >
-                      <Icon className="size-4 shrink-0" />
-                      <span className="truncate">{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        tooltip={item.title}
+                      >
+                        <Link
+                          href={item.url}
+                          className="flex w-full items-center gap-3"
+                        >
+                          <Icon className="size-4 shrink-0" />
+                          <span className="truncate">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : null}
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={currentUser} />
+        {session ? <NavUser user={session} /> : null}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
