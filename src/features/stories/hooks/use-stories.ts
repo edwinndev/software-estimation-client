@@ -1,39 +1,39 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { backlogService } from "../services/backlog-service"
-import type { BacklogTask, UserStory } from "../types/backlog-types"
+import { storiesService } from "../services/stories-service"
+import type { BacklogTask, UserStory } from "../types/stories-types"
 
-export const useBacklog = (projectId: string) => {
+export const useStories = (projectId: string) => {
   const queryClient = useQueryClient()
-  const queryKey = ["backlog", projectId]
+  const queryKey = ["stories", projectId]
   const refresh = () => queryClient.invalidateQueries({ queryKey })
-  const backlog = useQuery({
+  const stories = useQuery({
     queryKey,
-    queryFn: () => backlogService.getBacklog(projectId),
+    queryFn: () => storiesService.getStories(projectId),
   })
   const profiles = useQuery({
     queryKey: ["technical-profiles"],
-    queryFn: backlogService.getProfiles,
+    queryFn: storiesService.getProfiles,
   })
   const useMutationAction = <TVariables>(
     mutationFn: (variables: TVariables) => Promise<unknown>
   ) => useMutation({ mutationFn, onSuccess: refresh })
 
   return {
-    ...backlog,
+    ...stories,
     profiles: profiles.data ?? [],
     createStory: useMutationAction(
       (
         values: Omit<UserStory, "id" | "projectId" | "createdAt" | "updatedAt">
-      ) => backlogService.createStory(projectId, values)
+      ) => storiesService.createStory(projectId, values)
     ),
     updateStory: useMutationAction(
       ({ id, values }: { id: string; values: Partial<UserStory> }) =>
-        backlogService.updateStory(projectId, id, values)
+        storiesService.updateStory(projectId, id, values)
     ),
     deleteStory: useMutationAction((id: string) =>
-      backlogService.deleteStory(projectId, id)
+      storiesService.deleteStory(projectId, id)
     ),
     createTask: useMutationAction(
       ({
@@ -42,14 +42,14 @@ export const useBacklog = (projectId: string) => {
       }: {
         storyId: string
         values: Omit<BacklogTask, "id" | "storyId" | "createdAt" | "updatedAt">
-      }) => backlogService.createTask(projectId, storyId, values)
+      }) => storiesService.createTask(projectId, storyId, values)
     ),
     updateTask: useMutationAction(
       ({ id, values }: { id: string; values: Partial<BacklogTask> }) =>
-        backlogService.updateTask(projectId, id, values)
+        storiesService.updateTask(projectId, id, values)
     ),
     deleteTask: useMutationAction((id: string) =>
-      backlogService.deleteTask(projectId, id)
+      storiesService.deleteTask(projectId, id)
     ),
   }
 }

@@ -1,9 +1,9 @@
 import type {
-  BacklogData,
   BacklogTask,
+  StoriesData,
   TechnicalProfile,
   UserStory,
-} from "../types/backlog-types"
+} from "../types/stories-types"
 
 const profiles: TechnicalProfile[] = [
   { id: "frontend", name: "Frontend" },
@@ -13,25 +13,22 @@ const profiles: TechnicalProfile[] = [
 ]
 
 const key = (projectId: string) => `software-estimation:backlog:${projectId}`
-
-const read = (projectId: string): BacklogData => {
+const read = (projectId: string): StoriesData => {
   if (typeof window === "undefined") return { stories: [], tasks: [] }
   const stored = window.localStorage.getItem(key(projectId))
   return stored
-    ? (JSON.parse(stored) as BacklogData)
+    ? (JSON.parse(stored) as StoriesData)
     : { stories: [], tasks: [] }
 }
-
-const write = (projectId: string, data: BacklogData) => {
+const write = (projectId: string, data: StoriesData) => {
   window.localStorage.setItem(key(projectId), JSON.stringify(data))
   return data
 }
-
 const now = () => new Date().toISOString()
 
-export const backlogService = {
+export const storiesService = {
   getProfiles: async () => profiles,
-  getBacklog: async (projectId: string) => read(projectId),
+  getStories: async (projectId: string) => read(projectId),
   createStory: async (
     projectId: string,
     values: Omit<UserStory, "id" | "projectId" | "createdAt" | "updatedAt">
