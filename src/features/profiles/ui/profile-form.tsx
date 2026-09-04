@@ -48,9 +48,6 @@ export const ProfileForm = ({
 
   const form = useForm({
     defaultValues,
-    validators: {
-      onChange: profileSchema,
-    },
     onSubmit: async ({ value }) => {
       try {
         if (isEditing && profile) {
@@ -59,15 +56,15 @@ export const ProfileForm = ({
             ...value,
           })
           toast.add({
-            title: "Profile updated",
-            description: `Profile "${value.name}" has been updated successfully.`,
+            title: "Perfil actualizado",
+            description: `El perfil "${value.name}" ha sido actualizado exitosamente.`,
             type: "success",
           })
         } else {
           await createProfileMutation.mutateAsync(value)
           toast.add({
-            title: "Profile created",
-            description: `Technical profile "${value.name}" has been registered.`,
+            title: "Perfil creado",
+            description: `El perfil técnico "${value.name}" ha sido registrado.`,
             type: "success",
           })
         }
@@ -78,7 +75,7 @@ export const ProfileForm = ({
           description:
             error instanceof Error
               ? error.message
-              : "Failed to save profile. Please try again.",
+              : "No se pudo guardar el perfil. Intenta nuevamente.",
           type: "error",
         })
       }
@@ -97,21 +94,32 @@ export const ProfileForm = ({
       }}
       className="space-y-4"
     >
-      <form.Field name="name">
+      <form.Field
+        name="name"
+        validators={{
+          onChange: ({ value }) => {
+            const res = profileSchema.shape.name.safeParse(value)
+            return res.success ? undefined : res.error.issues[0]?.message
+          },
+        }}
+      >
         {(field) => (
           <div className="space-y-1.5">
-            <Label htmlFor={field.name}>Full name</Label>
+            <Label htmlFor={field.name}>Nombre completo</Label>
             <Input
               id={field.name}
               value={field.state.value}
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
-              placeholder="e.g. Jane Doe"
+              placeholder="Ej. Ana García"
               disabled={isSubmitting}
             />
             {field.state.meta.errors.length > 0 && (
               <p className="text-destructive text-xs">
-                {field.state.meta.errors.join(", ")}
+                {typeof field.state.meta.errors[0] === "string"
+                  ? field.state.meta.errors[0]
+                  : ((field.state.meta.errors[0] as { message?: string })
+                      ?.message ?? "Campo requerido")}
               </p>
             )}
           </div>
@@ -119,10 +127,18 @@ export const ProfileForm = ({
       </form.Field>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <form.Field name="role">
+        <form.Field
+          name="role"
+          validators={{
+            onChange: ({ value }) => {
+              const res = profileSchema.shape.role.safeParse(value)
+              return res.success ? undefined : res.error.issues[0]?.message
+            },
+          }}
+        >
           {(field) => (
             <div className="space-y-1.5">
-              <Label htmlFor={field.name}>Technical role</Label>
+              <Label htmlFor={field.name}>Rol técnico</Label>
               <Select
                 value={field.state.value}
                 onValueChange={(val) => {
@@ -130,8 +146,8 @@ export const ProfileForm = ({
                 }}
                 disabled={isSubmitting}
               >
-                <SelectTrigger id={field.name}>
-                  <SelectValue placeholder="Select a role" />
+                <SelectTrigger id={field.name} className="w-full">
+                  <SelectValue placeholder="Selecciona un rol" />
                 </SelectTrigger>
                 <SelectContent>
                   {technicalRoles.map((role) => (
@@ -143,17 +159,28 @@ export const ProfileForm = ({
               </Select>
               {field.state.meta.errors.length > 0 && (
                 <p className="text-destructive text-xs">
-                  {field.state.meta.errors.join(", ")}
+                  {typeof field.state.meta.errors[0] === "string"
+                    ? field.state.meta.errors[0]
+                    : (field.state.meta.errors[0] as { message?: string })
+                        ?.message}
                 </p>
               )}
             </div>
           )}
         </form.Field>
 
-        <form.Field name="experienceLevel">
+        <form.Field
+          name="experienceLevel"
+          validators={{
+            onChange: ({ value }) => {
+              const res = profileSchema.shape.experienceLevel.safeParse(value)
+              return res.success ? undefined : res.error.issues[0]?.message
+            },
+          }}
+        >
           {(field) => (
             <div className="space-y-1.5">
-              <Label htmlFor={field.name}>Seniority level</Label>
+              <Label htmlFor={field.name}>Nivel de seniority</Label>
               <Select
                 value={field.state.value}
                 onValueChange={(val) => {
@@ -164,8 +191,8 @@ export const ProfileForm = ({
                 }}
                 disabled={isSubmitting}
               >
-                <SelectTrigger id={field.name}>
-                  <SelectValue placeholder="Select level" />
+                <SelectTrigger id={field.name} className="w-full">
+                  <SelectValue placeholder="Selecciona nivel" />
                 </SelectTrigger>
                 <SelectContent>
                   {experienceLevels.map((level) => (
@@ -177,7 +204,10 @@ export const ProfileForm = ({
               </Select>
               {field.state.meta.errors.length > 0 && (
                 <p className="text-destructive text-xs">
-                  {field.state.meta.errors.join(", ")}
+                  {typeof field.state.meta.errors[0] === "string"
+                    ? field.state.meta.errors[0]
+                    : (field.state.meta.errors[0] as { message?: string })
+                        ?.message}
                 </p>
               )}
             </div>
@@ -186,10 +216,18 @@ export const ProfileForm = ({
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <form.Field name="hourlyRate">
+        <form.Field
+          name="hourlyRate"
+          validators={{
+            onChange: ({ value }) => {
+              const res = profileSchema.shape.hourlyRate.safeParse(value)
+              return res.success ? undefined : res.error.issues[0]?.message
+            },
+          }}
+        >
           {(field) => (
             <div className="space-y-1.5">
-              <Label htmlFor={field.name}>Standard cost / hour (CER)</Label>
+              <Label htmlFor={field.name}>Costo estándar / hora (CER)</Label>
               <div className="relative">
                 <Input
                   id={field.name}
@@ -201,44 +239,54 @@ export const ProfileForm = ({
                   onChange={(e) =>
                     field.handleChange(e.target.valueAsNumber || 0)
                   }
-                  placeholder="e.g. 45"
+                  placeholder="Ej. 45"
                   disabled={isSubmitting}
                 />
               </div>
               {field.state.meta.errors.length > 0 && (
                 <p className="text-destructive text-xs">
-                  {field.state.meta.errors.join(", ")}
+                  {typeof field.state.meta.errors[0] === "string"
+                    ? field.state.meta.errors[0]
+                    : (field.state.meta.errors[0] as { message?: string })
+                        ?.message}
                 </p>
               )}
             </div>
           )}
         </form.Field>
 
-        <form.Field name="currency">
+        <form.Field
+          name="currency"
+          validators={{
+            onChange: ({ value }) => {
+              const res = profileSchema.shape.currency.safeParse(value)
+              return res.success ? undefined : res.error.issues[0]?.message
+            },
+          }}
+        >
           {(field) => (
             <div className="space-y-1.5">
-              <Label htmlFor={field.name}>Currency</Label>
+              <Label htmlFor={field.name}>Moneda</Label>
               <Select
-                value={field.state.value}
+                value={field.state.value || "USD"}
                 onValueChange={(val) => {
                   if (val) field.handleChange(val)
                 }}
-                disabled={isSubmitting}
+                disabled
               >
-                <SelectTrigger id={field.name}>
-                  <SelectValue placeholder="Select currency" />
+                <SelectTrigger id={field.name} className="w-full">
+                  <SelectValue placeholder="USD ($)" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="USD">USD ($)</SelectItem>
-                  <SelectItem value="EUR">EUR (€)</SelectItem>
-                  <SelectItem value="PEN">PEN (S/.)</SelectItem>
-                  <SelectItem value="COP">COP ($)</SelectItem>
-                  <SelectItem value="MXN">MXN ($)</SelectItem>
                 </SelectContent>
               </Select>
               {field.state.meta.errors.length > 0 && (
                 <p className="text-destructive text-xs">
-                  {field.state.meta.errors.join(", ")}
+                  {typeof field.state.meta.errors[0] === "string"
+                    ? field.state.meta.errors[0]
+                    : (field.state.meta.errors[0] as { message?: string })
+                        ?.message}
                 </p>
               )}
             </div>
@@ -246,22 +294,33 @@ export const ProfileForm = ({
         </form.Field>
       </div>
 
-      <form.Field name="email">
+      <form.Field
+        name="email"
+        validators={{
+          onChange: ({ value }) => {
+            const res = profileSchema.shape.email.safeParse(value)
+            return res.success ? undefined : res.error.issues[0]?.message
+          },
+        }}
+      >
         {(field) => (
           <div className="space-y-1.5">
-            <Label htmlFor={field.name}>Contact email</Label>
+            <Label htmlFor={field.name}>Correo electrónico</Label>
             <Input
               id={field.name}
               type="email"
               value={field.state.value}
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
-              placeholder="e.g. jane@company.com"
+              placeholder="Ej. ana@empresa.com"
               disabled={isSubmitting}
             />
             {field.state.meta.errors.length > 0 && (
               <p className="text-destructive text-xs">
-                {field.state.meta.errors.join(", ")}
+                {typeof field.state.meta.errors[0] === "string"
+                  ? field.state.meta.errors[0]
+                  : (field.state.meta.errors[0] as { message?: string })
+                      ?.message}
               </p>
             )}
           </div>
@@ -276,15 +335,15 @@ export const ProfileForm = ({
             onClick={onCancel}
             disabled={isSubmitting}
           >
-            Cancel
+            Cancelar
           </Button>
         )}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting
-            ? "Saving..."
+            ? "Guardando..."
             : isEditing
-              ? "Update profile"
-              : "Register profile"}
+              ? "Actualizar perfil"
+              : "Registrar perfil"}
         </Button>
       </div>
     </form>

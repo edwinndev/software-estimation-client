@@ -29,13 +29,13 @@ export const ProfileDialog = ({
         <DialogHeader>
           <DialogTitle>
             {isEditing
-              ? "Update technical profile"
-              : "Register technical profile"}
+              ? "Actualizar perfil técnico"
+              : "Registrar perfil técnico"}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "Modify technical profile details and standard cost per hour (CER)."
-              : "Register a new technical role and assign its standard hourly cost (CER)."}
+              ? "Modifica los datos del perfil técnico y su costo estándar por recurso (CER)."
+              : "Registra un nuevo rol técnico y asigna su costo estándar por hora (CER)."}
           </DialogDescription>
         </DialogHeader>
         <ProfileForm

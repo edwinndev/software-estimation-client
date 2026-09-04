@@ -47,12 +47,12 @@ export const ProfileTable = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Profile / Member</TableHead>
-            <TableHead>Technical role</TableHead>
+            <TableHead>Perfil / Integrante</TableHead>
+            <TableHead>Rol técnico</TableHead>
             <TableHead>Seniority</TableHead>
-            <TableHead>Hourly CER</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="w-[70px] text-right">Actions</TableHead>
+            <TableHead>CER horario</TableHead>
+            <TableHead>Estado</TableHead>
+            <TableHead className="w-[70px] text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -80,32 +80,32 @@ export const ProfileTable = ({
                 <div className="text-sm font-semibold">
                   {profile.currency} {profile.hourlyRate.toFixed(2)}
                   <span className="text-muted-foreground ml-1 text-xs font-normal">
-                    / hr
+                    / hora
                   </span>
                 </div>
               </TableCell>
               <TableCell>
                 <Badge variant={profile.isActive ? "secondary" : "outline"}>
-                  {profile.isActive ? "Active" : "Inactive"}
+                  {profile.isActive ? "Activo" : "Inactivo"}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger className="hover:bg-accent hover:text-accent-foreground inline-flex size-8 items-center justify-center rounded-md text-sm font-medium">
                     <MoreHorizontalIcon className="size-4" />
-                    <span className="sr-only">Open actions</span>
+                    <span className="sr-only">Abrir acciones</span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => onEdit(profile)}>
                       <PencilIcon className="mr-2 size-4" />
-                      Edit profile & CER
+                      Editar perfil y CER
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => onDelete(profile)}
                       variant="destructive"
                     >
                       <Trash2Icon className="mr-2 size-4" />
-                      Delete
+                      Eliminar
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

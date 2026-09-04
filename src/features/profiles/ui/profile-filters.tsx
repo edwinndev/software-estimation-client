@@ -42,7 +42,7 @@ export const ProfileFilters = ({
         <div className="relative w-full sm:max-w-xs">
           <SearchIcon className="text-muted-foreground absolute top-2.5 left-2.5 size-4" />
           <Input
-            placeholder="Search by name, role or email..."
+            placeholder="Buscar por nombre, rol o correo..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-9"
@@ -56,10 +56,10 @@ export const ProfileFilters = ({
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="All technical roles" />
+              <SelectValue placeholder="Todos los roles" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">All technical roles</SelectItem>
+              <SelectItem value="ALL">Todos los roles</SelectItem>
               {technicalRoles.map((role) => (
                 <SelectItem key={role} value={role}>
                   {role}
@@ -76,13 +76,13 @@ export const ProfileFilters = ({
             className="h-9 px-2 text-xs"
           >
             <XIcon className="mr-1 size-3" />
-            Clear filters
+            Limpiar filtros
           </Button>
         )}
       </div>
       <Button onClick={onOpenCreateDialog} className="shrink-0">
         <PlusIcon className="mr-2 size-4" />
-        New profile
+        Nuevo perfil
       </Button>
     </div>
   )

@@ -77,11 +77,11 @@ export const ProfilesView = () => {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">
-          Technical profiles & CER management
+          Gestión de perfiles técnicos y CER
         </h1>
         <p className="text-muted-foreground text-sm">
-          Manage technical roles, seniority levels, and standard resource costs
-          per hour (CER).
+          Administra los roles técnicos, niveles de experiencia y costos
+          estándar por recurso por hora (CER).
         </p>
       </div>
 
@@ -105,9 +105,11 @@ export const ProfilesView = () => {
         <DataTable
           isLoading={isLoading}
           isError={isError}
-          errorMessage={error?.message ?? "Error loading technical profiles."}
+          errorMessage={
+            error?.message ?? "Error al cargar los perfiles técnicos."
+          }
           isEmpty={profiles.length === 0}
-          emptyMessage="No technical profiles found. Register the first technical profile."
+          emptyMessage="No se encontraron perfiles técnicos. Registra el primer perfil técnico."
           pagination={paginationMeta}
           onPageChange={setPageNumber}
         >

@@ -32,8 +32,8 @@ export const DeleteProfileDialog = ({
     try {
       await deleteMutation.mutateAsync(profile.id)
       toast.add({
-        title: "Profile deleted",
-        description: `Profile "${profile.name}" has been removed.`,
+        title: "Perfil eliminado",
+        description: `El perfil "${profile.name}" ha sido eliminado.`,
         type: "success",
       })
       onOpenChange(false)
@@ -41,7 +41,9 @@ export const DeleteProfileDialog = ({
       toast.add({
         title: "Error",
         description:
-          error instanceof Error ? error.message : "Could not delete profile.",
+          error instanceof Error
+            ? error.message
+            : "No se pudo eliminar el perfil.",
         type: "error",
       })
     }
@@ -51,13 +53,13 @@ export const DeleteProfileDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>Delete technical profile</DialogTitle>
+          <DialogTitle>Eliminar perfil técnico</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete profile{" "}
+            ¿Estás seguro de que deseas eliminar el perfil{" "}
             <span className="text-foreground font-semibold">
               {profile.name}
             </span>{" "}
-            ({profile.role})? This action cannot be undone.
+            ({profile.role})? Esta acción no se puede deshacer.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
@@ -66,14 +68,14 @@ export const DeleteProfileDialog = ({
             onClick={() => onOpenChange(false)}
             disabled={deleteMutation.isPending}
           >
-            Cancel
+            Cancelar
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
           >
-            {deleteMutation.isPending ? "Deleting..." : "Delete profile"}
+            {deleteMutation.isPending ? "Eliminando..." : "Eliminar perfil"}
           </Button>
         </DialogFooter>
       </DialogContent>

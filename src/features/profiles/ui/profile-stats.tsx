@@ -19,14 +19,14 @@ export const ProfileStats = ({ profiles }: ProfileStatsProps) => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-muted-foreground text-sm font-medium">
-            Total profiles
+            Total de perfiles
           </CardTitle>
           <UsersIcon className="text-muted-foreground size-4" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalProfiles}</div>
           <p className="text-muted-foreground text-xs">
-            {activeProfiles} active for projects
+            {activeProfiles} activos para proyectos
           </p>
         </CardContent>
       </Card>
@@ -34,14 +34,14 @@ export const ProfileStats = ({ profiles }: ProfileStatsProps) => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-muted-foreground text-sm font-medium">
-            Average CER / Hour
+            CER promedio por hora
           </CardTitle>
           <DollarSignIcon className="text-muted-foreground size-4" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">${avgCer.toFixed(2)}</div>
           <p className="text-muted-foreground text-xs">
-            Standard baseline hourly rate
+            Costo estándar promedio por hora
           </p>
         </CardContent>
       </Card>
@@ -49,7 +49,7 @@ export const ProfileStats = ({ profiles }: ProfileStatsProps) => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-muted-foreground text-sm font-medium">
-            Seniority coverage
+            Cobertura de seniority
           </CardTitle>
           <AwardIcon className="text-muted-foreground size-4" />
         </CardHeader>
@@ -63,7 +63,7 @@ export const ProfileStats = ({ profiles }: ProfileStatsProps) => {
             }
           </div>
           <p className="text-muted-foreground text-xs">
-            Senior / Lead resources
+            Recursos Senior / Lead
           </p>
         </CardContent>
       </Card>
