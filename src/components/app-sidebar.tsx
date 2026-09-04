@@ -117,14 +117,13 @@ export const AppSidebar = ({
 
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton isActive={isActive} tooltip={item.title}>
-                      <Link
-                        href={item.url}
-                        className="flex w-full items-center gap-3"
-                      >
-                        <Icon className="size-4 shrink-0" />
-                        <span className="truncate">{item.title}</span>
-                      </Link>
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      tooltip={item.title}
+                      render={<Link href={item.url} />}
+                    >
+                      <Icon className="size-4 shrink-0" />
+                      <span className="truncate">{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
