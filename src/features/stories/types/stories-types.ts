@@ -29,7 +29,7 @@ export interface BacklogTask {
   updatedAt: string
 }
 
-export interface BacklogData {
+export interface StoriesData {
   stories: UserStory[]
   tasks: BacklogTask[]
 }
