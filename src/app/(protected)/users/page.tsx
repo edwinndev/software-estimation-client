@@ -1,16 +1,7 @@
+import { UsersView } from "@/features/users"
+
 const UsersPage = () => {
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Gestión de usuarios
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Administra los usuarios registrados y el control de accesos por roles.
-        </p>
-      </div>
-    </div>
-  )
+  return <UsersView />
 }
 
 export default UsersPage
