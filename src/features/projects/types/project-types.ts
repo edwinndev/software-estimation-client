@@ -1,3 +1,14 @@
+export interface ProjectHistoryEntry {
+  id: string
+  previousState: string | null
+  newState: string
+  changedAt: string // ISO string
+  changedBy: {
+    id: string
+    name: string
+  }
+}
+
 export interface Project {
   id: string
   nombre: string
@@ -8,4 +19,5 @@ export interface Project {
   responsable: string
   estado: string
   createdAt: string
+  history?: ProjectHistoryEntry[]
 }

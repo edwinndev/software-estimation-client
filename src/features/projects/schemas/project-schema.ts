@@ -5,8 +5,8 @@ export const projectSchema = z
     nombre: z.string().min(1, "Este campo es obligatorio"),
     descripcion: z.string().max(500, "Máx. 500 caracteres"),
     tipo: z.string().min(1, "Selecciona el tipo de proyecto"),
-    fecha_inicio: z.date().optional(),
-    fecha_fin: z.date().optional(),
+    fecha_inicio: z.date().or(z.undefined()),
+    fecha_fin: z.date().or(z.undefined()),
     responsable: z.string().min(1, "Selecciona un responsable"),
   })
   .superRefine((data, ctx) => {
@@ -33,3 +33,9 @@ export const projectSchema = z
   })
 
 export type ProjectFormValues = z.infer<typeof projectSchema>
+
+export const projectEditSchema = projectSchema.extend({
+  estado: z.string().min(1, "Selecciona el estado"),
+})
+
+export type ProjectEditFormValues = z.infer<typeof projectEditSchema>
