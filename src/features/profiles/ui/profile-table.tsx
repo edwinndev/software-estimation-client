@@ -15,12 +15,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
+import {
+  DollarSignIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  Trash2Icon,
+} from "lucide-react"
 import type { Profile } from "../types"
 
 type ProfileTableProps = {
   profiles: Profile[]
   onEdit: (profile: Profile) => void
+  onAssignCer: (profile: Profile) => void
   onDelete: (profile: Profile) => void
 }
 
@@ -40,6 +46,7 @@ const getSeniorityBadgeVariant = (level: Profile["experienceLevel"]) => {
 export const ProfileTable = ({
   profiles,
   onEdit,
+  onAssignCer,
   onDelete,
 }: ProfileTableProps) => {
   return (
@@ -77,12 +84,19 @@ export const ProfileTable = ({
                 </Badge>
               </TableCell>
               <TableCell>
-                <div className="text-sm font-semibold">
-                  {profile.currency} {profile.hourlyRate.toFixed(2)}
-                  <span className="text-muted-foreground ml-1 text-xs font-normal">
-                    / hora
-                  </span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => onAssignCer(profile)}
+                  className="hover:bg-muted/80 inline-flex items-center rounded-md px-2 py-1 text-left transition-colors"
+                  title="Haz clic para asignar o modificar CER"
+                >
+                  <div className="text-sm font-semibold">
+                    {profile.currency} {profile.hourlyRate.toFixed(2)}
+                    <span className="text-muted-foreground ml-1 text-xs font-normal">
+                      / hora
+                    </span>
+                  </div>
+                </button>
               </TableCell>
               <TableCell>
                 <Badge variant={profile.isActive ? "secondary" : "outline"}>
@@ -96,9 +110,13 @@ export const ProfileTable = ({
                     <span className="sr-only">Abrir acciones</span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onAssignCer(profile)}>
+                      <DollarSignIcon className="mr-2 size-4" />
+                      Asignar CER horario
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onEdit(profile)}>
                       <PencilIcon className="mr-2 size-4" />
-                      Editar perfil y CER
+                      Editar perfil
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => onDelete(profile)}

@@ -9,6 +9,7 @@ import { ProfileStats } from "./profile-stats"
 import { ProfileFilters } from "./profile-filters"
 import { ProfileTable } from "./profile-table"
 import { ProfileDialog } from "./profile-dialog"
+import { AssignCerDialog } from "./assign-cer-dialog"
 import { DeleteProfileDialog } from "./delete-profile-dialog"
 
 export const ProfilesView = () => {
@@ -18,6 +19,7 @@ export const ProfilesView = () => {
   const pageSize = 10
 
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [assignCerProfile, setAssignCerProfile] = useState<Profile | null>(null)
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null)
   const [deletingProfile, setDeletingProfile] = useState<Profile | null>(null)
 
@@ -116,6 +118,7 @@ export const ProfilesView = () => {
           <ProfileTable
             profiles={profiles}
             onEdit={handleEdit}
+            onAssignCer={(profile) => setAssignCerProfile(profile)}
             onDelete={handleDelete}
           />
         </DataTable>
@@ -125,6 +128,12 @@ export const ProfilesView = () => {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         profile={editingProfile}
+      />
+
+      <AssignCerDialog
+        open={Boolean(assignCerProfile)}
+        onOpenChange={(open) => !open && setAssignCerProfile(null)}
+        profile={assignCerProfile}
       />
 
       <DeleteProfileDialog
