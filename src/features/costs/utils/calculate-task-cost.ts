@@ -15,5 +15,17 @@ export const calculateTaskCost = (
       )
     }
 
-    return total + estimatedHours * cer
+    const assignmentCost = estimatedHours * cer
+
+    if (!Number.isFinite(assignmentCost)) {
+      throw new RangeError("Task assignment cost overflowed")
+    }
+
+    const nextTotal = total + assignmentCost
+
+    if (!Number.isFinite(nextTotal)) {
+      throw new RangeError("Task cost overflowed")
+    }
+
+    return nextTotal
   }, 0)
