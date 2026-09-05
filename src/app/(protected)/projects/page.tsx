@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { buttonVariants } from "@/components/ui/button"
+import { ProjectsView } from "@/features/projects"
 
 const ProjectsPage = () => {
   return (
@@ -15,6 +16,8 @@ const ProjectsPage = () => {
           Nuevo proyecto
         </Link>
       </div>
+
+      <ProjectsView />
     </div>
   )
 }
