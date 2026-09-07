@@ -10,6 +10,33 @@ export interface SprintConfig {
   duration: number
   unit: "dias" | "semanas"
 }
+
+export interface TechnicalProfile {
+  id: string
+  name: string
+  cerPerHour: number
+}
+
+export interface TaskHourEntry {
+  id: string
+  taskId: string
+  taskTitle: string
+  profileId: string
+  profileName: string
+  hours: number
+  adjustmentReason?: string
+  updatedAt: string
+}
+
+export interface SprintCalculationResult {
+  totalStoryPoints: number
+  velocity: number
+  sprintDuration: number
+  sprintUnit: "semanas" | "dias"
+  totalSprints: number
+  totalBaseTime: number
+}
+
 /**
  * PMGT-36: tipo MÍNIMO de una historia de usuario.
  
