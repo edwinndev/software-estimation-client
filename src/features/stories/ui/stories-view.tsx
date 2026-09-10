@@ -19,10 +19,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { StoryForm, TaskForm } from "./backlog-form"
-import { useBacklog } from "../hooks/use-backlog"
-import type { BacklogTask, UserStory } from "../types/backlog-types"
-import type { StoryFormValues, TaskFormValues } from "../schemas/backlog-schema"
+import { StoryForm } from "./story-form-modal"
+import { StoryDetail } from "./story-detail"
+import { StoryList } from "./story-list"
+import { TaskForm } from "./task-form"
+import { useStories } from "../hooks/use-stories"
+import type { BacklogTask, UserStory } from "../types/story-types"
+import type { StoryFormValues, TaskFormValues } from "../schemas/story-schema"
 
 const storyStatus: Record<UserStory["status"], string> = {
   draft: "Borrador",
@@ -36,8 +39,8 @@ const taskStatus: Record<BacklogTask["status"], string> = {
   done: "Completada",
 }
 
-export const BacklogView = ({ projectId }: { projectId: string }) => {
-  const backlog = useBacklog(projectId)
+export const StoriesView = ({ projectId }: { projectId: string }) => {
+  const backlog = useStories(projectId)
   const [storyDialog, setStoryDialog] = useState<UserStory | "new" | null>(null)
   const [taskDialog, setTaskDialog] = useState<{
     storyId: string
@@ -94,9 +97,9 @@ export const BacklogView = ({ projectId }: { projectId: string }) => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <StoryList>
           {stories.map((story) => (
-            <Card key={story.id}>
+            <StoryDetail key={story.id}>
               <CardHeader className="flex flex-row items-start justify-between gap-4">
                 <div className="space-y-1">
                   <CardTitle className="text-lg">{story.title}</CardTitle>
@@ -193,9 +196,9 @@ export const BacklogView = ({ projectId }: { projectId: string }) => {
                     </div>
                   ))}
               </CardContent>
-            </Card>
+            </StoryDetail>
           ))}
-        </div>
+        </StoryList>
       )}
       <Dialog
         open={storyDialog !== null}

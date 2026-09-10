@@ -26,13 +26,13 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { technicalRoles } from "@/features/profiles/schemas/profile-schema"
 import { cn } from "@/lib/utils"
-import type { TechnicalProfile } from "../types/backlog-types"
+import type { TechnicalProfile } from "../types/story-types"
 import {
   storySchema,
   taskSchema,
   type StoryFormValues,
   type TaskFormValues,
-} from "../schemas/backlog-schema"
+} from "../schemas/story-schema"
 
 interface StoryFormProps {
   initial?: StoryFormValues

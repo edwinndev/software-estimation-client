@@ -3,7 +3,7 @@ import type {
   BacklogTask,
   TechnicalProfile,
   UserStory,
-} from "../types/backlog-types"
+} from "../types/story-types"
 
 const profiles: TechnicalProfile[] = [
   { id: "Frontend", name: "Frontend" },
@@ -35,9 +35,9 @@ const write = (projectId: string, data: BacklogData) => {
 
 const now = () => new Date().toISOString()
 
-export const backlogService = {
+export const storiesService = {
   getProfiles: async () => profiles,
-  getBacklog: async (projectId: string) => read(projectId),
+  getStories: async (projectId: string) => read(projectId),
   createStory: async (
     projectId: string,
     values: Omit<UserStory, "id" | "projectId" | "createdAt" | "updatedAt">
