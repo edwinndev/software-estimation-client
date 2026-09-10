@@ -6,10 +6,16 @@ import type {
 } from "../types/backlog-types"
 
 const profiles: TechnicalProfile[] = [
-  { id: "frontend", name: "Frontend" },
-  { id: "backend", name: "Backend" },
-  { id: "qa", name: "QA / Testing" },
-  { id: "devops", name: "DevOps" },
+  { id: "Frontend", name: "Frontend" },
+  { id: "Backend", name: "Backend" },
+  { id: "Fullstack", name: "Fullstack" },
+  { id: "QA", name: "QA" },
+  { id: "DevOps", name: "DevOps" },
+  { id: "UI/UX Designer", name: "UI/UX Designer" },
+  { id: "Product Manager", name: "Product Manager" },
+  { id: "Tech Lead", name: "Tech Lead" },
+  { id: "Functional Analyst", name: "Functional Analyst" },
+  { id: "Other", name: "Other" },
 ]
 
 const key = (projectId: string) => `software-estimation:backlog:${projectId}`

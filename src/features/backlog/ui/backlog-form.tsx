@@ -1,10 +1,31 @@
 "use client"
 
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CheckCircle2Icon,
+  CircleDashedIcon,
+  Clock3Icon,
+  FileTextIcon,
+  Layers3Icon,
+  ListTodoIcon,
+  SparklesIcon,
+  WrenchIcon,
+} from "lucide-react"
 import { useForm } from "@tanstack/react-form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { technicalRoles } from "@/features/profiles/schemas/profile-schema"
+import { cn } from "@/lib/utils"
 import type { TechnicalProfile } from "../types/backlog-types"
 import {
   storySchema,
@@ -28,6 +49,87 @@ interface TaskFormProps {
 const FieldError = ({ error }: { error?: unknown }) =>
   error ? <p className="text-destructive text-xs">{String(error)}</p> : null
 
+const storyPriorityOptions = [
+  {
+    value: "low",
+    label: "Baja",
+    icon: ArrowDownIcon,
+    className: "text-blue-600",
+  },
+  {
+    value: "medium",
+    label: "Media",
+    icon: ArrowUpIcon,
+    className: "text-amber-600",
+  },
+  {
+    value: "high",
+    label: "Alta",
+    icon: SparklesIcon,
+    className: "text-red-600",
+  },
+] as const
+
+const storyStatusOptions = [
+  {
+    value: "draft",
+    label: "Borrador",
+    icon: FileTextIcon,
+    className: "text-slate-600",
+  },
+  {
+    value: "ready",
+    label: "Lista",
+    icon: CircleDashedIcon,
+    className: "text-sky-600",
+  },
+  {
+    value: "in-progress",
+    label: "En progreso",
+    icon: Clock3Icon,
+    className: "text-amber-600",
+  },
+  {
+    value: "done",
+    label: "Completada",
+    icon: CheckCircle2Icon,
+    className: "text-emerald-600",
+  },
+] as const
+
+const taskStatusOptions = [
+  {
+    value: "todo",
+    label: "Pendiente",
+    icon: ListTodoIcon,
+    className: "text-slate-600",
+  },
+  {
+    value: "in-progress",
+    label: "En progreso",
+    icon: Clock3Icon,
+    className: "text-amber-600",
+  },
+  {
+    value: "done",
+    label: "Completada",
+    icon: CheckCircle2Icon,
+    className: "text-emerald-600",
+  },
+] as const
+
+const renderSelectOption = (
+  value: string,
+  label: string,
+  Icon: typeof ArrowDownIcon,
+  className?: string
+) => (
+  <span className="flex items-center gap-2">
+    <Icon className={cn("size-4", className)} />
+    <span>{label}</span>
+  </span>
+)
+
 export const StoryForm = ({ initial, onSubmit, onCancel }: StoryFormProps) => {
   const form = useForm({
     defaultValues:
@@ -43,6 +145,7 @@ export const StoryForm = ({ initial, onSubmit, onCancel }: StoryFormProps) => {
       if (result.success) onSubmit(result.data)
     },
   })
+
   return (
     <form
       className="grid gap-4"
@@ -79,45 +182,78 @@ export const StoryForm = ({ initial, onSubmit, onCancel }: StoryFormProps) => {
       </form.Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <form.Field name="priority">
-          {(field) => (
-            <div className="grid gap-2">
-              <Label>Prioridad</Label>
-              <select
-                className="border-input bg-background h-9 rounded-md border px-3 text-sm"
-                value={field.state.value}
-                onChange={(event) =>
-                  field.handleChange(
-                    event.target.value as StoryFormValues["priority"]
-                  )
-                }
-              >
-                <option value="low">Baja</option>
-                <option value="medium">Media</option>
-                <option value="high">Alta</option>
-              </select>
-            </div>
-          )}
+          {(field) => {
+            const selected =
+              storyPriorityOptions.find(
+                (option) => option.value === field.state.value
+              ) ?? storyPriorityOptions[1]
+
+            return (
+              <div className="grid gap-2">
+                <Label>Prioridad</Label>
+                <Select
+                  value={field.state.value}
+                  onValueChange={(value) =>
+                    field.handleChange(value as StoryFormValues["priority"])
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecciona una prioridad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {storyPriorityOptions.map(
+                      ({ value, label, icon: Icon, className }) => (
+                        <SelectItem key={value} value={value}>
+                          {renderSelectOption(value, label, Icon, className)}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+                <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                  <selected.icon className={cn("size-4", selected.className)} />
+                  <span>{selected.label}</span>
+                </div>
+              </div>
+            )
+          }}
         </form.Field>
         <form.Field name="status">
-          {(field) => (
-            <div className="grid gap-2">
-              <Label>Estado</Label>
-              <select
-                className="border-input bg-background h-9 rounded-md border px-3 text-sm"
-                value={field.state.value}
-                onChange={(event) =>
-                  field.handleChange(
-                    event.target.value as StoryFormValues["status"]
-                  )
-                }
-              >
-                <option value="draft">Borrador</option>
-                <option value="ready">Lista</option>
-                <option value="in-progress">En progreso</option>
-                <option value="done">Completada</option>
-              </select>
-            </div>
-          )}
+          {(field) => {
+            const selected =
+              storyStatusOptions.find(
+                (option) => option.value === field.state.value
+              ) ?? storyStatusOptions[0]
+
+            return (
+              <div className="grid gap-2">
+                <Label>Estado</Label>
+                <Select
+                  value={field.state.value}
+                  onValueChange={(value) =>
+                    field.handleChange(value as StoryFormValues["status"])
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecciona un estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {storyStatusOptions.map(
+                      ({ value, label, icon: Icon, className }) => (
+                        <SelectItem key={value} value={value}>
+                          {renderSelectOption(value, label, Icon, className)}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+                <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                  <selected.icon className={cn("size-4", selected.className)} />
+                  <span>{selected.label}</span>
+                </div>
+              </div>
+            )
+          }}
         </form.Field>
       </div>
       <div className="flex justify-end gap-2">
@@ -136,6 +272,12 @@ export const TaskForm = ({
   onSubmit,
   onCancel,
 }: TaskFormProps) => {
+  const roles = technicalRoles.map((role) => ({
+    id: role,
+    name: role,
+    icon: role.includes("UI") || role.includes("UX") ? Layers3Icon : WrenchIcon,
+  }))
+
   const form = useForm({
     defaultValues:
       initial ??
@@ -151,6 +293,7 @@ export const TaskForm = ({
       if (result.success) onSubmit(result.data)
     },
   })
+
   return (
     <form
       className="grid gap-4"
@@ -201,24 +344,41 @@ export const TaskForm = ({
           )}
         </form.Field>
         <form.Field name="status">
-          {(field) => (
-            <div className="grid gap-2">
-              <Label>Estado</Label>
-              <select
-                className="border-input bg-background h-9 rounded-md border px-3 text-sm"
-                value={field.state.value}
-                onChange={(event) =>
-                  field.handleChange(
-                    event.target.value as TaskFormValues["status"]
-                  )
-                }
-              >
-                <option value="todo">Pendiente</option>
-                <option value="in-progress">En progreso</option>
-                <option value="done">Completada</option>
-              </select>
-            </div>
-          )}
+          {(field) => {
+            const selected =
+              taskStatusOptions.find(
+                (option) => option.value === field.state.value
+              ) ?? taskStatusOptions[0]
+
+            return (
+              <div className="grid gap-2">
+                <Label>Estado</Label>
+                <Select
+                  value={field.state.value}
+                  onValueChange={(value) =>
+                    field.handleChange(value as TaskFormValues["status"])
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecciona un estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {taskStatusOptions.map(
+                      ({ value, label, icon: Icon, className }) => (
+                        <SelectItem key={value} value={value}>
+                          {renderSelectOption(value, label, Icon, className)}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+                <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                  <selected.icon className={cn("size-4", selected.className)} />
+                  <span>{selected.label}</span>
+                </div>
+              </div>
+            )
+          }}
         </form.Field>
       </div>
       <form.Field name="profileIds">
@@ -226,25 +386,38 @@ export const TaskForm = ({
           <div className="grid gap-2">
             <Label>Perfiles técnicos</Label>
             <div className="grid gap-2 sm:grid-cols-2">
-              {profiles.map((profile) => (
-                <label
-                  key={profile.id}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    checked={field.state.value.includes(profile.id)}
-                    onChange={(event) =>
-                      field.handleChange(
-                        event.target.checked
-                          ? [...field.state.value, profile.id]
-                          : field.state.value.filter((id) => id !== profile.id)
-                      )
-                    }
-                  />
-                  {profile.name}
-                </label>
-              ))}
+              {roles.map((profile) => {
+                const profileOption = profiles.find(
+                  (item) => item.id === profile.id
+                )
+                const label = profileOption?.name ?? profile.name
+                const Icon = profile.icon
+
+                return (
+                  <label
+                    key={profile.id}
+                    className="border-input bg-background flex items-center gap-2 rounded-md border px-2 py-2 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={field.state.value.includes(profile.id)}
+                      onChange={(event) =>
+                        field.handleChange(
+                          event.target.checked
+                            ? [...field.state.value, profile.id]
+                            : field.state.value.filter(
+                                (id) => id !== profile.id
+                              )
+                        )
+                      }
+                    />
+                    <span className="flex items-center gap-2">
+                      <Icon className="text-muted-foreground size-4" />
+                      {label}
+                    </span>
+                  </label>
+                )
+              })}
             </div>
             <FieldError error={String(field.state.meta.errors[0] ?? "")} />
           </div>
