@@ -28,9 +28,15 @@ const MOCK_TASKS = [
 ]
 
 const FALLBACK_TECHNICAL_PROFILES: TechnicalProfileItem[] = [
-  { id: "p1", name: "Backend" },
-  { id: "p2", name: "Frontend" },
-  { id: "p3", name: "QA" },
+  { id: "Frontend", name: "Frontend" },
+  { id: "Backend", name: "Backend" },
+  { id: "Fullstack", name: "Fullstack" },
+  { id: "QA", name: "QA" },
+  { id: "DevOps", name: "DevOps" },
+  { id: "UI/UX Designer", name: "UI/UX Designer" },
+  { id: "Product Manager", name: "Product Manager" },
+  { id: "Tech Lead", name: "Tech Lead" },
+  { id: "Functional Analyst", name: "Functional Analyst" },
 ]
 
 interface ProfileAssignment {
