@@ -8,10 +8,13 @@ import { es } from "date-fns/locale"
 import {
   CalendarIcon,
   Loader2,
-  Code,
-  Briefcase,
-  Wrench,
-  FlaskConical,
+  Cpu,
+  Bot,
+  Activity,
+  Sliders,
+  TrendingUp,
+  Layers,
+  UserRound,
 } from "lucide-react"
 
 import {
@@ -42,19 +45,33 @@ import {
 
 import { projectEditSchema } from "../schemas/project-schema"
 import { useProjects } from "../hooks/use-projects"
+import { useUsers } from "@/features/users/hooks/use-users"
+import { getFullName } from "@/features/auth/types"
 import type { Project } from "../types/project-types"
 
 const TIPOS_PROYECTO = [
-  { value: "desarrollo", label: "Desarrollo", icon: Code },
-  { value: "consultoria", label: "Consultoría", icon: Briefcase },
-  { value: "mantenimiento", label: "Mantenimiento", icon: Wrench },
-  { value: "investigacion", label: "Investigación", icon: FlaskConical },
-] as const
-
-const RESPONSABLES = [
-  { value: "Ana Torres", label: "Ana Torres" },
-  { value: "Luis Fernández", label: "Luis Fernández" },
-  { value: "María Gómez", label: "María Gómez" },
+  {
+    value: "monitoreo",
+    label: "Monitoreo IoT",
+    icon: Cpu,
+  },
+  {
+    value: "automatizacion",
+    label: "Automatización IoT",
+    icon: Bot,
+  },
+  { value: "telemetria", label: "Telemetría IoT", icon: Activity },
+  {
+    value: "control_supervision",
+    label: "Control y supervisión IoT",
+    icon: Sliders,
+  },
+  {
+    value: "mantenimiento_predictivo",
+    label: "Mantenimiento predictivo IoT",
+    icon: TrendingUp,
+  },
+  { value: "integracion", label: "Integración IoT", icon: Layers },
 ] as const
 
 const ESTADOS_PROYECTO = [
@@ -79,6 +96,15 @@ export const ProjectEditDialog = ({
   onClose,
 }: ProjectEditDialogProps) => {
   const { updateProject, isUpdating } = useProjects()
+  const { data: usersData } = useUsers({
+    filters: [],
+    pagination: {
+      orderBy: "createdAt",
+      pageSize: 1000,
+      pageNumber: 0,
+      sortDirection: "ASC",
+    },
+  })
 
   const form = useForm({
     defaultValues: {
@@ -188,9 +214,6 @@ export const ProjectEditDialog = ({
                   ) : (
                     <span />
                   )}
-                  <p className="text-muted-foreground text-xs">
-                    {field.state.value?.length ?? 0}/500
-                  </p>
                 </div>
               </div>
             )}
@@ -347,12 +370,33 @@ export const ProjectEditDialog = ({
                   onValueChange={(value) => field.handleChange(value ?? "")}
                 >
                   <SelectTrigger id={`edit-${field.name}`} className="w-full">
-                    <SelectValue placeholder="Selecciona un responsable" />
+                    {field.state.value ? (
+                      (() => {
+                        const selected = usersData?.userResponse.find(
+                          (user) => getFullName(user) === field.state.value
+                        )
+                        return selected ? (
+                          <div className="flex items-center gap-2">
+                            <UserRound className="text-muted-foreground h-4 w-4" />
+                            <span>
+                              {getFullName(selected)} - {`(${selected.email})`}
+                            </span>
+                          </div>
+                        ) : (
+                          <SelectValue placeholder="Selecciona un responsable" />
+                        )
+                      })()
+                    ) : (
+                      <SelectValue placeholder="Selecciona un responsable" />
+                    )}
                   </SelectTrigger>
                   <SelectContent>
-                    {RESPONSABLES.map((r) => (
-                      <SelectItem key={r.value} value={r.value}>
-                        {r.label}
+                    {usersData?.userResponse.map((user) => (
+                      <SelectItem key={user.id} value={getFullName(user)}>
+                        <UserRound className="text-muted-foreground h-4 w-4" />
+                        <span>
+                          {getFullName(user)} - {`(${user.email})`}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
