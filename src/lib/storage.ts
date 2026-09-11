@@ -1,5 +1,6 @@
 export const STORAGE_KEYS = {
   USERS: "software-estimation:users",
+  PROJECTS: "software_estimation_projects",
   SESSION: "software-estimation:session",
   PASSWORD_RESET: "software-estimation:password-reset",
 } as const
