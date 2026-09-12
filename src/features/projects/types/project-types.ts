@@ -21,3 +21,9 @@ export interface Project {
   createdAt: string
   history?: ProjectHistoryEntry[]
 }
+export type ProjectFilters = {
+  nombre: string
+  tipo: string
+  responsable: string
+  estado: string
+}

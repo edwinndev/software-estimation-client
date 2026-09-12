@@ -1,13 +1,16 @@
+"use client"
+
+import { useEffect } from "react"
+import { createPortal } from "react-dom"
+import { TrashIcon, XIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { useProjects } from "../hooks/use-projects"
 
 interface ProjectDeleteDialogProps {
@@ -27,6 +30,28 @@ export const ProjectDeleteDialog = ({
 }: ProjectDeleteDialogProps) => {
   const { deleteProject, isDeleting } = useProjects()
 
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isDeleting) {
+        onClose()
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener("keydown", onKeyDown)
+    }
+  }, [isDeleting, isOpen, onClose])
+
   const handleConfirm = async () => {
     if (!projectId) return
 
@@ -34,42 +59,65 @@ export const ProjectDeleteDialog = ({
       await deleteProject(projectId)
       onClose()
       onSuccess?.()
-    } catch {
-      // Error is handled by the hook
-    }
+    } catch {}
   }
 
-  return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>¿Eliminar proyecto?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Estás a punto de eliminar el proyecto{" "}
+  if (!isOpen || !projectId) {
+    return null
+  }
+
+  const canInteract = !isDeleting
+
+  return createPortal(
+    <div className="fixed inset-0 z-200 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={() => {
+          if (canInteract) {
+            onClose()
+          }
+        }}
+      />
+      <Card className="relative z-10 w-full max-w-sm shadow-lg">
+        <CardHeader className="justify-items-center text-center">
+          <div className="bg-destructive/10 text-destructive mx-auto flex size-14 items-center justify-center rounded-full">
+            <TrashIcon className="size-7" />
+          </div>
+          <CardTitle>Eliminar proyecto</CardTitle>
+          <CardDescription>
+            ¿Seguro que quieres eliminar el proyecto{" "}
             {projectName ? (
               <span className="text-foreground font-semibold">
                 {projectName}
               </span>
             ) : (
-              ""
+              "seleccionado"
             )}
-            . Esta acción no se puede deshacer.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={(e) => {
-              e.preventDefault()
-              handleConfirm()
-            }}
-            disabled={isDeleting}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            ? Esta acción no se puede deshacer.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!canInteract}
+            onClick={onClose}
           >
-            {isDeleting ? "Eliminando..." : "Eliminar"}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            <XIcon />
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={!canInteract}
+            onClick={handleConfirm}
+          >
+            <TrashIcon />
+            {isDeleting ? "Eliminando..." : "Eliminar proyecto"}
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>,
+    document.body
   )
 }

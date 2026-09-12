@@ -2,6 +2,7 @@ import { Project } from "../types/project-types"
 import { ProjectFormValues } from "../schemas/project-schema"
 import { QueryRequest, PaginatedResponse, FilterOperator } from "@/types/api"
 import { paginateQuery } from "@/lib/pagination"
+import { readJson, STORAGE_KEYS, writeJson } from "@/lib/storage"
 import { authService } from "@/features/auth/services/auth-service"
 
 const getCurrentUser = async () => {
@@ -14,8 +15,6 @@ const getCurrentUser = async () => {
   }
   return { id: "unknown", name: "Usuario Desconocido" }
 }
-
-const LOCAL_STORAGE_KEY = "software_estimation_projects"
 
 const sortProjects = (projects: Project[], query: QueryRequest) => {
   const { orderBy, sortDirection } = query.pagination
@@ -58,9 +57,7 @@ const matchesFilter = (
 
 export const projectService = {
   getProjects: async (): Promise<Project[]> => {
-    if (typeof window === "undefined") return []
-    const data = localStorage.getItem(LOCAL_STORAGE_KEY)
-    return data ? JSON.parse(data) : []
+    return readJson<Project[]>(STORAGE_KEYS.PROJECTS) ?? []
   },
 
   getProject: async (id: string): Promise<Project | undefined> => {
@@ -111,7 +108,7 @@ export const projectService = {
     }
 
     projects.push(newProject)
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects))
+    writeJson(STORAGE_KEYS.PROJECTS, projects)
 
     return newProject
   },
@@ -152,7 +149,7 @@ export const projectService = {
     }
 
     projects[index] = updatedProject
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects))
+    writeJson(STORAGE_KEYS.PROJECTS, projects)
 
     return updatedProject
   },
@@ -182,7 +179,7 @@ export const projectService = {
       ],
     }
     projects[index] = updatedProject
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects))
+    writeJson(STORAGE_KEYS.PROJECTS, projects)
 
     return updatedProject
   },
@@ -191,6 +188,6 @@ export const projectService = {
     await new Promise((resolve) => setTimeout(resolve, 500))
     const projects = await projectService.getProjects()
     const filtered = projects.filter((p) => p.id !== id)
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filtered))
+    writeJson(STORAGE_KEYS.PROJECTS, filtered)
   },
 }

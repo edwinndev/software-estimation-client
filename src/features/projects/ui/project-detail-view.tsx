@@ -4,8 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
-  Pen,
-  Trash,
   ArrowLeft,
   AlignLeft,
   Folder,
@@ -28,6 +26,17 @@ import { ProjectEditDialog } from "./project-edit-dialog"
 
 interface ProjectDetailViewProps {
   projectId: string
+}
+
+const TIPO_LABELS: Record<string, string> = {
+  monitoreo: "Monitoreo IoT",
+  automatizacion: "Automatización IoT",
+  monitoreo_automatizacion: "Monitoreo y automatización IoT",
+  telemetria: "Telemetría IoT",
+  control_supervision: "Control y supervisión IoT",
+  mantenimiento_predictivo: "Mantenimiento predictivo IoT",
+  integracion: "Integración IoT",
+  investigacion: "Integración IoT",
 }
 
 const getEstadoInfo = (estado: string) => {
@@ -129,24 +138,6 @@ export const ProjectDetailView = ({ projectId }: ProjectDetailViewProps) => {
             {project.nombre}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="font-medium"
-            onClick={() => setIsEditing(true)}
-          >
-            <Pen className="mr-2 h-4 w-4" />
-            Editar
-          </Button>
-          <Button
-            variant="destructive"
-            className="font-medium"
-            onClick={() => setIsDeleting(true)}
-          >
-            <Trash className="mr-2 h-4 w-4" />
-            Eliminar
-          </Button>
-        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -171,7 +162,9 @@ export const ProjectDetailView = ({ projectId }: ProjectDetailViewProps) => {
                   <Folder className="h-4 w-4" />
                   Tipo
                 </div>
-                <p className="text-sm font-medium capitalize">{project.tipo}</p>
+                <p className="text-sm font-medium capitalize">
+                  {TIPO_LABELS[project.tipo] ?? project.tipo}
+                </p>
               </div>
               <div>
                 <div className="text-muted-foreground mb-2 flex items-center gap-2 text-sm font-medium">

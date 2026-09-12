@@ -26,10 +26,12 @@ import { Separator } from "@/components/ui/separator"
 import { Project } from "../types/project-types"
 
 const TIPO_LABELS: Record<string, string> = {
-  desarrollo: "Desarrollo",
-  consultoria: "Consultoría",
-  mantenimiento: "Mantenimiento",
-  investigacion: "Investigación",
+  monitoreo: "Monitoreo IoT",
+  automatizacion: "Automatización IoT",
+  telemetria: "Telemetría IoT",
+  control_supervision: "Control y supervisión IoT",
+  mantenimiento_predictivo: "Mantenimiento predictivo IoT",
+  investigacion: "Integración IoT",
 }
 
 interface ProjectCreatedModalProps {
