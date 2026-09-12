@@ -15,13 +15,17 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { StoryForm, TaskForm } from "./backlog-form"
-import { useBacklog } from "../hooks/use-backlog"
-import type { BacklogTask, UserStory } from "../types/backlog-types"
-import type { StoryFormValues, TaskFormValues } from "../schemas/backlog-schema"
+import { StoryForm } from "./story-form-modal"
+import { StoryDetail } from "./story-detail"
+import { StoryList } from "./story-list"
+import { TaskForm } from "./task-form"
+import { useStories } from "../hooks/use-stories"
+import type { BacklogTask, UserStory } from "../types/story-types"
+import type { StoryFormValues, TaskFormValues } from "../schemas/story-schema"
 
 const storyStatus: Record<UserStory["status"], string> = {
   draft: "Borrador",
@@ -35,21 +39,24 @@ const taskStatus: Record<BacklogTask["status"], string> = {
   done: "Completada",
 }
 
-export const BacklogView = ({ projectId }: { projectId: string }) => {
-  const backlog = useBacklog(projectId)
+export const StoriesView = ({ projectId }: { projectId: string }) => {
+  const backlog = useStories(projectId)
   const [storyDialog, setStoryDialog] = useState<UserStory | "new" | null>(null)
   const [taskDialog, setTaskDialog] = useState<{
     storyId: string
     task?: BacklogTask
   } | null>(null)
+  const [taskToDelete, setTaskToDelete] = useState<BacklogTask | null>(null)
   const stories = backlog.data?.stories ?? []
   const tasks = backlog.data?.tasks ?? []
+
   const saveStory = (values: StoryFormValues) => {
     if (storyDialog === "new") backlog.createStory.mutate(values)
     else if (storyDialog)
       backlog.updateStory.mutate({ id: storyDialog.id, values })
     setStoryDialog(null)
   }
+
   const saveTask = (values: TaskFormValues) => {
     if (taskDialog?.task)
       backlog.updateTask.mutate({ id: taskDialog.task.id, values })
@@ -57,6 +64,7 @@ export const BacklogView = ({ projectId }: { projectId: string }) => {
       backlog.createTask.mutate({ storyId: taskDialog.storyId, values })
     setTaskDialog(null)
   }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
@@ -89,9 +97,9 @@ export const BacklogView = ({ projectId }: { projectId: string }) => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <StoryList>
           {stories.map((story) => (
-            <Card key={story.id}>
+            <StoryDetail key={story.id}>
               <CardHeader className="flex flex-row items-start justify-between gap-4">
                 <div className="space-y-1">
                   <CardTitle className="text-lg">{story.title}</CardTitle>
@@ -180,10 +188,7 @@ export const BacklogView = ({ projectId }: { projectId: string }) => {
                           variant="ghost"
                           size="icon"
                           aria-label="Eliminar tarea"
-                          onClick={() =>
-                            window.confirm("¿Eliminar esta tarea?") &&
-                            backlog.deleteTask.mutate(task.id)
-                          }
+                          onClick={() => setTaskToDelete(task)}
                         >
                           <Trash2Icon />
                         </Button>
@@ -191,9 +196,9 @@ export const BacklogView = ({ projectId }: { projectId: string }) => {
                     </div>
                   ))}
               </CardContent>
-            </Card>
+            </StoryDetail>
           ))}
-        </div>
+        </StoryList>
       )}
       <Dialog
         open={storyDialog !== null}
@@ -257,6 +262,44 @@ export const BacklogView = ({ projectId }: { projectId: string }) => {
               onCancel={() => setTaskDialog(null)}
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={taskToDelete !== null}
+        onOpenChange={(open) => !open && setTaskToDelete(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Eliminar tarea</DialogTitle>
+            <DialogDescription>
+              ¿Seguro que quieres eliminar la tarea{" "}
+              <span className="text-foreground font-semibold">
+                {taskToDelete?.title}
+              </span>
+              ? Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setTaskToDelete(null)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                if (!taskToDelete) return
+                backlog.deleteTask.mutate(taskToDelete.id)
+                setTaskToDelete(null)
+              }}
+            >
+              Eliminar tarea
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

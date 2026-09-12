@@ -3,13 +3,19 @@ import type {
   BacklogTask,
   TechnicalProfile,
   UserStory,
-} from "../types/backlog-types"
+} from "../types/story-types"
 
 const profiles: TechnicalProfile[] = [
-  { id: "frontend", name: "Frontend" },
-  { id: "backend", name: "Backend" },
-  { id: "qa", name: "QA / Testing" },
-  { id: "devops", name: "DevOps" },
+  { id: "Frontend", name: "Frontend" },
+  { id: "Backend", name: "Backend" },
+  { id: "Fullstack", name: "Fullstack" },
+  { id: "QA", name: "QA" },
+  { id: "DevOps", name: "DevOps" },
+  { id: "UI/UX Designer", name: "UI/UX Designer" },
+  { id: "Product Manager", name: "Product Manager" },
+  { id: "Tech Lead", name: "Tech Lead" },
+  { id: "Functional Analyst", name: "Functional Analyst" },
+  { id: "Other", name: "Other" },
 ]
 
 const key = (projectId: string) => `software-estimation:backlog:${projectId}`
@@ -29,9 +35,9 @@ const write = (projectId: string, data: BacklogData) => {
 
 const now = () => new Date().toISOString()
 
-export const backlogService = {
+export const storiesService = {
   getProfiles: async () => profiles,
-  getBacklog: async (projectId: string) => read(projectId),
+  getStories: async (projectId: string) => read(projectId),
   createStory: async (
     projectId: string,
     values: Omit<UserStory, "id" | "projectId" | "createdAt" | "updatedAt">
