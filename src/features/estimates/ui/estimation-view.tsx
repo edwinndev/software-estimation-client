@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   Card,
   CardContent,
@@ -9,6 +10,12 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  BookOpenIcon,
+  SlidersHorizontalIcon,
+  CalculatorIcon,
+  ClockIcon,
+} from "lucide-react"
 
 import { AdjustTaskHoursTable } from "./adjust-task-hours-table"
 import { AssignStoryPointsForm } from "./assign-story-points-form"
@@ -22,6 +29,8 @@ interface EstimationViewProps {
 }
 
 export const EstimationView = ({ projectId }: EstimationViewProps) => {
+  const [activeTab, setActiveTab] = useState("historias")
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -32,15 +41,64 @@ export const EstimationView = ({ projectId }: EstimationViewProps) => {
         </p>
       </div>
 
-      <Tabs defaultValue="historias">
-        <TabsList>
-          <TabsTrigger value="historias">Historias &amp; Puntos</TabsTrigger>
-          <TabsTrigger value="config">Configuración de Sprint</TabsTrigger>
-          <TabsTrigger value="calculo">Cálculo de Tiempo</TabsTrigger>
-          <TabsTrigger value="horas">Horas por Tarea</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* Lista de pestañas con las mismas dimensiones y color del nav superior */}
+        <TabsList className="flex h-auto flex-wrap items-center justify-start gap-1 border-b bg-transparent p-0 pb-2 text-sm font-medium">
+          {/* 1. Historias & Puntos */}
+          <TabsTrigger
+            value="historias"
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+              activeTab === "historias"
+                ? "!bg-primary !text-primary-foreground font-semibold shadow-xs"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            <BookOpenIcon className="size-4" />
+            <span>Historias &amp; Puntos</span>
+          </TabsTrigger>
+
+          {/* 2. Configuración de Sprint */}
+          <TabsTrigger
+            value="config"
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+              activeTab === "config"
+                ? "!bg-primary !text-primary-foreground font-semibold shadow-xs"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            <SlidersHorizontalIcon className="size-4" />
+            <span>Configuración de Sprint</span>
+          </TabsTrigger>
+
+          {/* 3. Cálculo de Tiempo */}
+          <TabsTrigger
+            value="calculo"
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+              activeTab === "calculo"
+                ? "!bg-primary !text-primary-foreground font-semibold shadow-xs"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            <CalculatorIcon className="size-4" />
+            <span>Cálculo de Tiempo</span>
+          </TabsTrigger>
+
+          {/* 4. Horas por Tarea */}
+          <TabsTrigger
+            value="horas"
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+              activeTab === "horas"
+                ? "!bg-primary !text-primary-foreground font-semibold shadow-xs"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            <ClockIcon className="size-4" />
+            <span>Horas por Tarea</span>
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="historias">
+        {/* CONTENIDOS */}
+        <TabsContent value="historias" className="pt-2">
           <Card>
             <CardHeader>
               <CardTitle>Story Points por historia</CardTitle>
@@ -56,7 +114,7 @@ export const EstimationView = ({ projectId }: EstimationViewProps) => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="config">
+        <TabsContent value="config" className="pt-2">
           <Card>
             <CardHeader>
               <CardTitle>Configuración del Equipo y Sprint</CardTitle>
@@ -70,11 +128,11 @@ export const EstimationView = ({ projectId }: EstimationViewProps) => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="calculo">
+        <TabsContent value="calculo" className="pt-2">
           <SprintCalculation />
         </TabsContent>
 
-        <TabsContent value="horas">
+        <TabsContent value="horas" className="pt-2">
           <Card>
             <CardHeader>
               <CardTitle>Horas estimadas por tarea</CardTitle>
