@@ -66,7 +66,7 @@ export const EstimationView = ({ projectId }: EstimationViewProps) => {
         onValueChange={handleTabChange}
         className="w-full"
       >
-        {/* Lista de pestañas con las mismas dimensiones y color del nav superior */}
+        {/* Lista de pestañas */}
         <TabsList className="flex h-auto flex-wrap items-center justify-start gap-1 border-b bg-transparent p-0 pb-2 text-sm font-medium">
           {/* 1. Historias & Puntos */}
           <TabsTrigger
