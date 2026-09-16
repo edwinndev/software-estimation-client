@@ -106,7 +106,7 @@ export const UsersView = () => {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-primary text-2xl font-bold tracking-tight">
-            Gestión de usuarios
+            Gestión de Usuarios (Admin)
           </h1>
           <p className="text-muted-foreground text-sm">
             Crea, edita y elimina las cuentas internas de la plataforma.
