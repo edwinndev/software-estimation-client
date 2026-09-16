@@ -51,6 +51,13 @@ export const EstimationView = ({ projectId }: EstimationViewProps) => {
     }
   }
 
+  const getTriggerClass = (tabKey: string) =>
+    `flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+      activeTab === tabKey
+        ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+    }`
+
   return (
     <div className="flex min-h-full w-full flex-col gap-6 pb-16">
       <div>
@@ -71,51 +78,26 @@ export const EstimationView = ({ projectId }: EstimationViewProps) => {
           {/* 1. Historias & Puntos */}
           <TabsTrigger
             value="historias"
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
-              activeTab === "historias"
-                ? "!bg-primary !text-primary-foreground font-semibold shadow-xs"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
+            className={getTriggerClass("historias")}
           >
             <BookOpenIcon className="size-4" />
             <span>Historias &amp; Puntos</span>
           </TabsTrigger>
 
           {/* 2. Configuración de Sprint */}
-          <TabsTrigger
-            value="config"
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
-              activeTab === "config"
-                ? "!bg-primary !text-primary-foreground font-semibold shadow-xs"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          >
+          <TabsTrigger value="config" className={getTriggerClass("config")}>
             <SlidersHorizontalIcon className="size-4" />
             <span>Configuración de Sprint</span>
           </TabsTrigger>
 
           {/* 3. Cálculo de Tiempo */}
-          <TabsTrigger
-            value="calculo"
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
-              activeTab === "calculo"
-                ? "!bg-primary !text-primary-foreground font-semibold shadow-xs"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          >
+          <TabsTrigger value="calculo" className={getTriggerClass("calculo")}>
             <CalculatorIcon className="size-4" />
             <span>Cálculo de Tiempo</span>
           </TabsTrigger>
 
           {/* 4. Horas por Tarea */}
-          <TabsTrigger
-            value="horas"
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
-              activeTab === "horas"
-                ? "!bg-primary !text-primary-foreground font-semibold shadow-xs"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          >
+          <TabsTrigger value="horas" className={getTriggerClass("horas")}>
             <ClockIcon className="size-4" />
             <span>Horas por Tarea</span>
           </TabsTrigger>
