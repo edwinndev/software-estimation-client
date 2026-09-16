@@ -24,15 +24,35 @@ import { SprintTeamConfigForm } from "./sprint-team-config-form"
 import { TaskHoursForm } from "./task-hours-form"
 import { UserStoryTable } from "./user-story-table"
 
+const ACTIVE_TAB_STORAGE_KEY = "estimation-active-tab"
+const VALID_TABS = ["historias", "config", "calculo", "horas"]
+
 interface EstimationViewProps {
   projectId: string
 }
 
 export const EstimationView = ({ projectId }: EstimationViewProps) => {
-  const [activeTab, setActiveTab] = useState("historias")
+  // 1. Leer la última pestaña activa de localStorage al cargar la página
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const savedTab = localStorage.getItem(ACTIVE_TAB_STORAGE_KEY)
+      if (savedTab && VALID_TABS.includes(savedTab)) {
+        return savedTab
+      }
+    }
+    return "historias"
+  })
+
+  // 2. Guardar en localStorage cuando cambies a cualquier pestaña
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    if (typeof window !== "undefined") {
+      localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, tab)
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-h-full w-full flex-col gap-6 pb-16">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Estimación ágil</h1>
         <p className="text-muted-foreground text-sm">
@@ -41,7 +61,11 @@ export const EstimationView = ({ projectId }: EstimationViewProps) => {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
         {/* Lista de pestañas con las mismas dimensiones y color del nav superior */}
         <TabsList className="flex h-auto flex-wrap items-center justify-start gap-1 border-b bg-transparent p-0 pb-2 text-sm font-medium">
           {/* 1. Historias & Puntos */}
