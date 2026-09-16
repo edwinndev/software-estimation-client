@@ -31,7 +31,7 @@ export const UsersTable = ({ users, onDelete }: UsersTableProps) => {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Nombre</TableHead>
+          <TableHead>Usuario</TableHead>
           <TableHead>Correo</TableHead>
           <TableHead>Rol</TableHead>
           <TableHead>Estado</TableHead>
