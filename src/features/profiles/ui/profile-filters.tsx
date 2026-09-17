@@ -2,15 +2,8 @@
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { PlusIcon, SearchIcon, XIcon } from "lucide-react"
-import { technicalRoles } from "../schemas/profile-schema"
+import { TechnicalRoleSelect } from "./technical-role-select"
 
 type ProfileFiltersProps = {
   searchQuery: string
@@ -28,12 +21,13 @@ export const ProfileFilters = ({
   onOpenCreateDialog,
 }: ProfileFiltersProps) => {
   const hasFilters = Boolean(
-    searchQuery || (selectedRole && selectedRole !== "ALL")
+    searchQuery ||
+    (selectedRole && selectedRole !== "ALL" && selectedRole !== "")
   )
 
   const handleClear = () => {
     onSearchChange("")
-    onRoleChange("ALL")
+    onRoleChange("")
   }
 
   return (
@@ -48,25 +42,13 @@ export const ProfileFilters = ({
             className="pl-9"
           />
         </div>
-        <div className="w-full sm:w-[180px]">
-          <Select
-            value={selectedRole}
-            onValueChange={(val) => {
-              if (val) onRoleChange(val)
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Todos los roles" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Todos los roles</SelectItem>
-              {technicalRoles.map((role) => (
-                <SelectItem key={role} value={role}>
-                  {role}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="w-full sm:w-[220px]">
+          <TechnicalRoleSelect
+            value={selectedRole === "ALL" ? "" : selectedRole}
+            includeAll
+            placeholder="Todos los roles"
+            onValueChange={onRoleChange}
+          />
         </div>
         {hasFilters && (
           <Button

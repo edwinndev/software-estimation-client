@@ -14,13 +14,15 @@ import {
 import { toast } from "@/components/ui/toast"
 import { getFieldError } from "@/lib/form-errors"
 import {
-  experienceLevels,
   profileSchema,
-  technicalRoles,
   type ProfileFormValues,
 } from "../schemas/profile-schema"
-import { useCreateProfile, useUpdateProfile } from "../hooks/use-profiles"
-import type { Profile } from "../types"
+import { useCreateProfile, useUpdateProfile } from "../hooks"
+import {
+  EXPERIENCE_LEVEL_OPTIONS,
+  TECHNICAL_ROLE_OPTIONS,
+  type Profile,
+} from "../types"
 
 type ProfileFormProps = {
   profile?: Profile | null
@@ -145,12 +147,16 @@ export const ProfileForm = ({
                 disabled={isSubmitting}
               >
                 <SelectTrigger id={field.name} className="w-full">
-                  <SelectValue placeholder="Selecciona un rol" />
+                  <SelectValue placeholder="Selecciona un rol">
+                    {TECHNICAL_ROLE_OPTIONS.find(
+                      (role) => role.value === field.state.value
+                    )?.label ?? "Selecciona un rol"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {technicalRoles.map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {role}
+                  {TECHNICAL_ROLE_OPTIONS.map((role) => (
+                    <SelectItem key={role.value} value={role.value}>
+                      {role.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -187,12 +193,16 @@ export const ProfileForm = ({
                 disabled={isSubmitting}
               >
                 <SelectTrigger id={field.name} className="w-full">
-                  <SelectValue placeholder="Selecciona nivel" />
+                  <SelectValue placeholder="Selecciona nivel">
+                    {EXPERIENCE_LEVEL_OPTIONS.find(
+                      (level) => level.value === field.state.value
+                    )?.label ?? "Selecciona nivel"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {experienceLevels.map((level) => (
-                    <SelectItem key={level} value={level}>
-                      {level}
+                  {EXPERIENCE_LEVEL_OPTIONS.map((level) => (
+                    <SelectItem key={level.value} value={level.value}>
+                      {level.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
