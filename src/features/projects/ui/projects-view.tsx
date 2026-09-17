@@ -42,6 +42,8 @@ export const ProjectsView = () => {
     tipo: "",
     responsable: "",
     estado: "",
+    fecha_inicio: "",
+    fecha_fin: "",
   })
 
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -51,7 +53,9 @@ export const ProjectsView = () => {
     (filters.nombre.length > 0 ? 1 : 0) +
     (filters.tipo.length > 0 ? 1 : 0) +
     (filters.responsable.length > 0 ? 1 : 0) +
-    (filters.estado.length > 0 ? 1 : 0)
+    (filters.estado.length > 0 ? 1 : 0) +
+    (filters.fecha_inicio.length > 0 ? 1 : 0) +
+    (filters.fecha_fin.length > 0 ? 1 : 0)
 
   const apiFilters: FilterRequest[] = []
 
@@ -71,6 +75,22 @@ export const ProjectsView = () => {
         values: [filters[key]],
       })
     }
+  }
+
+  if (filters.fecha_inicio) {
+    apiFilters.push({
+      key: "fecha_inicio",
+      operator: FilterOperator.GE,
+      values: [filters.fecha_inicio],
+    })
+  }
+
+  if (filters.fecha_fin) {
+    apiFilters.push({
+      key: "fecha_fin",
+      operator: FilterOperator.LE,
+      values: [filters.fecha_fin],
+    })
   }
 
   const query: QueryRequest = {
@@ -94,11 +114,16 @@ export const ProjectsView = () => {
           <ProjectToolbar
             search={search}
             activeFilters={activeFilters}
+            filters={filters}
             onSearchChange={(value) => {
               setSearch(value)
               resetPage()
             }}
             onOpenFilters={() => setFiltersOpen(true)}
+            onRemoveFilter={(key) => {
+              setFilters((prev) => ({ ...prev, [key]: "" }))
+              resetPage()
+            }}
           />
         </CardHeader>
 

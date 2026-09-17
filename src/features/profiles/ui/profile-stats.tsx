@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { UsersIcon, DollarSignIcon, AwardIcon } from "lucide-react"
+import { UsersIcon, BanknoteIcon, AwardIcon } from "lucide-react"
+import { formatCurrency } from "@/lib/format"
 import type { Profile } from "../types"
 
 type ProfileStatsProps = {
@@ -36,10 +37,10 @@ export const ProfileStats = ({ profiles }: ProfileStatsProps) => {
           <CardTitle className="text-muted-foreground text-sm font-medium">
             CER promedio por hora
           </CardTitle>
-          <DollarSignIcon className="text-muted-foreground size-4" />
+          <BanknoteIcon className="text-muted-foreground size-4" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${avgCer.toFixed(2)}</div>
+          <div className="text-2xl font-bold">{formatCurrency(avgCer)}</div>
           <p className="text-muted-foreground text-xs">
             Costo estándar promedio por hora
           </p>

@@ -24,9 +24,9 @@ const RootLayout = ({ children }: LayoutProps<"/">) => {
   return (
     <html
       lang="es"
-      className={`${fontSans.variable} ${fontMono.variable} h-full font-sans antialiased`}
+      className={`${fontSans.variable} ${fontMono.variable} min-h-svh font-sans antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans">
+      <body className="min-h-svh font-sans">
         <Providers>{children}</Providers>
       </body>
     </html>

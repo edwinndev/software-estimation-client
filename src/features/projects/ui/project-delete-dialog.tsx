@@ -11,14 +11,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { toast } from "@/components/ui/toast"
+import { getErrorMessage } from "@/lib/form-errors"
 import { useProjects } from "../hooks/use-projects"
 
-interface ProjectDeleteDialogProps {
+type ProjectDeleteDialogProps = {
   projectId: string | null
-  projectName?: string
+  projectName: string
   isOpen: boolean
   onClose: () => void
-  onSuccess?: () => void
+  onSuccess: () => void
 }
 
 export const ProjectDeleteDialog = ({
@@ -35,7 +37,6 @@ export const ProjectDeleteDialog = ({
       return
     }
 
-    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -47,7 +48,7 @@ export const ProjectDeleteDialog = ({
     document.addEventListener("keydown", onKeyDown)
 
     return () => {
-      document.body.style.overflow = previousOverflow
+      document.body.style.removeProperty("overflow")
       document.removeEventListener("keydown", onKeyDown)
     }
   }, [isDeleting, isOpen, onClose])
@@ -57,9 +58,20 @@ export const ProjectDeleteDialog = ({
 
     try {
       await deleteProject(projectId)
+      toast.add({
+        title: "Proyecto eliminado",
+        description: `${projectName} se eliminó correctamente.`,
+        type: "success",
+      })
       onClose()
-      onSuccess?.()
-    } catch {}
+      onSuccess()
+    } catch (error) {
+      toast.add({
+        title: "No se pudo eliminar el proyecto",
+        description: getErrorMessage(error, "Inténtalo de nuevo."),
+        type: "error",
+      })
+    }
   }
 
   if (!isOpen || !projectId) {
@@ -86,13 +98,7 @@ export const ProjectDeleteDialog = ({
           <CardTitle>Eliminar proyecto</CardTitle>
           <CardDescription>
             ¿Seguro que quieres eliminar el proyecto{" "}
-            {projectName ? (
-              <span className="text-foreground font-semibold">
-                {projectName}
-              </span>
-            ) : (
-              "seleccionado"
-            )}
+            <span className="text-foreground font-semibold">{projectName}</span>
             ? Esta acción no se puede deshacer.
           </CardDescription>
         </CardHeader>

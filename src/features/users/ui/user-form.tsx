@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { AuthField } from "@/features/auth/ui/auth-field"
 import { PasswordInput } from "@/features/auth/ui/password-input"
 import { DEFAULT_USER_ROLE, isUserRole } from "@/features/auth/types"
+import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { toast } from "@/components/ui/toast"
 import { getErrorMessage, getFieldError } from "@/lib/form-errors"
 import { useCreateUser } from "../hooks/use-create-user"
@@ -68,7 +69,7 @@ export const UserForm = ({ user }: UserFormProps) => {
           })
           toast.add({
             title: "Usuario creado",
-            description: `La cuenta de ${value.firstName} ${value.lastName} se creó desactivada. Actívala desde la tabla para que pueda iniciar sesión.`,
+            description: `La cuenta de ${value.firstName} ${value.lastName} se creó correctamente.`,
             type: "success",
           })
         }
@@ -77,10 +78,7 @@ export const UserForm = ({ user }: UserFormProps) => {
       } catch (error) {
         toast.add({
           title: "No se pudo guardar el usuario",
-          description: getErrorMessage(
-            error,
-            "Revisa los datos e inténtalo de nuevo."
-          ),
+          description: getErrorMessage(error, "Inténtalo de nuevo."),
           type: "error",
         })
       }
@@ -115,6 +113,7 @@ export const UserForm = ({ user }: UserFormProps) => {
                 label="Nombre"
                 htmlFor="user-first-name"
                 error={fieldError}
+                required
               >
                 <Input
                   id="user-first-name"
@@ -138,6 +137,7 @@ export const UserForm = ({ user }: UserFormProps) => {
                 label="Apellido"
                 htmlFor="user-last-name"
                 error={fieldError}
+                required
               >
                 <Input
                   id="user-last-name"
@@ -162,6 +162,7 @@ export const UserForm = ({ user }: UserFormProps) => {
               label="Correo electrónico"
               htmlFor="user-email"
               error={fieldError}
+              required
             >
               <Input
                 id="user-email"
@@ -182,7 +183,12 @@ export const UserForm = ({ user }: UserFormProps) => {
           const fieldError = getFieldError(field.state.meta.errors)
 
           return (
-            <AuthField label="Rol" htmlFor="user-role" error={fieldError}>
+            <AuthField
+              label="Rol"
+              htmlFor="user-role"
+              error={fieldError}
+              required
+            >
               <RoleSelect
                 id="user-role"
                 value={field.state.value}
@@ -206,6 +212,7 @@ export const UserForm = ({ user }: UserFormProps) => {
               label={isEditing ? "Nueva contraseña" : "Contraseña"}
               htmlFor="user-password"
               error={fieldError}
+              required={!isEditing}
               hint={
                 isEditing
                   ? "Déjala vacía si no quieres cambiarla."
@@ -234,6 +241,7 @@ export const UserForm = ({ user }: UserFormProps) => {
               label="Confirmar contraseña"
               htmlFor="user-confirm-password"
               error={fieldError}
+              required={!isEditing}
             >
               <PasswordInput
                 id="user-confirm-password"
@@ -258,20 +266,24 @@ export const UserForm = ({ user }: UserFormProps) => {
           <XIcon />
           Cancelar
         </Button>
-        <form.Subscribe selector={(state) => state.isSubmitting}>
-          {(isSubmitting) => (
-            <Button type="submit" disabled={isSubmitting || isPending}>
+        <FormSubmitButton
+          form={form}
+          schema={isEditing ? updateUserSchema : createUserSchema}
+          isPending={isPending}
+        >
+          {({ isBusy }) => (
+            <>
               <SaveIcon />
-              {isSubmitting || isPending
+              {isBusy
                 ? isEditing
                   ? "Actualizando usuario..."
                   : "Guardando usuario..."
                 : isEditing
                   ? "Actualizar usuario"
                   : "Guardar usuario"}
-            </Button>
+            </>
           )}
-        </form.Subscribe>
+        </FormSubmitButton>
       </div>
     </form>
   )

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { projectService } from "../services/project-service"
 import { ProjectFormValues } from "../schemas/project-schema"
 import { QueryRequest } from "@/types/api"
-import { toast } from "@/components/ui/toast"
+import { invalidateReportQueries } from "@/features/reports/hooks/query-keys"
 
 export const useProject = (id: string) => {
   return useQuery({
@@ -41,7 +41,6 @@ export const useProjects = (query?: QueryRequest) => {
     mutationFn: (data: ProjectFormValues) => projectService.createProject(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] })
-      toast.add({ title: "Proyecto creado exitosamente", type: "success" })
     },
   })
 
@@ -56,10 +55,6 @@ export const useProjects = (query?: QueryRequest) => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["projects"] })
       queryClient.invalidateQueries({ queryKey: ["project", variables.id] })
-      toast.add({ title: "Proyecto actualizado exitosamente", type: "success" })
-    },
-    onError: () => {
-      toast.add({ title: "Error al actualizar el proyecto", type: "error" })
     },
   })
 
@@ -69,13 +64,6 @@ export const useProjects = (query?: QueryRequest) => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["projects"] })
       queryClient.invalidateQueries({ queryKey: ["project", variables.id] })
-      toast.add({ title: "Estado del proyecto actualizado", type: "success" })
-    },
-    onError: () => {
-      toast.add({
-        title: "Error al actualizar el estado del proyecto",
-        type: "error",
-      })
     },
   })
 
@@ -83,10 +71,7 @@ export const useProjects = (query?: QueryRequest) => {
     mutationFn: (id: string) => projectService.deleteProject(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] })
-      toast.add({ title: "Proyecto eliminado exitosamente", type: "success" })
-    },
-    onError: () => {
-      toast.add({ title: "Error al eliminar el proyecto", type: "error" })
+      invalidateReportQueries(queryClient)
     },
   })
 

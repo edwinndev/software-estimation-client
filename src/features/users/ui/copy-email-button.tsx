@@ -30,7 +30,7 @@ export const CopyEmailButton = ({ email }: CopyEmailButtonProps) => {
             () => {
               toast.add({
                 title: "No se pudo copiar el correo",
-                description: "Inténtalo de nuevo o cópialo de forma manual.",
+                description: "Inténtalo de nuevo.",
                 type: "error",
               })
             }
