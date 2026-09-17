@@ -1,87 +1,31 @@
 import type { PaginatedResponse, QueryRequest } from "@/types/api"
+import { readJson, STORAGE_KEYS, writeJson } from "@/lib/storage"
 import type {
   CreateProfilePayload,
   Profile,
   UpdateProfilePayload,
 } from "../types"
 
-const PROFILES_STORAGE_KEY = "software_estimation_profiles"
+const PROFILES_STORAGE_KEY = STORAGE_KEYS.PROFILES
+const SIMULATED_DELAY_MS = 250
 
-const defaultProfiles: Profile[] = [
-  {
-    id: "prof-1",
-    name: "Alex Morgan",
-    role: "Frontend",
-    hourlyRate: 45,
-    currency: "USD",
-    experienceLevel: "Senior",
-    email: "alex.morgan@example.com",
-    isActive: true,
-    createdAt: new Date("2026-01-10").toISOString(),
-    updatedAt: new Date("2026-01-10").toISOString(),
-  },
-  {
-    id: "prof-2",
-    name: "Carlos Mendoza",
-    role: "Backend",
-    hourlyRate: 50,
-    currency: "USD",
-    experienceLevel: "Senior",
-    email: "carlos.mendoza@example.com",
-    isActive: true,
-    createdAt: new Date("2026-01-15").toISOString(),
-    updatedAt: new Date("2026-01-15").toISOString(),
-  },
-  {
-    id: "prof-3",
-    name: "Sofia Valdivia",
-    role: "QA",
-    hourlyRate: 35,
-    currency: "USD",
-    experienceLevel: "Mid",
-    email: "sofia.valdivia@example.com",
-    isActive: true,
-    createdAt: new Date("2026-02-01").toISOString(),
-    updatedAt: new Date("2026-02-01").toISOString(),
-  },
-  {
-    id: "prof-4",
-    name: "Daniela Perez",
-    role: "Functional Analyst",
-    hourlyRate: 40,
-    currency: "USD",
-    experienceLevel: "Mid",
-    email: "daniela.perez@example.com",
-    isActive: true,
-    createdAt: new Date("2026-02-10").toISOString(),
-    updatedAt: new Date("2026-02-10").toISOString(),
-  },
-]
+const delay = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms))
 
 const getStoredProfiles = (): Profile[] => {
-  if (typeof window === "undefined") return defaultProfiles
-  const data = localStorage.getItem(PROFILES_STORAGE_KEY)
-  if (!data) {
-    localStorage.setItem(PROFILES_STORAGE_KEY, JSON.stringify(defaultProfiles))
-    return defaultProfiles
-  }
-  try {
-    return JSON.parse(data) as Profile[]
-  } catch {
-    return defaultProfiles
-  }
+  const data = readJson<Profile[]>(PROFILES_STORAGE_KEY)
+  return Array.isArray(data) ? data : []
 }
 
 const saveStoredProfiles = (profiles: Profile[]): void => {
-  if (typeof window === "undefined") return
-  localStorage.setItem(PROFILES_STORAGE_KEY, JSON.stringify(profiles))
+  writeJson(PROFILES_STORAGE_KEY, profiles)
 }
 
 export const profilesService = {
   getProfiles: async (
     query?: QueryRequest
   ): Promise<PaginatedResponse<Profile, "profilesResponse">> => {
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    await delay(SIMULATED_DELAY_MS)
     let profiles = getStoredProfiles()
 
     if (query?.filters && query.filters.length > 0) {
@@ -120,22 +64,22 @@ export const profilesService = {
   },
 
   getProfile: async (id: string): Promise<Profile> => {
-    await new Promise((resolve) => setTimeout(resolve, 200))
+    await delay(SIMULATED_DELAY_MS)
     const profiles = getStoredProfiles()
     const profile = profiles.find((p) => p.id === id)
     if (!profile) {
-      throw new Error(`Profile with id ${id} not found`)
+      throw new Error(`Perfil con ID "${id}" no encontrado.`)
     }
     return profile
   },
 
   createProfile: async (payload: CreateProfilePayload): Promise<Profile> => {
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    await delay(SIMULATED_DELAY_MS)
     const profiles = getStoredProfiles()
     const now = new Date().toISOString()
     const newProfile: Profile = {
       ...payload,
-      id: `prof-${Date.now()}`,
+      id: crypto.randomUUID(),
       createdAt: now,
       updatedAt: now,
     }
@@ -145,11 +89,11 @@ export const profilesService = {
   },
 
   updateProfile: async (payload: UpdateProfilePayload): Promise<Profile> => {
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    await delay(SIMULATED_DELAY_MS)
     const profiles = getStoredProfiles()
     const index = profiles.findIndex((p) => p.id === payload.id)
     if (index === -1) {
-      throw new Error(`Profile with id ${payload.id} not found`)
+      throw new Error(`Perfil con ID "${payload.id}" no encontrado.`)
     }
     const updated: Profile = {
       ...profiles[index],
@@ -162,7 +106,7 @@ export const profilesService = {
   },
 
   deleteProfile: async (id: string): Promise<{ success: boolean }> => {
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    await delay(SIMULATED_DELAY_MS)
     const profiles = getStoredProfiles()
     const filtered = profiles.filter((p) => p.id !== id)
     saveStoredProfiles(filtered)

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { DataTable } from "@/components/data-table"
 import type { FilterRequest, QueryRequest } from "@/types/api"
-import { useProfiles } from "../hooks/use-profiles"
+import { useProfiles } from "../hooks"
 import type { Profile } from "../types"
 import { ProfileStats } from "./profile-stats"
 import { ProfileFilters } from "./profile-filters"
@@ -14,7 +14,7 @@ import { DeleteProfileDialog } from "./delete-profile-dialog"
 
 export const ProfilesView = () => {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedRole, setSelectedRole] = useState("ALL")
+  const [selectedRole, setSelectedRole] = useState("")
   const [pageNumber, setPageNumber] = useState(0)
   const pageSize = 10
 
@@ -31,11 +31,11 @@ export const ProfilesView = () => {
       values: [searchQuery.trim()],
     })
   }
-  if (selectedRole && selectedRole !== "ALL") {
+  if (selectedRole.trim()) {
     filters.push({
       key: "role",
       operator: "EQ",
-      values: [selectedRole],
+      values: [selectedRole.trim()],
     })
   }
 
