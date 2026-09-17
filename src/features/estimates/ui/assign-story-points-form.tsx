@@ -16,11 +16,6 @@ import { CheckIcon } from "lucide-react"
 import { useAssignStoryPoints, useUserStories } from "../hooks/use-user-stories"
 import { STORY_POINTS_OPTIONS } from "../types"
 
-/**
- * PMGT-36: Asignar Story Points a una historia de usuario EXISTENTE.
- * Lee las historias de "user-stories" (dato ajeno) y guarda la asignación
- * en "story-points-assignments" (dato propio) vía localStorage.
- */
 export const AssignStoryPointsForm = () => {
   const { data: stories = [], isLoading } = useUserStories()
   const assignPoints = useAssignStoryPoints()
@@ -28,6 +23,9 @@ export const AssignStoryPointsForm = () => {
   const [selectedStoryId, setSelectedStoryId] = useState("")
   const [storyPoints, setStoryPoints] = useState<string>("")
   const [saved, setSaved] = useState(false)
+
+  // Encontrar la historia seleccionada para extraer su título real
+  const selectedStory = stories.find((s) => s.id === selectedStoryId)
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
@@ -52,7 +50,7 @@ export const AssignStoryPointsForm = () => {
         <Select
           value={selectedStoryId}
           onValueChange={(value) => {
-            setSelectedStoryId(value ?? "")
+            setSelectedStoryId(value || "")
             setSaved(false)
           }}
         >
@@ -61,7 +59,10 @@ export const AssignStoryPointsForm = () => {
               placeholder={
                 isLoading ? "Cargando historias..." : "Selecciona una historia"
               }
-            />
+            >
+              {/* Le forzamos a pintar el título real de la historia */}
+              {selectedStory ? selectedStory.title : undefined}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {stories.map((story) => (
@@ -78,12 +79,14 @@ export const AssignStoryPointsForm = () => {
         <Select
           value={storyPoints}
           onValueChange={(value) => {
-            setStoryPoints(value ?? "")
+            setStoryPoints(value || "")
             setSaved(false)
           }}
         >
           <SelectTrigger id="storyPoints" className="w-full">
-            <SelectValue placeholder="Selecciona Story Points" />
+            <SelectValue placeholder="Selecciona Story Points">
+              {storyPoints ? `${storyPoints} SP` : undefined}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STORY_POINTS_OPTIONS.map((points) => (

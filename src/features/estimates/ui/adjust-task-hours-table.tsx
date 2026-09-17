@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input"
 import { PencilIcon, CheckIcon, XIcon } from "lucide-react"
 
 const TASK_HOURS_STORAGE_KEY = "task-hours-entries"
+const getBacklogKey = (projectId: string = "1") =>
+  `software-estimation:backlog:${projectId}`
 
 interface TaskEntry {
   taskId: string
@@ -26,42 +28,54 @@ interface TaskEntry {
 }
 
 export const AdjustTaskHoursTable = () => {
-  // Inicialización limpia desde localStorage
-  const [entries, setEntries] = useState<TaskEntry[]>(() => {
-    if (typeof window !== "undefined") {
-      const data = localStorage.getItem(TASK_HOURS_STORAGE_KEY)
-      if (data) {
-        try {
-          return JSON.parse(data)
-        } catch {
-          // fallback
+  // Función para obtener SOLO las tareas que existen en el Backlog real
+  const getValidEntries = (): TaskEntry[] => {
+    if (typeof window === "undefined") return []
+    const data = localStorage.getItem(TASK_HOURS_STORAGE_KEY)
+    if (!data) return []
+
+    try {
+      const all = JSON.parse(data) as TaskEntry[]
+      const backlogStr = localStorage.getItem(getBacklogKey("1"))
+
+      if (backlogStr) {
+        const backlog = JSON.parse(backlogStr) as {
+          tasks?: Array<{ id: string; title?: string; name?: string }>
+        }
+        const realTasks = backlog.tasks || []
+
+        if (realTasks.length > 0) {
+          // Solo mostrar tareas que existan en el Backlog real de Cristina
+          return all.filter((entry) =>
+            realTasks.some((t) => t.id === entry.taskId)
+          )
         }
       }
-    }
-    return []
-  })
 
+      // Descartar tareas de prueba viejas
+      return all.filter((entry) => !["t1", "t2", "t3"].includes(entry.taskId))
+    } catch {
+      return []
+    }
+  }
+
+  const [entries, setEntries] = useState<TaskEntry[]>(getValidEntries)
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editHours, setEditHours] = useState<number>(0)
   const [editReason, setEditReason] = useState<string>("")
 
   const reloadEntries = () => {
-    if (typeof window !== "undefined") {
-      const data = localStorage.getItem(TASK_HOURS_STORAGE_KEY)
-      if (data) {
-        try {
-          setEntries(JSON.parse(data))
-        } catch {
-          // fallback
-        }
-      }
-    }
+    setEntries(getValidEntries())
   }
 
   useEffect(() => {
     const handleUpdate = () => reloadEntries()
     window.addEventListener("task-hours-updated", handleUpdate)
-    return () => window.removeEventListener("task-hours-updated", handleUpdate)
+    window.addEventListener("storage", handleUpdate)
+    return () => {
+      window.removeEventListener("task-hours-updated", handleUpdate)
+      window.removeEventListener("storage", handleUpdate)
+    }
   }, [])
 
   const handleStartEdit = (index: number, currentHours: number) => {

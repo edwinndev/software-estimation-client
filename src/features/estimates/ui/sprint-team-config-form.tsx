@@ -20,11 +20,6 @@ import {
 } from "../hooks/use-sprint-config"
 import type { SprintConfig } from "../types"
 
-/**
- * PMGT-33 + PMGT-35: Configuración del Equipo y Sprint (Paso 5 de la
- * especificación) — un solo formulario, un solo botón "Guardar Configuración".
- * Persiste en localStorage bajo "sprint-config" vía TanStack Query.
- */
 export const SprintTeamConfigForm = () => {
   const { data: config, isLoading } = useSprintConfig()
 
@@ -46,13 +41,19 @@ const SprintTeamConfigFields = ({
 
   const [velocity, setVelocity] = useState(String(initialConfig.velocity))
   const [duration, setDuration] = useState(String(initialConfig.duration))
-  const [unit, setUnit] = useState<SprintConfig["unit"]>(initialConfig.unit)
+  const [unit, setUnit] = useState<SprintConfig["unit"]>(
+    initialConfig.unit || "dias"
+  )
   const [saved, setSaved] = useState(false)
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
     saveConfig.mutate(
-      { velocity: Number(velocity), duration: Number(duration), unit },
+      {
+        velocity: Number(velocity),
+        duration: Number(duration),
+        unit,
+      },
       { onSuccess: () => setSaved(true) }
     )
   }
@@ -91,7 +92,7 @@ const SprintTeamConfigFields = ({
           <Select
             value={unit}
             onValueChange={(value) => {
-              setUnit((value as SprintConfig["unit"]) ?? "semanas")
+              setUnit((value as SprintConfig["unit"]) ?? "dias")
               setSaved(false)
             }}
           >
@@ -99,8 +100,8 @@ const SprintTeamConfigFields = ({
               <SelectValue placeholder="Unidad" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="dias">Días</SelectItem>
-              <SelectItem value="semanas">Semanas</SelectItem>
+              <SelectItem value="dias">dias</SelectItem>
+              <SelectItem value="semanas">semanas</SelectItem>
             </SelectContent>
           </Select>
         </div>

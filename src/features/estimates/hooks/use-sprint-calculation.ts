@@ -3,21 +3,21 @@
 import { useQuery } from "@tanstack/react-query"
 import { calculateSprintsAndProjectTime } from "../services/sprint-calculation.service"
 
-export const useSprintCalculation = () => {
-  // Query de TanStack Query para calcular automáticamente los sprints y tiempo
+export const useSprintCalculation = (projectId?: string) => {
+  // Query de TanStack Query para calcular sprints y tiempo
   const { data, isLoading, isRefetching, refetch } = useQuery({
-    queryKey: ["sprint-calculation"],
-    queryFn: calculateSprintsAndProjectTime,
+    queryKey: ["sprint-calculation", projectId || "1"],
+    queryFn: () => calculateSprintsAndProjectTime(projectId || "1"),
   })
 
   return {
     calculation: data || {
-      totalStoryPoints: 40,
-      velocity: 20,
+      totalStoryPoints: 0,
+      velocity: 5,
       sprintDuration: 2,
-      sprintUnit: "semanas" as const,
-      totalSprints: 2,
-      totalBaseTime: 4,
+      sprintUnit: "dias" as const,
+      totalSprints: 0,
+      totalBaseTime: 0,
     },
     isLoading,
     isRecalculating: isRefetching,
