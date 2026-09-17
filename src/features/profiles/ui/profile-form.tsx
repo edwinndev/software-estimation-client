@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/toast"
+import { getFieldError } from "@/lib/form-errors"
 import {
   experienceLevels,
   profileSchema,
@@ -114,14 +115,11 @@ export const ProfileForm = ({
               placeholder="Ej. Ana García"
               disabled={isSubmitting}
             />
-            {field.state.meta.errors.length > 0 && (
+            {getFieldError(field.state.meta.errors) ? (
               <p className="text-destructive text-xs">
-                {typeof field.state.meta.errors[0] === "string"
-                  ? field.state.meta.errors[0]
-                  : ((field.state.meta.errors[0] as { message?: string })
-                      ?.message ?? "Campo requerido")}
+                {getFieldError(field.state.meta.errors)}
               </p>
-            )}
+            ) : null}
           </div>
         )}
       </form.Field>
@@ -157,14 +155,11 @@ export const ProfileForm = ({
                   ))}
                 </SelectContent>
               </Select>
-              {field.state.meta.errors.length > 0 && (
+              {getFieldError(field.state.meta.errors) ? (
                 <p className="text-destructive text-xs">
-                  {typeof field.state.meta.errors[0] === "string"
-                    ? field.state.meta.errors[0]
-                    : (field.state.meta.errors[0] as { message?: string })
-                        ?.message}
+                  {getFieldError(field.state.meta.errors)}
                 </p>
-              )}
+              ) : null}
             </div>
           )}
         </form.Field>
@@ -202,14 +197,11 @@ export const ProfileForm = ({
                   ))}
                 </SelectContent>
               </Select>
-              {field.state.meta.errors.length > 0 && (
+              {getFieldError(field.state.meta.errors) ? (
                 <p className="text-destructive text-xs">
-                  {typeof field.state.meta.errors[0] === "string"
-                    ? field.state.meta.errors[0]
-                    : (field.state.meta.errors[0] as { message?: string })
-                        ?.message}
+                  {getFieldError(field.state.meta.errors)}
                 </p>
-              )}
+              ) : null}
             </div>
           )}
         </form.Field>
@@ -243,14 +235,11 @@ export const ProfileForm = ({
                   disabled={isSubmitting}
                 />
               </div>
-              {field.state.meta.errors.length > 0 && (
+              {getFieldError(field.state.meta.errors) ? (
                 <p className="text-destructive text-xs">
-                  {typeof field.state.meta.errors[0] === "string"
-                    ? field.state.meta.errors[0]
-                    : (field.state.meta.errors[0] as { message?: string })
-                        ?.message}
+                  {getFieldError(field.state.meta.errors)}
                 </p>
-              )}
+              ) : null}
             </div>
           )}
         </form.Field>
@@ -281,14 +270,11 @@ export const ProfileForm = ({
                   <SelectItem value="USD">USD ($)</SelectItem>
                 </SelectContent>
               </Select>
-              {field.state.meta.errors.length > 0 && (
+              {getFieldError(field.state.meta.errors) ? (
                 <p className="text-destructive text-xs">
-                  {typeof field.state.meta.errors[0] === "string"
-                    ? field.state.meta.errors[0]
-                    : (field.state.meta.errors[0] as { message?: string })
-                        ?.message}
+                  {getFieldError(field.state.meta.errors)}
                 </p>
-              )}
+              ) : null}
             </div>
           )}
         </form.Field>
@@ -315,14 +301,11 @@ export const ProfileForm = ({
               placeholder="Ej. ana@empresa.com"
               disabled={isSubmitting}
             />
-            {field.state.meta.errors.length > 0 && (
+            {getFieldError(field.state.meta.errors) ? (
               <p className="text-destructive text-xs">
-                {typeof field.state.meta.errors[0] === "string"
-                  ? field.state.meta.errors[0]
-                  : (field.state.meta.errors[0] as { message?: string })
-                      ?.message}
+                {getFieldError(field.state.meta.errors)}
               </p>
-            )}
+            ) : null}
           </div>
         )}
       </form.Field>
