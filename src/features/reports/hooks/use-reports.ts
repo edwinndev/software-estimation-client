@@ -1,26 +1,24 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { reportsService } from "../services/reports.service"
-import { ReportSnapshot } from "../types"
-
-const REPORTS_KEYS = {
-  all: ["reports"] as const,
-  latest: (projectId: string) =>
-    [...REPORTS_KEYS.all, "latest", projectId] as const,
-  history: (projectId: string) =>
-    [...REPORTS_KEYS.all, "history", projectId] as const,
-}
+import { downloadProjectReportPdf } from "../services/report-pdf.service"
+import type { ReportSnapshot } from "../types"
+import { REPORTS_QUERY_KEY, invalidateReportQueries } from "./query-keys"
 
 export const useLatestEstimate = (projectId: string) => {
   return useQuery({
-    queryKey: REPORTS_KEYS.latest(projectId),
+    queryKey: [...REPORTS_QUERY_KEY, "latest", projectId],
     queryFn: () => reportsService.getLatestEstimate(projectId),
+    staleTime: 0,
+    refetchOnMount: "always",
   })
 }
 
 export const useReportsHistory = (projectId: string) => {
   return useQuery({
-    queryKey: REPORTS_KEYS.history(projectId),
+    queryKey: [...REPORTS_QUERY_KEY, "history", projectId],
     queryFn: () => reportsService.getHistory(projectId),
+    staleTime: 0,
+    refetchOnMount: "always",
   })
 }
 
@@ -30,10 +28,15 @@ export const useSaveReportSnapshot = () => {
   return useMutation({
     mutationFn: (snapshot: ReportSnapshot) =>
       reportsService.saveSnapshot(snapshot),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: REPORTS_KEYS.history(variables.projectId),
-      })
+    onSuccess: () => {
+      invalidateReportQueries(queryClient)
     },
+  })
+}
+
+export const useExportProjectReportPdf = () => {
+  return useMutation({
+    mutationFn: (snapshot: ReportSnapshot) =>
+      downloadProjectReportPdf(snapshot),
   })
 }

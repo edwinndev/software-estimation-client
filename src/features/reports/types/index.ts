@@ -1,39 +1,42 @@
-export interface ReportSnapshot {
+export type ReportSnapshot = {
   id: string
   projectId: string
+  projectName: string
+  projectStatus: string
+  projectType: string
+  projectOwner: string
   createdAt: string
-
-  // Base Estimate
   baseEffortPoints: number
-  baseTime: number // en la unidad de tiempo (días o semanas)
+  totalSprints: number
+  totalEffortHours: number
+  storiesTotal: number
+  storiesWithPoints: number
+  tasksTotal: number
+  tasksWithHours: number
+  baseTime: number
   timeUnit: string
   baseCost: number
-
-  // Risk & Contingency
   riskLevel: string
   contingencyMarginPercentage: number
-
-  // Impact
   contingencyTime: number
   contingencyCost: number
-
-  // Totals
   totalTime: number
   totalCost: number
 }
 
-export interface ProjectReportSummary {
+export type ProjectReportSummary = {
   projectId: string
   projectName: string
   projectStatus: string
+  projectType: string
   latestEstimate: ReportSnapshot | null
 }
 
-export interface GlobalSystemReport {
+export type GlobalSystemReport = {
   totalProjects: number
   totalEstimatesCompleted: number
   totalSystemStoryPoints: number
-  totalSystemBaseTime: number // en días (convertido si aplica)
+  totalSystemBaseTime: number
   totalSystemBaseCost: number
   totalSystemContingencyCost: number
   totalSystemCost: number
