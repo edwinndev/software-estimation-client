@@ -1,9 +1,17 @@
-import { Project } from "../types/project-types"
-import { ProjectFormValues } from "../schemas/project-schema"
+import { PROJECT_STATUS_LABELS, toProjectStatus } from "../types/project-status"
+import {
+  canDeleteProject,
+  canEditGeneral,
+  canTransitionStatus,
+  getBlockedActionMessage,
+  getInvalidTransitionMessage,
+} from "../utils/project-permissions"
 import { QueryRequest, PaginatedResponse, FilterOperator } from "@/types/api"
 import { paginateQuery } from "@/lib/pagination"
-import { readJson, STORAGE_KEYS, writeJson } from "@/lib/storage"
+import { readJson, removeJson, STORAGE_KEYS, writeJson } from "@/lib/storage"
 import { authService } from "@/features/auth/services/auth-service"
+import { Project } from "../types/project-types"
+import { ProjectFormValues } from "../schemas/project-schema"
 
 const getCurrentUser = async () => {
   const session = await authService.getSession()
@@ -37,10 +45,41 @@ const getFieldValue = (project: Project, key: string) => {
   return String(value ?? "").toLowerCase()
 }
 
+const matchesDateFilter = (
+  project: Project,
+  filter: { key: string; operator: string; values: string[] }
+) => {
+  const fieldValue = project[filter.key as keyof Project]
+  if (typeof fieldValue !== "string" || !filter.values[0]) {
+    return true
+  }
+
+  const fieldTime = new Date(fieldValue).getTime()
+  const filterTime = new Date(filter.values[0]).getTime()
+
+  if (Number.isNaN(fieldTime) || Number.isNaN(filterTime)) {
+    return true
+  }
+
+  if (filter.operator === FilterOperator.GE) {
+    return fieldTime >= filterTime
+  }
+
+  if (filter.operator === FilterOperator.LE) {
+    return fieldTime <= filterTime
+  }
+
+  return true
+}
+
 const matchesFilter = (
   project: Project,
   filter: { key: string; operator: string; values: string[] }
 ) => {
+  if (filter.key === "fecha_inicio" || filter.key === "fecha_fin") {
+    return matchesDateFilter(project, filter)
+  }
+
   const field = getFieldValue(project, filter.key)
   const values = filter.values.map((value) => value.toLowerCase())
 
@@ -123,6 +162,27 @@ export const projectService = {
     if (index === -1) throw new Error("Proyecto no encontrado")
 
     const currentProject = projects[index]
+    const currentStatus = toProjectStatus(currentProject.estado)
+    const nextStatus = toProjectStatus(data.estado)
+
+    if (!canTransitionStatus(currentStatus, nextStatus)) {
+      throw new Error(getInvalidTransitionMessage(currentStatus, nextStatus))
+    }
+
+    const generalChanged =
+      currentProject.nombre !== data.nombre ||
+      currentProject.descripcion !== data.descripcion ||
+      currentProject.tipo !== data.tipo ||
+      currentProject.responsable !== data.responsable ||
+      currentProject.fecha_inicio !== data.fecha_inicio!.toISOString() ||
+      currentProject.fecha_fin !== data.fecha_fin!.toISOString()
+
+    if (generalChanged && !canEditGeneral(currentStatus)) {
+      throw new Error(
+        `No puedes editar los datos del proyecto en estado ${PROJECT_STATUS_LABELS[currentStatus]}.`
+      )
+    }
+
     const updatedProject: Project = {
       ...currentProject,
       nombre: data.nombre,
@@ -163,6 +223,12 @@ export const projectService = {
     const currentProject = projects[index]
     if (currentProject.estado === estado) return currentProject
 
+    const currentStatus = toProjectStatus(currentProject.estado)
+    const nextStatus = toProjectStatus(estado)
+    if (!canTransitionStatus(currentStatus, nextStatus)) {
+      throw new Error(getInvalidTransitionMessage(currentStatus, nextStatus))
+    }
+
     const currentUser = await getCurrentUser()
     const updatedProject: Project = {
       ...currentProject,
@@ -187,7 +253,25 @@ export const projectService = {
   deleteProject: async (id: string): Promise<void> => {
     await new Promise((resolve) => setTimeout(resolve, 500))
     const projects = await projectService.getProjects()
+    const current = projects.find((project) => project.id === id)
+    if (!current) {
+      throw new Error("Proyecto no encontrado")
+    }
+    if (!canDeleteProject(toProjectStatus(current.estado))) {
+      throw new Error(
+        getBlockedActionMessage(
+          toProjectStatus(current.estado),
+          "deleteProject"
+        )
+      )
+    }
     const filtered = projects.filter((p) => p.id !== id)
     writeJson(STORAGE_KEYS.PROJECTS, filtered)
+    removeJson(`software-estimation:backlog:${id}`)
+    removeJson(`software-estimation:task-hours:${id}`)
+    removeJson(`software-estimation:story-points:${id}`)
+    removeJson(`software-estimation:sprint-config:${id}`)
+    removeJson(`risk_config_${id}`)
+    removeJson(`reports_history_${id}`)
   },
 }

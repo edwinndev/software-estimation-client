@@ -1,26 +1,29 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-
+import { invalidateReportQueries } from "@/features/reports/hooks/query-keys"
 import { sprintConfigService } from "../services/sprint-config.service"
 import type { SprintConfig } from "../types"
 
-const SPRINT_CONFIG_KEY = ["sprint-config"] as const
-
-export const useSprintConfig = () => {
+export const useSprintConfig = (projectId: string) => {
   return useQuery({
-    queryKey: SPRINT_CONFIG_KEY,
-    queryFn: () => sprintConfigService.get(),
+    queryKey: ["sprint-config", projectId],
+    queryFn: () => sprintConfigService.get(projectId),
   })
 }
 
-export const useSaveSprintConfig = () => {
+export const useSaveSprintConfig = (projectId: string) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (config: SprintConfig) => sprintConfigService.save(config),
+    mutationFn: (config: SprintConfig) =>
+      sprintConfigService.save(projectId, config),
     onSuccess: (config) => {
-      queryClient.setQueryData(SPRINT_CONFIG_KEY, config)
+      queryClient.setQueryData(["sprint-config", projectId], config)
+      queryClient.invalidateQueries({
+        queryKey: ["sprint-calculation", projectId],
+      })
+      invalidateReportQueries(queryClient)
     },
   })
 }

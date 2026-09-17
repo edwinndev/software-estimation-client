@@ -7,6 +7,8 @@ import { calculateTaskCost } from "./calculate-task-cost"
 type ProfileAccumulator = {
   profileId: string
   profileName: string
+  profileRole: string
+  profileEmail: string
   cer: number
   assignments: ProfileCostAssignment[]
 }
@@ -19,16 +21,6 @@ export const groupCostsByProfile = (
   assignments.forEach((assignment) => {
     const profile = profiles.get(assignment.profileId)
 
-    if (profile && profile.cer !== assignment.cer) {
-      throw new RangeError("Assignments for the same profile must use one CER")
-    }
-
-    if (profile && profile.profileName !== assignment.profileName) {
-      throw new Error(
-        "Assignments for the same profile must use one profile name"
-      )
-    }
-
     if (profile) {
       profile.assignments.push(assignment)
       return
@@ -37,6 +29,8 @@ export const groupCostsByProfile = (
     profiles.set(assignment.profileId, {
       profileId: assignment.profileId,
       profileName: assignment.profileName,
+      profileRole: assignment.profileRole,
+      profileEmail: assignment.profileEmail,
       cer: assignment.cer,
       assignments: [assignment],
     })
@@ -56,6 +50,8 @@ export const groupCostsByProfile = (
     return {
       profileId: profile.profileId,
       profileName: profile.profileName,
+      profileRole: profile.profileRole,
+      profileEmail: profile.profileEmail,
       totalHours,
       cer: profile.cer,
       totalCost: calculateTaskCost(profile.assignments),

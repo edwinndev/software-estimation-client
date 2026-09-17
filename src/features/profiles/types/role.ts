@@ -1,48 +1,84 @@
+import {
+  Activity,
+  CheckCircle2Icon,
+  Cpu,
+  FileTextIcon,
+  Flag,
+  Layers,
+  Server,
+  Sliders,
+  SparklesIcon,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react"
+
 export type TechnicalRoleDefinition = {
   value: string
   label: string
+  icon: LucideIcon
+  color: string
 }
 
 export const TechnicalRole = {
   FRONTEND: {
     value: "Frontend",
     label: "Frontend",
+    icon: Cpu,
+    color: "text-blue-500",
   },
   BACKEND: {
     value: "Backend",
     label: "Backend",
+    icon: Server,
+    color: "text-emerald-500",
   },
   FULLSTACK: {
     value: "Fullstack",
     label: "Fullstack",
+    icon: Layers,
+    color: "text-cyan-500",
   },
   QA: {
     value: "QA",
     label: "QA / Testing",
+    icon: CheckCircle2Icon,
+    color: "text-amber-500",
   },
   DEVOPS: {
     value: "DevOps",
     label: "DevOps / Infraestructura",
+    icon: Activity,
+    color: "text-purple-500",
   },
   UI_UX_DESIGNER: {
     value: "UI/UX Designer",
     label: "Diseñador UI/UX",
+    icon: SparklesIcon,
+    color: "text-rose-500",
   },
   PRODUCT_MANAGER: {
     value: "Product Manager",
     label: "Product Manager",
+    icon: UserRound,
+    color: "text-blue-500",
   },
   TECH_LEAD: {
     value: "Tech Lead",
     label: "Líder Técnico",
+    icon: Flag,
+    color: "text-purple-500",
   },
   FUNCTIONAL_ANALYST: {
     value: "Functional Analyst",
     label: "Analista Funcional",
+    icon: FileTextIcon,
+    color: "text-amber-500",
   },
   OTHER: {
     value: "Other",
     label: "Otro",
+    icon: Sliders,
+    color: "text-muted-foreground",
   },
 } as const satisfies Record<string, TechnicalRoleDefinition>
 

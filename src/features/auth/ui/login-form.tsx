@@ -4,7 +4,7 @@ import { useForm } from "@tanstack/react-form"
 import Link from "next/link"
 import { LogInIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
 import { getErrorMessage, getFieldError } from "@/lib/form-errors"
@@ -29,16 +29,13 @@ export const LoginForm = () => {
         await login.mutateAsync(value)
         toast.add({
           title: "Sesión iniciada",
-          description: "Bienvenido de nuevo. Ya puedes usar la plataforma.",
+          description: "Bienvenido de nuevo.",
           type: "success",
         })
       } catch (error) {
         toast.add({
           title: "No se pudo iniciar sesión",
-          description: getErrorMessage(
-            error,
-            "Revisa tus credenciales e inténtalo de nuevo."
-          ),
+          description: getErrorMessage(error, "Inténtalo de nuevo."),
           type: "error",
         })
       }
@@ -75,6 +72,7 @@ export const LoginForm = () => {
               label="Correo electrónico"
               htmlFor="login-email"
               error={error}
+              required
             >
               <Input
                 id="login-email"
@@ -100,6 +98,7 @@ export const LoginForm = () => {
               label="Contraseña"
               htmlFor="login-password"
               error={error}
+              required
             >
               <PasswordInput
                 id="login-password"
@@ -123,16 +122,18 @@ export const LoginForm = () => {
         </Link>
       </div>
 
-      <form.Subscribe selector={(state) => state.isSubmitting}>
-        {(isSubmitting) => (
-          <Button type="submit" disabled={isSubmitting || login.isPending}>
+      <FormSubmitButton
+        form={form}
+        schema={loginSchema}
+        isPending={login.isPending}
+      >
+        {({ isBusy }) => (
+          <>
             <LogInIcon />
-            {isSubmitting || login.isPending
-              ? "Ingresando..."
-              : "Iniciar sesión"}
-          </Button>
+            {isBusy ? "Ingresando..." : "Iniciar sesión"}
+          </>
         )}
-      </form.Subscribe>
+      </FormSubmitButton>
     </form>
   )
 }

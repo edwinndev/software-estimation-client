@@ -3,7 +3,7 @@ import Image from "next/image"
 
 export const AuthSplitCard = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="bg-card grid min-h-[560px] overflow-hidden rounded-2xl shadow-xl lg:grid-cols-2">
+    <div className="bg-card grid min-h-[560px] overflow-hidden rounded-md shadow-xl lg:grid-cols-2">
       <div className="relative hidden min-h-[560px] lg:block">
         <Image
           src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1400&q=80"

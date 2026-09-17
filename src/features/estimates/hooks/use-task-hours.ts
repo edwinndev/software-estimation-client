@@ -1,44 +1,36 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import {
-  getTechnicalProfiles,
-  getTaskHoursEntries,
-  saveTaskHourEntry,
-} from "../services/task-hours.service"
-import { TaskHourEntry } from "../types"
+import { invalidateReportQueries } from "@/features/reports/hooks/query-keys"
+import { taskHoursService } from "../services/task-hours.service"
+import type { UpdateTaskHoursInput } from "../types"
 
-export const useTaskHours = () => {
+export const TASK_HOURS_QUERY_KEY = ["task-hours"]
+
+export const useTaskHours = (projectId: string) => {
+  return useQuery({
+    queryKey: [...TASK_HOURS_QUERY_KEY, projectId],
+    queryFn: () => taskHoursService.getTaskHourEntries(projectId),
+  })
+}
+
+export const useUpdateTaskHours = (projectId: string) => {
   const queryClient = useQueryClient()
 
-  // 1. Cargar perfiles técnicos
-  const profilesQuery = useQuery({
-    queryKey: ["technical-profiles"],
-    queryFn: getTechnicalProfiles,
-  })
-
-  // 2. Cargar horas de tareas de localStorage ("task-hours-entries")
-  const taskHoursQuery = useQuery({
-    queryKey: ["task-hours-entries"],
-    queryFn: getTaskHoursEntries,
-  })
-
-  // 3. Mutación para PMGT-32: Guardar nueva asignación de horas
-  const saveTaskHourMutation = useMutation({
-    mutationFn: (entry: Omit<TaskHourEntry, "id" | "updatedAt">) =>
-      saveTaskHourEntry(entry),
+  return useMutation({
+    mutationFn: (input: UpdateTaskHoursInput) =>
+      taskHoursService.updateTaskHours(projectId, input),
     onSuccess: () => {
-      // Invalida la caché para que la lista y la pantalla se actualicen al instante
-      queryClient.invalidateQueries({ queryKey: ["task-hours-entries"] })
+      queryClient.invalidateQueries({
+        queryKey: [...TASK_HOURS_QUERY_KEY, projectId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["sprint-calculation", projectId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["project-costs", projectId],
+      })
+      invalidateReportQueries(queryClient)
     },
   })
-
-  return {
-    profiles: profilesQuery.data || [],
-    isLoadingProfiles: profilesQuery.isLoading,
-    taskHours: taskHoursQuery.data || [],
-    isLoadingTaskHours: taskHoursQuery.isLoading,
-    saveTaskHour: saveTaskHourMutation.mutate,
-    isSavingTaskHour: saveTaskHourMutation.isPending,
-  }
 }

@@ -2,25 +2,32 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { calculateSprintsAndProjectTime } from "../services/sprint-calculation.service"
+import type { SprintCalculationResult } from "../types"
 
-export const useSprintCalculation = (projectId?: string) => {
-  // Query de TanStack Query para calcular sprints y tiempo
-  const { data, isLoading, isRefetching, refetch } = useQuery({
-    queryKey: ["sprint-calculation", projectId || "1"],
-    queryFn: () => calculateSprintsAndProjectTime(projectId || "1"),
+const EMPTY_CALCULATION: SprintCalculationResult = {
+  totalStoryPoints: 0,
+  storiesTotal: 0,
+  storiesWithPoints: 0,
+  velocity: 5,
+  sprintDuration: 2,
+  sprintUnit: "dias",
+  totalSprints: 0,
+  totalBaseTime: 0,
+  totalEffortHours: 0,
+  tasksTotal: 0,
+  tasksWithHours: 0,
+}
+
+export const useSprintCalculation = (projectId: string) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["sprint-calculation", projectId],
+    queryFn: () => calculateSprintsAndProjectTime(projectId),
+    staleTime: 0,
+    refetchOnMount: "always",
   })
 
   return {
-    calculation: data || {
-      totalStoryPoints: 0,
-      velocity: 5,
-      sprintDuration: 2,
-      sprintUnit: "dias" as const,
-      totalSprints: 0,
-      totalBaseTime: 0,
-    },
+    calculation: data ?? EMPTY_CALCULATION,
     isLoading,
-    isRecalculating: isRefetching,
-    recalculate: refetch, // Función para el botón "Recalcular Tiempo"
   }
 }

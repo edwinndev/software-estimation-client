@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { PlusIcon } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { ProjectsView } from "@/features/projects"
 
@@ -13,6 +14,7 @@ const ProjectsPage = () => {
           </p>
         </div>
         <Link href="/projects/new" className={buttonVariants()}>
+          <PlusIcon />
           Nuevo proyecto
         </Link>
       </div>

@@ -33,7 +33,6 @@ export const LogoutDialog = ({ open, onOpenChange }: LogoutDialogProps) => {
       return
     }
 
-    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
     const readyTimer = window.setTimeout(() => {
@@ -50,7 +49,7 @@ export const LogoutDialog = ({ open, onOpenChange }: LogoutDialogProps) => {
 
     return () => {
       window.clearTimeout(readyTimer)
-      document.body.style.overflow = previousOverflow
+      document.body.style.removeProperty("overflow")
       document.removeEventListener("keydown", onKeyDown)
     }
   }, [logout.isPending, onOpenChange, open])
