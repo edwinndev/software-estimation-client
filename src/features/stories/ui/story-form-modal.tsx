@@ -1,21 +1,14 @@
 "use client"
 
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  CheckCircle2Icon,
-  CircleDashedIcon,
-  Clock3Icon,
-  FileTextIcon,
-  Layers3Icon,
-  ListTodoIcon,
-  SparklesIcon,
-  WrenchIcon,
-} from "lucide-react"
 import { useForm } from "@tanstack/react-form"
+import { SaveIcon, UserRound, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { DescriptionHint } from "@/components/ui/description-hint"
+import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { NumberInput } from "@/components/ui/number-input"
 import {
   Select,
   SelectContent,
@@ -24,122 +17,106 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { technicalRoles } from "@/features/profiles/schemas/profile-schema"
+import { getFieldError } from "@/lib/form-errors"
 import { cn } from "@/lib/utils"
 import type { TechnicalProfile } from "../types/story-types"
+import { TaskProfileInfo } from "./task-profile-info"
 import {
   storySchema,
   taskSchema,
   type StoryFormValues,
   type TaskFormValues,
 } from "../schemas/story-schema"
+import {
+  findOption,
+  PROFILE_OPTIONS,
+  STORY_PRIORITY_OPTIONS,
+  STORY_STATUS_OPTIONS,
+  TASK_STATUS_OPTIONS,
+  type SelectOption,
+} from "./story-options"
 
-interface StoryFormProps {
-  initial?: StoryFormValues
+type StoryFormProps = {
+  initial: StoryFormValues | null
   onSubmit: (values: StoryFormValues) => void
   onCancel: () => void
 }
-interface TaskFormProps {
+
+type TaskFormProps = {
   profiles: TechnicalProfile[]
-  initial?: TaskFormValues
+  initial: TaskFormValues | null
   onSubmit: (values: TaskFormValues) => void
   onCancel: () => void
 }
 
-const FieldError = ({ error }: { error?: unknown }) =>
-  error ? <p className="text-destructive text-xs">{String(error)}</p> : null
+const RequiredMark = () => <span className="text-destructive">*</span>
 
-const storyPriorityOptions = [
-  {
-    value: "low",
-    label: "Baja",
-    icon: ArrowDownIcon,
-    className: "text-blue-600",
-  },
-  {
-    value: "medium",
-    label: "Media",
-    icon: ArrowUpIcon,
-    className: "text-amber-600",
-  },
-  {
-    value: "high",
-    label: "Alta",
-    icon: SparklesIcon,
-    className: "text-red-600",
-  },
-] as const
+const FieldError = ({ error }: { error: string }) =>
+  error ? <p className="text-destructive text-xs">{error}</p> : null
 
-const storyStatusOptions = [
-  {
-    value: "draft",
-    label: "Borrador",
-    icon: FileTextIcon,
-    className: "text-slate-600",
-  },
-  {
-    value: "ready",
-    label: "Lista",
-    icon: CircleDashedIcon,
-    className: "text-sky-600",
-  },
-  {
-    value: "in-progress",
-    label: "En progreso",
-    icon: Clock3Icon,
-    className: "text-amber-600",
-  },
-  {
-    value: "done",
-    label: "Completada",
-    icon: CheckCircle2Icon,
-    className: "text-emerald-600",
-  },
-] as const
+const IconSelect = <TValue extends string>({
+  id,
+  value,
+  placeholder,
+  options,
+  onChange,
+}: {
+  id: string
+  value: string
+  placeholder: string
+  options: SelectOption<TValue>[]
+  onChange: (value: TValue) => void
+}) => {
+  const selected = findOption(options, value)
 
-const taskStatusOptions = [
-  {
-    value: "todo",
-    label: "Pendiente",
-    icon: ListTodoIcon,
-    className: "text-slate-600",
-  },
-  {
-    value: "in-progress",
-    label: "En progreso",
-    icon: Clock3Icon,
-    className: "text-amber-600",
-  },
-  {
-    value: "done",
-    label: "Completada",
-    icon: CheckCircle2Icon,
-    className: "text-emerald-600",
-  },
-] as const
-
-const renderSelectOption = (
-  value: string,
-  label: string,
-  Icon: typeof ArrowDownIcon,
-  className?: string
-) => (
-  <span className="flex items-center gap-2">
-    <Icon className={cn("size-4", className)} />
-    <span>{label}</span>
-  </span>
-)
+  return (
+    <Select
+      value={value}
+      onValueChange={(nextValue) => {
+        const option = findOption(options, nextValue ?? "")
+        if (option) {
+          onChange(option.value)
+        }
+      }}
+    >
+      <SelectTrigger id={id} className="w-full">
+        {selected ? (
+          <div className="flex items-center gap-2">
+            <selected.icon className={cn("h-4 w-4", selected.color)} />
+            <span>{selected.label}</span>
+          </div>
+        ) : (
+          <SelectValue placeholder={placeholder} />
+        )}
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => {
+          const Icon = option.icon
+          return (
+            <SelectItem key={option.value} value={option.value}>
+              <div className="flex items-center gap-2">
+                <Icon className={cn("h-4 w-4", option.color)} />
+                <span>{option.label}</span>
+              </div>
+            </SelectItem>
+          )
+        })}
+      </SelectContent>
+    </Select>
+  )
+}
 
 export const StoryForm = ({ initial, onSubmit, onCancel }: StoryFormProps) => {
   const form = useForm({
-    defaultValues:
-      initial ??
-      ({
-        title: "",
-        description: "",
-        priority: "medium",
-        status: "draft",
-      } as StoryFormValues),
+    defaultValues: initial ?? {
+      title: "",
+      description: "",
+      priority: "medium" as const,
+      status: "draft" as const,
+    },
+    validators: {
+      onSubmit: storySchema,
+    },
     onSubmit: ({ value }) => {
       const result = storySchema.safeParse(value)
       if (result.success) onSubmit(result.data)
@@ -156,111 +133,99 @@ export const StoryForm = ({ initial, onSubmit, onCancel }: StoryFormProps) => {
     >
       <form.Field name="title">
         {(field) => (
-          <div className="grid gap-2">
-            <Label htmlFor="story-title">Título</Label>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="story-title">
+              Título <RequiredMark />
+            </Label>
             <Input
               id="story-title"
               value={field.state.value}
+              onBlur={field.handleBlur}
               onChange={(event) => field.handleChange(event.target.value)}
             />
-            <FieldError error={String(field.state.meta.errors[0] ?? "")} />
+            <FieldError error={getFieldError(field.state.meta.errors)} />
           </div>
         )}
       </form.Field>
-      <form.Field name="description">
-        {(field) => (
-          <div className="grid gap-2">
-            <Label htmlFor="story-description">Descripción</Label>
-            <Textarea
-              id="story-description"
-              value={field.state.value}
-              onChange={(event) => field.handleChange(event.target.value)}
-            />
-            <FieldError error={String(field.state.meta.errors[0] ?? "")} />
-          </div>
-        )}
+      <form.Field
+        name="description"
+        validators={{
+          onChange: storySchema.shape.description,
+          onBlur: storySchema.shape.description,
+        }}
+      >
+        {(field) => {
+          const error = getFieldError(field.state.meta.errors)
+          const length = field.state.value.trim().length
+
+          return (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="story-description">
+                Descripción <RequiredMark />
+              </Label>
+              <Textarea
+                id="story-description"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                aria-invalid={Boolean(error)}
+              />
+              <DescriptionHint
+                error={error}
+                hint="Describe la necesidad con al menos 10 caracteres."
+                length={length}
+                limit={10}
+                invalidCount={length < 10}
+              />
+            </div>
+          )
+        }}
       </form.Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <form.Field name="priority">
-          {(field) => {
-            const selected =
-              storyPriorityOptions.find(
-                (option) => option.value === field.state.value
-              ) ?? storyPriorityOptions[1]
-
-            return (
-              <div className="grid gap-2">
-                <Label>Prioridad</Label>
-                <Select
-                  value={field.state.value}
-                  onValueChange={(value) =>
-                    field.handleChange(value as StoryFormValues["priority"])
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecciona una prioridad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {storyPriorityOptions.map(
-                      ({ value, label, icon: Icon, className }) => (
-                        <SelectItem key={value} value={value}>
-                          {renderSelectOption(value, label, Icon, className)}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
-                <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                  <selected.icon className={cn("size-4", selected.className)} />
-                  <span>{selected.label}</span>
-                </div>
-              </div>
-            )
-          }}
+          {(field) => (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="story-priority">
+                Prioridad <RequiredMark />
+              </Label>
+              <IconSelect
+                id="story-priority"
+                value={field.state.value}
+                placeholder="Selecciona una prioridad"
+                options={STORY_PRIORITY_OPTIONS}
+                onChange={field.handleChange}
+              />
+              <FieldError error={getFieldError(field.state.meta.errors)} />
+            </div>
+          )}
         </form.Field>
         <form.Field name="status">
-          {(field) => {
-            const selected =
-              storyStatusOptions.find(
-                (option) => option.value === field.state.value
-              ) ?? storyStatusOptions[0]
-
-            return (
-              <div className="grid gap-2">
-                <Label>Estado</Label>
-                <Select
-                  value={field.state.value}
-                  onValueChange={(value) =>
-                    field.handleChange(value as StoryFormValues["status"])
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecciona un estado" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {storyStatusOptions.map(
-                      ({ value, label, icon: Icon, className }) => (
-                        <SelectItem key={value} value={value}>
-                          {renderSelectOption(value, label, Icon, className)}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
-                <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                  <selected.icon className={cn("size-4", selected.className)} />
-                  <span>{selected.label}</span>
-                </div>
-              </div>
-            )
-          }}
+          {(field) => (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="story-status">
+                Estado <RequiredMark />
+              </Label>
+              <IconSelect
+                id="story-status"
+                value={field.state.value}
+                placeholder="Selecciona un estado"
+                options={STORY_STATUS_OPTIONS}
+                onChange={field.handleChange}
+              />
+              <FieldError error={getFieldError(field.state.meta.errors)} />
+            </div>
+          )}
         </form.Field>
       </div>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>
+          <XIcon />
           Cancelar
         </Button>
-        <Button type="submit">Guardar historia</Button>
+        <FormSubmitButton form={form} schema={storySchema}>
+          <SaveIcon />
+          Guardar historia
+        </FormSubmitButton>
       </div>
     </form>
   )
@@ -272,22 +237,17 @@ export const TaskForm = ({
   onSubmit,
   onCancel,
 }: TaskFormProps) => {
-  const roles = technicalRoles.map((role) => ({
-    id: role,
-    name: role,
-    icon: role.includes("UI") || role.includes("UX") ? Layers3Icon : WrenchIcon,
-  }))
-
   const form = useForm({
-    defaultValues:
-      initial ??
-      ({
-        title: "",
-        description: "",
-        estimate: 1,
-        status: "todo",
-        profileIds: [],
-      } as TaskFormValues),
+    defaultValues: initial ?? {
+      title: "",
+      description: "",
+      estimate: 0,
+      status: "todo" as const,
+      profileIds: [],
+    },
+    validators: {
+      onSubmit: taskSchema,
+    },
     onSubmit: ({ value }) => {
       const result = taskSchema.safeParse(value)
       if (result.success) onSubmit(result.data)
@@ -304,130 +264,174 @@ export const TaskForm = ({
     >
       <form.Field name="title">
         {(field) => (
-          <div className="grid gap-2">
-            <Label htmlFor="task-title">Título</Label>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="task-title">
+              Título <RequiredMark />
+            </Label>
             <Input
               id="task-title"
               value={field.state.value}
+              onBlur={field.handleBlur}
               onChange={(event) => field.handleChange(event.target.value)}
             />
+            <FieldError error={getFieldError(field.state.meta.errors)} />
           </div>
         )}
       </form.Field>
-      <form.Field name="description">
-        {(field) => (
-          <div className="grid gap-2">
-            <Label htmlFor="task-description">Descripción</Label>
-            <Textarea
-              id="task-description"
-              value={field.state.value}
-              onChange={(event) => field.handleChange(event.target.value)}
-            />
-          </div>
-        )}
+      <form.Field
+        name="description"
+        validators={{
+          onChange: taskSchema.shape.description,
+          onBlur: taskSchema.shape.description,
+        }}
+      >
+        {(field) => {
+          const error = getFieldError(field.state.meta.errors)
+          const length = field.state.value.trim().length
+
+          return (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="task-description">
+                Descripción <RequiredMark />
+              </Label>
+              <Textarea
+                id="task-description"
+                rows={3}
+                className="max-h-24 min-h-16"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                aria-invalid={Boolean(error)}
+              />
+              <DescriptionHint
+                error={error}
+                hint="Describe la tarea con al menos 10 caracteres."
+                length={length}
+                limit={10}
+                invalidCount={length < 10}
+              />
+            </div>
+          )
+        }}
       </form.Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <form.Field name="estimate">
           {(field) => (
-            <div className="grid gap-2">
-              <Label htmlFor="task-estimate">Horas estimadas</Label>
-              <Input
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="task-estimate">
+                Horas estimadas <RequiredMark />
+              </Label>
+              <NumberInput
                 id="task-estimate"
-                type="number"
-                min="1"
                 value={field.state.value}
-                onChange={(event) =>
-                  field.handleChange(Number(event.target.value))
-                }
+                min={0}
+                max={9999}
+                step={1}
+                disabled={false}
+                invalid={Boolean(getFieldError(field.state.meta.errors))}
+                className=""
+                onBlur={field.handleBlur}
+                onChange={field.handleChange}
               />
+              <FieldError error={getFieldError(field.state.meta.errors)} />
             </div>
           )}
         </form.Field>
         <form.Field name="status">
-          {(field) => {
-            const selected =
-              taskStatusOptions.find(
-                (option) => option.value === field.state.value
-              ) ?? taskStatusOptions[0]
-
-            return (
-              <div className="grid gap-2">
-                <Label>Estado</Label>
-                <Select
-                  value={field.state.value}
-                  onValueChange={(value) =>
-                    field.handleChange(value as TaskFormValues["status"])
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecciona un estado" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {taskStatusOptions.map(
-                      ({ value, label, icon: Icon, className }) => (
-                        <SelectItem key={value} value={value}>
-                          {renderSelectOption(value, label, Icon, className)}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
-                <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                  <selected.icon className={cn("size-4", selected.className)} />
-                  <span>{selected.label}</span>
-                </div>
-              </div>
-            )
-          }}
+          {(field) => (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="task-status">
+                Estado <RequiredMark />
+              </Label>
+              <IconSelect
+                id="task-status"
+                value={field.state.value}
+                placeholder="Selecciona un estado"
+                options={TASK_STATUS_OPTIONS}
+                onChange={field.handleChange}
+              />
+              <FieldError error={getFieldError(field.state.meta.errors)} />
+            </div>
+          )}
         </form.Field>
       </div>
       <form.Field name="profileIds">
-        {(field) => (
-          <div className="grid gap-2">
-            <Label>Perfiles técnicos</Label>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {roles.map((profile) => {
-                const profileOption = profiles.find(
-                  (item) => item.id === profile.id
-                )
-                const label = profileOption?.name ?? profile.name
-                const Icon = profile.icon
+        {(field) => {
+          const assignableProfiles = profiles.filter(
+            (profile) => profile.isActive
+          )
 
-                return (
-                  <label
-                    key={profile.id}
-                    className="border-input bg-background flex items-center gap-2 rounded-md border px-2 py-2 text-sm"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={field.state.value.includes(profile.id)}
-                      onChange={(event) =>
-                        field.handleChange(
-                          event.target.checked
-                            ? [...field.state.value, profile.id]
-                            : field.state.value.filter(
-                                (id) => id !== profile.id
-                              )
-                        )
-                      }
-                    />
-                    <span className="flex items-center gap-2">
-                      <Icon className="text-muted-foreground size-4" />
-                      {label}
-                    </span>
-                  </label>
-                )
-              })}
+          return (
+            <div className="flex flex-col gap-1.5">
+              <Label>
+                Perfil técnico <RequiredMark />
+              </Label>
+              {assignableProfiles.length === 0 ? (
+                <p className="text-muted-foreground text-sm">
+                  No hay perfiles activos. Créalos en Gestión de perfiles
+                  técnicos y CER.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {assignableProfiles.map((profile) => {
+                    const option = findOption(PROFILE_OPTIONS, profile.role)
+                    const Icon = option?.icon ?? UserRound
+                    const color = option?.color ?? "text-muted-foreground"
+                    const selected = field.state.value.includes(profile.id)
+                    const checkboxId = `task-profile-${profile.id}`
+                    const roleLabel = option?.label ?? profile.role
+
+                    return (
+                      <label
+                        key={profile.id}
+                        htmlFor={checkboxId}
+                        className={cn(
+                          "flex cursor-pointer items-start gap-2 rounded-md border px-2 py-2 text-sm",
+                          selected
+                            ? "border-primary bg-primary/5"
+                            : "border-input bg-background"
+                        )}
+                      >
+                        <Checkbox
+                          id={checkboxId}
+                          checked={selected}
+                          onCheckedChange={(checked) =>
+                            field.handleChange(
+                              checked === true
+                                ? [...field.state.value, profile.id]
+                                : field.state.value.filter(
+                                    (id) => id !== profile.id
+                                  )
+                            )
+                          }
+                        />
+                        <TaskProfileInfo
+                          name={profile.name}
+                          roleLabel={roleLabel}
+                          email={profile.email}
+                          hourlyRate={profile.hourlyRate}
+                          icon={Icon}
+                          color={color}
+                        />
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
+              <FieldError error={getFieldError(field.state.meta.errors)} />
             </div>
-            <FieldError error={String(field.state.meta.errors[0] ?? "")} />
-          </div>
-        )}
+          )
+        }}
       </form.Field>
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>
+          <XIcon />
           Cancelar
         </Button>
-        <Button type="submit">Guardar tarea</Button>
+        <FormSubmitButton form={form} schema={taskSchema}>
+          <SaveIcon />
+          Guardar tarea
+        </FormSubmitButton>
       </div>
     </form>
   )

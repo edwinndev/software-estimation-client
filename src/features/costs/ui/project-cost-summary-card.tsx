@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { formatCurrency } from "@/lib/format"
 
 interface ProjectCostSummaryCardProps {
   totalCost: number
@@ -17,11 +18,11 @@ export const ProjectCostSummaryCard = ({
     <Card>
       <CardHeader>
         <CardDescription>Costo total estimado del proyecto</CardDescription>
-        <CardTitle className="text-3xl">{totalCost}</CardTitle>
+        <CardTitle className="text-3xl">{formatCurrency(totalCost)}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground text-sm">
-          Suma de los costos estimados de todas las tareas.
+          Suma de horas × CER (soles) de todas las tareas.
         </p>
       </CardContent>
     </Card>

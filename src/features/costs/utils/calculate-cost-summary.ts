@@ -19,10 +19,6 @@ export const calculateCostSummary = (
   assignments.forEach((assignment) => {
     const task = tasks.get(assignment.taskId)
 
-    if (task && task.taskName !== assignment.taskName) {
-      throw new Error("Assignments for the same task must use one task name")
-    }
-
     if (task) {
       task.assignments.push(assignment)
       return
@@ -35,11 +31,31 @@ export const calculateCostSummary = (
     })
   })
 
-  const taskCosts: TaskCost[] = Array.from(tasks.values(), (task) => ({
-    taskId: task.taskId,
-    taskName: task.taskName,
-    totalCost: calculateTaskCost(task.assignments),
-  }))
+  const taskCosts: TaskCost[] = Array.from(tasks.values(), (task) => {
+    const uniqueProfiles = new Map(
+      task.assignments.map((assignment) => [
+        assignment.profileId,
+        {
+          profileId: assignment.profileId,
+          profileName: assignment.profileName,
+          profileRole: assignment.profileRole,
+          profileEmail: assignment.profileEmail,
+        },
+      ])
+    )
+    const totalHours = task.assignments.reduce(
+      (sum, assignment) => sum + assignment.estimatedHours,
+      0
+    )
+
+    return {
+      taskId: task.taskId,
+      taskName: task.taskName,
+      totalHours,
+      profiles: Array.from(uniqueProfiles.values()),
+      totalCost: calculateTaskCost(task.assignments),
+    }
+  })
   const profileBreakdown = groupCostsByProfile(assignments)
 
   return calculateProjectCostSummary(taskCosts, profileBreakdown)
