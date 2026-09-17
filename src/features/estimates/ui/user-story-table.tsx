@@ -15,11 +15,11 @@ import {
   useUserStories,
 } from "../hooks/use-user-stories"
 import { StoryPointsBadge } from "./story-points-badge"
+import { UserStoryItem } from "../services/user-stories.service"
 
 /**
- * Muestra las historias de usuario (dato ajeno, leído de "user-stories")
- * junto con los Story Points asignados (dato propio, leído de
- * "story-points-assignments"). Cruza ambas fuentes por el id de la historia.
+ * Muestra las historias de usuario (leídas del Backlog)
+ * junto con los Story Points asignados (PMGT-36).
  */
 export const UserStoryTable = () => {
   const { data: stories = [], isLoading: isLoadingStories } = useUserStories()
@@ -41,30 +41,47 @@ export const UserStoryTable = () => {
       <TableHeader>
         <TableRow>
           <TableHead>Historia de usuario</TableHead>
-          <TableHead className="w-28">Story Points</TableHead>
+          <TableHead className="w-28 text-center">Story Points</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {stories.map((story) => {
-          const points = assignments[story.id]
+        {stories.length === 0 ? (
+          <TableRow>
+            <TableCell
+              colSpan={2}
+              className="text-muted-foreground py-6 text-center text-sm"
+            >
+              No hay historias de usuario en el backlog. Crea historias en la
+              pestaña <strong>Backlog y tareas</strong> para visualizarlas aquí.
+            </TableCell>
+          </TableRow>
+        ) : (
+          stories.map((story: UserStoryItem) => {
+            const points =
+              (assignments as Record<string, number>)[story.id] ??
+              story.storyPoints
 
-          return (
-            <TableRow key={story.id}>
-              <TableCell>
-                <span className="font-medium">{story.title}</span>
-              </TableCell>
-              <TableCell>
-                {points !== undefined ? (
-                  <StoryPointsBadge points={points} />
-                ) : (
-                  <span className="text-muted-foreground text-sm">
-                    Sin asignar
+            return (
+              <TableRow key={story.id}>
+                <TableCell>
+                  <span className="text-xs font-medium">
+                    {story.code ? `${story.code} - ` : ""}
+                    {story.title}
                   </span>
-                )}
-              </TableCell>
-            </TableRow>
-          )
-        })}
+                </TableCell>
+                <TableCell className="text-center">
+                  {points !== undefined && points !== null ? (
+                    <StoryPointsBadge points={points} />
+                  ) : (
+                    <span className="text-muted-foreground text-xs italic">
+                      Sin asignar
+                    </span>
+                  )}
+                </TableCell>
+              </TableRow>
+            )
+          })
+        )}
       </TableBody>
     </Table>
   )
