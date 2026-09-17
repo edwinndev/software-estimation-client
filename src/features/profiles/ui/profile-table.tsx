@@ -1,5 +1,8 @@
 "use client"
 
+import { BanIcon, CircleCheckIcon } from "lucide-react"
+import { StatusBadge } from "@/components/status-badge"
+import { formatCurrency } from "@/lib/format"
 import {
   Table,
   TableBody,
@@ -8,39 +11,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  DollarSignIcon,
-  MoreHorizontalIcon,
-  PencilIcon,
-  Trash2Icon,
-} from "lucide-react"
 import type { Profile } from "../types"
+import { ProfileRowActions } from "./profile-row-actions"
 
 type ProfileTableProps = {
   profiles: Profile[]
   onEdit: (profile: Profile) => void
   onAssignCer: (profile: Profile) => void
   onDelete: (profile: Profile) => void
-}
-
-const getSeniorityBadgeVariant = (level: Profile["experienceLevel"]) => {
-  switch (level) {
-    case "Senior":
-    case "Lead":
-      return "default"
-    case "Mid":
-      return "secondary"
-    case "Junior":
-    default:
-      return "outline"
-  }
 }
 
 export const ProfileTable = ({
@@ -59,7 +37,7 @@ export const ProfileTable = ({
             <TableHead>Seniority</TableHead>
             <TableHead>CER horario</TableHead>
             <TableHead>Estado</TableHead>
-            <TableHead className="w-[70px] text-right">Acciones</TableHead>
+            <TableHead className="w-28 text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -77,21 +55,16 @@ export const ProfileTable = ({
                 <span className="text-sm font-medium">{profile.role}</span>
               </TableCell>
               <TableCell>
-                <Badge
-                  variant={getSeniorityBadgeVariant(profile.experienceLevel)}
-                >
-                  {profile.experienceLevel}
-                </Badge>
+                <span className="text-sm">{profile.experienceLevel}</span>
               </TableCell>
               <TableCell>
                 <button
                   type="button"
                   onClick={() => onAssignCer(profile)}
                   className="hover:bg-muted/80 inline-flex items-center rounded-md px-2 py-1 text-left transition-colors"
-                  title="Haz clic para asignar o modificar CER"
                 >
                   <div className="text-sm font-semibold">
-                    {profile.currency} {profile.hourlyRate.toFixed(2)}
+                    {formatCurrency(profile.hourlyRate)}
                     <span className="text-muted-foreground ml-1 text-xs font-normal">
                       / hora
                     </span>
@@ -99,34 +72,19 @@ export const ProfileTable = ({
                 </button>
               </TableCell>
               <TableCell>
-                <Badge variant={profile.isActive ? "secondary" : "outline"}>
-                  {profile.isActive ? "Activo" : "Inactivo"}
-                </Badge>
+                <StatusBadge
+                  tone={profile.isActive ? "success" : "neutral"}
+                  label={profile.isActive ? "Activo" : "Inactivo"}
+                  icon={profile.isActive ? CircleCheckIcon : BanIcon}
+                />
               </TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="hover:bg-accent hover:text-accent-foreground inline-flex size-8 items-center justify-center rounded-md text-sm font-medium">
-                    <MoreHorizontalIcon className="size-4" />
-                    <span className="sr-only">Abrir acciones</span>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onAssignCer(profile)}>
-                      <DollarSignIcon className="mr-2 size-4" />
-                      Asignar CER horario
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEdit(profile)}>
-                      <PencilIcon className="mr-2 size-4" />
-                      Editar perfil
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => onDelete(profile)}
-                      variant="destructive"
-                    >
-                      <Trash2Icon className="mr-2 size-4" />
-                      Eliminar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <TableCell>
+                <ProfileRowActions
+                  profile={profile}
+                  onEdit={onEdit}
+                  onAssignCer={onAssignCer}
+                  onDelete={onDelete}
+                />
               </TableCell>
             </TableRow>
           ))}

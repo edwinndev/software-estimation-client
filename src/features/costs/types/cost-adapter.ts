@@ -6,12 +6,16 @@ export type ExternalHourAssignment = {
   taskName: string
   profileId: string
   profileName: string
+  profileRole: string
+  profileEmail: string
   hours: number
 }
 
 export type CostTechnicalProfile = {
   profileId: string
   profileName: string
+  profileRole: string
+  profileEmail: string
   cer: number
 }
 

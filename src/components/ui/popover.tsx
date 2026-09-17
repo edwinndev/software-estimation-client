@@ -19,7 +19,7 @@ function PopoverAnchor({ ...props }: PopoverPrimitive.Trigger.Props) {
 
 function PopoverContent({
   className,
-  align = "center",
+  align = "start",
   alignOffset = 0,
   side = "bottom",
   sideOffset = 4,
@@ -37,11 +37,16 @@ function PopoverContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
+        collisionPadding={8}
+        collisionAvoidance={{
+          side: "flip",
+          align: "shift",
+        }}
       >
         <PopoverPrimitive.Popup
           data-slot="popover-content"
           className={cn(
-            "bg-popover text-popover-foreground ring-foreground/10 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 z-50 w-72 origin-(--transform-origin) rounded-lg p-4 shadow-md ring-1 outline-none",
+            "bg-popover text-popover-foreground ring-foreground/10 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 z-50 w-72 origin-(--transform-origin) rounded-md p-4 shadow-md ring-1 outline-none",
             className
           )}
           {...props}

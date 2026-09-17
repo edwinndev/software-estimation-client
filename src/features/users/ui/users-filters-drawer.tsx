@@ -3,6 +3,7 @@
 import { useForm } from "@tanstack/react-form"
 import { CheckIcon, RotateCcwIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import {
   Drawer,
   DrawerContent,
@@ -85,6 +86,7 @@ const UsersFiltersForm = ({
                 label="Nombre"
                 htmlFor="users-filter-first-name"
                 error={error}
+                required={false}
               >
                 <Input
                   id="users-filter-first-name"
@@ -107,6 +109,7 @@ const UsersFiltersForm = ({
                 label="Correo electrónico"
                 htmlFor="users-filter-email"
                 error={error}
+                required={false}
               >
                 <Input
                   id="users-filter-email"
@@ -126,7 +129,12 @@ const UsersFiltersForm = ({
             const error = getFieldError(field.state.meta.errors)
 
             return (
-              <AuthField label="Rol" htmlFor="users-filter-role" error={error}>
+              <AuthField
+                label="Rol"
+                htmlFor="users-filter-role"
+                error={error}
+                required={false}
+              >
                 <RoleSelect
                   id="users-filter-role"
                   value={field.state.value}
@@ -152,10 +160,14 @@ const UsersFiltersForm = ({
           <RotateCcwIcon />
           Limpiar filtros
         </Button>
-        <Button type="submit" className="flex-1">
+        <FormSubmitButton
+          form={form}
+          schema={userFiltersSchema}
+          className="flex-1"
+        >
           <CheckIcon />
           Aplicar filtros
-        </Button>
+        </FormSubmitButton>
       </DrawerFooter>
     </form>
   )
@@ -167,17 +179,19 @@ export const UsersFiltersDrawer = ({
   onOpenChange,
   onApply,
 }: UsersFiltersDrawerProps) => {
+  if (!open) {
+    return null
+  }
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange} swipeDirection="right">
       <DrawerContent className="data-[swipe-axis=x]:[--drawer-content-width:88%] data-[swipe-axis=x]:sm:[--drawer-content-width:32rem]">
-        {open ? (
-          <UsersFiltersForm
-            key={`${filters.firstName}|${filters.email}|${filters.role}`}
-            filters={filters}
-            onOpenChange={onOpenChange}
-            onApply={onApply}
-          />
-        ) : null}
+        <UsersFiltersForm
+          key={`${filters.firstName}|${filters.email}|${filters.role}`}
+          filters={filters}
+          onOpenChange={onOpenChange}
+          onApply={onApply}
+        />
       </DrawerContent>
     </Drawer>
   )

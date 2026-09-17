@@ -11,8 +11,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { Label } from "@/components/ui/label"
+import { NumberInput } from "@/components/ui/number-input"
+import { SaveIcon, XIcon } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -22,7 +24,7 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/toast"
-import { getFieldError } from "@/lib/form-errors"
+import { getErrorMessage, getFieldError } from "@/lib/form-errors"
 import { useUpdateProfile } from "../hooks"
 import type { Profile } from "../types"
 
@@ -30,7 +32,7 @@ const cerSchema = z.object({
   hourlyRate: z
     .number({ message: "El costo horario (CER) debe ser un número válido." })
     .positive({ message: "El costo horario (CER) debe ser mayor a 0." }),
-  currency: z.string().default("USD"),
+  currency: z.literal("PEN"),
 })
 
 type AssignCerDialogProps = {
@@ -49,7 +51,7 @@ export const AssignCerDialog = ({
   const form = useForm({
     defaultValues: {
       hourlyRate: profile?.hourlyRate ?? 0,
-      currency: profile?.currency ?? "USD",
+      currency: "PEN",
     },
     onSubmit: async ({ value }) => {
       if (!profile) return
@@ -57,28 +59,27 @@ export const AssignCerDialog = ({
         await updateMutation.mutateAsync({
           id: profile.id,
           hourlyRate: value.hourlyRate,
-          currency: value.currency || "USD",
+          currency: "PEN",
         })
         toast.add({
-          title: "CER asignado exitosamente",
-          description: `Se asignó el costo de ${value.currency || profile.currency} ${value.hourlyRate.toFixed(2)}/hora a ${profile.name}.`,
+          title: "CER actualizado",
+          description: `El CER de ${profile.name} se guardó correctamente.`,
           type: "success",
         })
         onOpenChange(false)
       } catch (error) {
         toast.add({
-          title: "Error al asignar CER",
-          description:
-            error instanceof Error
-              ? error.message
-              : "No se pudo actualizar el costo por hora.",
+          title: "No se pudo actualizar el CER",
+          description: getErrorMessage(error, "Inténtalo de nuevo."),
           type: "error",
         })
       }
     },
   })
 
-  if (!profile) return null
+  if (!profile || !open) {
+    return null
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,7 +92,7 @@ export const AssignCerDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="bg-muted/50 flex items-center justify-between rounded-lg border p-3">
+        <div className="bg-muted/50 flex items-center justify-between rounded-md border p-3">
           <div className="flex flex-col">
             <span className="text-sm font-semibold">{profile.name}</span>
             <span className="text-muted-foreground text-xs">
@@ -122,22 +123,18 @@ export const AssignCerDialog = ({
               {(field) => (
                 <div className="space-y-1.5">
                   <Label htmlFor={field.name}>Costo estándar / hora</Label>
-                  <div className="relative">
-                    <Input
-                      id={field.name}
-                      type="number"
-                      step="0.5"
-                      min="1"
-                      defaultValue={profile.hourlyRate}
-                      onBlur={field.handleBlur}
-                      onChange={(e) =>
-                        field.handleChange(e.target.valueAsNumber || 0)
-                      }
-                      placeholder="Ej. 45"
-                      disabled={updateMutation.isPending}
-                      autoFocus
-                    />
-                  </div>
+                  <NumberInput
+                    id={field.name}
+                    value={field.state.value}
+                    min={0}
+                    max={9999}
+                    step={0.5}
+                    disabled={updateMutation.isPending}
+                    invalid={Boolean(getFieldError(field.state.meta.errors))}
+                    className=""
+                    onBlur={field.handleBlur}
+                    onChange={field.handleChange}
+                  />
                   {getFieldError(field.state.meta.errors) ? (
                     <p className="text-destructive text-xs">
                       {getFieldError(field.state.meta.errors)}
@@ -151,12 +148,12 @@ export const AssignCerDialog = ({
               {(field) => (
                 <div className="space-y-1.5">
                   <Label htmlFor={field.name}>Moneda</Label>
-                  <Select value={field.state.value || "USD"} disabled>
+                  <Select value="PEN" disabled>
                     <SelectTrigger id={field.name} className="w-full">
-                      <SelectValue placeholder="USD ($)" />
+                      <SelectValue placeholder="PEN (S/)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="PEN">PEN (S/)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -171,11 +168,21 @@ export const AssignCerDialog = ({
               onClick={() => onOpenChange(false)}
               disabled={updateMutation.isPending}
             >
+              <XIcon />
               Cancelar
             </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Asignando..." : "Asignar CER"}
-            </Button>
+            <FormSubmitButton
+              form={form}
+              schema={cerSchema}
+              isPending={updateMutation.isPending}
+            >
+              {({ isBusy }) => (
+                <>
+                  <SaveIcon />
+                  {isBusy ? "Asignando..." : "Asignar CER"}
+                </>
+              )}
+            </FormSubmitButton>
           </DialogFooter>
         </form>
       </DialogContent>

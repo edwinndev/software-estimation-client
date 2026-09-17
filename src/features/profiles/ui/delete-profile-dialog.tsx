@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { toast } from "@/components/ui/toast"
+import { getErrorMessage } from "@/lib/form-errors"
 import { useDeleteProfile } from "../hooks"
 import type { Profile } from "../types"
 
@@ -36,7 +37,6 @@ export const DeleteProfileDialog = ({
       return
     }
 
-    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -48,7 +48,7 @@ export const DeleteProfileDialog = ({
     document.addEventListener("keydown", onKeyDown)
 
     return () => {
-      document.body.style.overflow = previousOverflow
+      document.body.style.removeProperty("overflow")
       document.removeEventListener("keydown", onKeyDown)
     }
   }, [isDeleting, open, onOpenChange])
@@ -62,18 +62,15 @@ export const DeleteProfileDialog = ({
       await deleteMutation.mutateAsync(profile.id)
       toast.add({
         title: "Perfil eliminado",
-        description: `El perfil "${profile.name}" ha sido eliminado.`,
+        description: `${profile.name} se eliminó correctamente.`,
         type: "success",
       })
       onOpenChange(false)
       onSuccess?.()
     } catch (error) {
       toast.add({
-        title: "Error al eliminar",
-        description:
-          error instanceof Error
-            ? error.message
-            : "No se pudo eliminar el perfil técnico.",
+        title: "No se pudo eliminar el perfil",
+        description: getErrorMessage(error, "Inténtalo de nuevo."),
         type: "error",
       })
     }

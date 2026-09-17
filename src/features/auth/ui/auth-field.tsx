@@ -5,6 +5,7 @@ interface AuthFieldProps {
   label: string
   htmlFor: string
   error: string
+  required: boolean
   hint?: string
   children: ReactNode
 }
@@ -13,12 +14,21 @@ export const AuthField = ({
   label,
   htmlFor,
   error,
+  required,
   hint,
   children,
 }: AuthFieldProps) => {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label htmlFor={htmlFor}>{label}</Label>
+      <Label htmlFor={htmlFor}>
+        {label}
+        {required ? (
+          <>
+            {" "}
+            <span className="text-destructive">*</span>
+          </>
+        ) : null}
+      </Label>
       {children}
       {error ? <p className="text-destructive text-xs">{error}</p> : null}
       {!error && hint ? (

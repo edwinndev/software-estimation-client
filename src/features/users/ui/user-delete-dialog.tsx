@@ -35,7 +35,6 @@ export const UserDeleteDialog = ({
       return
     }
 
-    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -47,7 +46,7 @@ export const UserDeleteDialog = ({
     document.addEventListener("keydown", onKeyDown)
 
     return () => {
-      document.body.style.overflow = previousOverflow
+      document.body.style.removeProperty("overflow")
       document.removeEventListener("keydown", onKeyDown)
     }
   }, [deleteUser.isPending, onOpenChange, open])
@@ -104,17 +103,14 @@ export const UserDeleteDialog = ({
                 await deleteUser.mutateAsync(user.id)
                 toast.add({
                   title: "Usuario eliminado",
-                  description: `La cuenta de ${fullName} se eliminó correctamente.`,
+                  description: `${fullName} se eliminó correctamente.`,
                   type: "success",
                 })
                 onOpenChange(false)
               } catch (error) {
                 toast.add({
                   title: "No se pudo eliminar el usuario",
-                  description: getErrorMessage(
-                    error,
-                    "Revisa el usuario e inténtalo de nuevo."
-                  ),
+                  description: getErrorMessage(error, "Inténtalo de nuevo."),
                   type: "error",
                 })
               }

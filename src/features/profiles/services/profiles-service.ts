@@ -1,9 +1,11 @@
 import type { PaginatedResponse, QueryRequest } from "@/types/api"
+import { CURRENCY_CODE } from "@/lib/format"
 import { readJson, STORAGE_KEYS, writeJson } from "@/lib/storage"
 import type {
   CreateProfilePayload,
   Profile,
   UpdateProfilePayload,
+  UpdateProfileStatus,
 } from "../types"
 
 const PROFILES_STORAGE_KEY = STORAGE_KEYS.PROFILES
@@ -12,9 +14,23 @@ const SIMULATED_DELAY_MS = 250
 const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
+const toHourlyRate = (value: unknown): number => {
+  const rate = typeof value === "number" ? value : Number(value)
+  return Number.isFinite(rate) && rate > 0 ? rate : 0
+}
+
 const getStoredProfiles = (): Profile[] => {
   const data = readJson<Profile[]>(PROFILES_STORAGE_KEY)
-  return Array.isArray(data) ? data : []
+  if (!Array.isArray(data)) {
+    return []
+  }
+  return data.map((profile) => ({
+    ...profile,
+    email: typeof profile.email === "string" ? profile.email : "",
+    hourlyRate: toHourlyRate(profile.hourlyRate),
+    currency: CURRENCY_CODE,
+    isActive: profile.isActive === false ? false : true,
+  }))
 }
 
 const saveStoredProfiles = (profiles: Profile[]): void => {
@@ -79,6 +95,7 @@ export const profilesService = {
     const now = new Date().toISOString()
     const newProfile: Profile = {
       ...payload,
+      currency: CURRENCY_CODE,
       id: crypto.randomUUID(),
       createdAt: now,
       updatedAt: now,
@@ -98,6 +115,7 @@ export const profilesService = {
     const updated: Profile = {
       ...profiles[index],
       ...payload,
+      currency: CURRENCY_CODE,
       updatedAt: new Date().toISOString(),
     }
     profiles[index] = updated
@@ -111,5 +129,12 @@ export const profilesService = {
     const filtered = profiles.filter((p) => p.id !== id)
     saveStoredProfiles(filtered)
     return { success: true }
+  },
+
+  updateProfileStatus: async (input: UpdateProfileStatus): Promise<Profile> => {
+    return profilesService.updateProfile({
+      id: input.id,
+      isActive: input.isActive,
+    })
   },
 }

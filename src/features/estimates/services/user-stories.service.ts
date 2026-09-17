@@ -1,91 +1,78 @@
-import { StoryPoints } from "../types"
+import { requireProjectAction } from "@/features/projects/utils/require-project-action"
+import { storiesService } from "@/features/stories/services/stories-service"
+import { STORY_POINTS_OPTIONS, type StoryPoints } from "../types"
 
-// 🔑 Clave del backlog de Cristina
-const getBacklogKey = (projectId: string = "1") =>
-  `software-estimation:backlog:${projectId}`
-const STORY_POINTS_STORAGE_KEY = "story-points-assignments"
+const getAssignmentsKey = (projectId: string) =>
+  `software-estimation:story-points:${projectId}`
 
-export interface UserStoryItem {
+export type UserStoryItem = {
   id: string
-  code?: string
+  code: string
   title: string
-  storyPoints?: StoryPoints | null
+  storyPoints: StoryPoints | 0
 }
 
-/**
- * 1. Obtener historias reales del Backlog
- */
-export const getUserStories = async (
-  projectId: string = "1"
-): Promise<UserStoryItem[]> => {
-  if (typeof window === "undefined") return []
+const isStoryPoints = (value: number): value is StoryPoints =>
+  STORY_POINTS_OPTIONS.includes(value as StoryPoints)
 
-  const storedBacklog = localStorage.getItem(getBacklogKey(projectId))
-  let rawStories: UserStoryItem[] = []
-
-  if (storedBacklog) {
-    try {
-      const parsed = JSON.parse(storedBacklog) as {
-        stories?: Array<{
-          id: string
-          code?: string
-          title: string
-          storyPoints?: number
-        }>
-      }
-      if (parsed.stories && parsed.stories.length > 0) {
-        rawStories = parsed.stories.map((s, idx) => ({
-          id: s.id,
-          code: s.code || `HU-${String(idx + 1).padStart(2, "0")}`,
-          title: s.title,
-          storyPoints: (s.storyPoints as StoryPoints) || null,
-        }))
-      }
-    } catch {
-      rawStories = []
-    }
-  }
-
-  return rawStories
-}
-
-/**
- * 2. Obtener el mapa de Story Points asignados
- */
-export const getStoryPointsAssignments = async (): Promise<
-  Record<string, StoryPoints>
-> => {
+export const getStoryPointsAssignments = async (
+  projectId: string
+): Promise<Record<string, StoryPoints>> => {
   if (typeof window === "undefined") return {}
 
-  const storedPoints = localStorage.getItem(STORY_POINTS_STORAGE_KEY)
-  if (storedPoints) {
-    try {
-      return JSON.parse(storedPoints) as Record<string, StoryPoints>
-    } catch {
-      return {}
-    }
+  const storedPoints = localStorage.getItem(getAssignmentsKey(projectId))
+  if (!storedPoints) return {}
+
+  try {
+    const parsed = JSON.parse(storedPoints) as Record<string, number>
+    const assignments: Record<string, StoryPoints> = {}
+
+    Object.entries(parsed).forEach(([storyId, value]) => {
+      const points = Number(value)
+      if (isStoryPoints(points)) {
+        assignments[storyId] = points
+      }
+    })
+
+    return assignments
+  } catch {
+    return {}
   }
-  return {}
 }
 
-/**
- * 3. Guardar asignación de Story Points
- */
+export const getUserStories = async (
+  projectId: string
+): Promise<UserStoryItem[]> => {
+  const backlog = await storiesService.getStories(projectId)
+  const assignments = await getStoryPointsAssignments(projectId)
+
+  return backlog.stories.map((story) => ({
+    id: story.id,
+    code: story.code,
+    title: story.title,
+    storyPoints: assignments[story.id] ?? 0,
+  }))
+}
+
 export const assignStoryPoints = async (
+  projectId: string,
   storyId: string,
   storyPoints: StoryPoints
 ): Promise<void> => {
+  await requireProjectAction(projectId, "editEstimation")
   if (typeof window === "undefined") return
 
-  const currentPoints = await getStoryPointsAssignments()
+  const currentPoints = await getStoryPointsAssignments(projectId)
   currentPoints[storyId] = storyPoints
-  localStorage.setItem(STORY_POINTS_STORAGE_KEY, JSON.stringify(currentPoints))
-  window.dispatchEvent(new Event("story-points-updated"))
+  localStorage.setItem(
+    getAssignmentsKey(projectId),
+    JSON.stringify(currentPoints)
+  )
 }
 
-// 📦 Exportar el objeto de servicio para el hook
 export const userStoriesService = {
   getUserStories,
   getAssignments: getStoryPointsAssignments,
   assignStoryPoints,
+  isStoryPoints,
 }

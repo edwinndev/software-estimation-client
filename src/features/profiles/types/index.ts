@@ -17,3 +17,4 @@ export type {
   Profile,
   UpdateProfilePayload,
 } from "./profile"
+export type { UpdateProfileStatus } from "./update-profile-status"

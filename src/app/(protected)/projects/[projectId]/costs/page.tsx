@@ -1,6 +1,6 @@
 import { CostsView } from "@/features/costs"
 
-interface CostsPageProps {
+type CostsPageProps = {
   params: Promise<{ projectId: string }>
 }
 

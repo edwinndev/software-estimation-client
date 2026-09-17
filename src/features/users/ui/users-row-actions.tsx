@@ -86,17 +86,14 @@ export const UsersRowActions = ({ user, onDelete }: UsersRowActionsProps) => {
                       ? "Usuario desactivado"
                       : "Usuario activado",
                     description: user.isActive
-                      ? `${user.firstName} ${user.lastName} quedó inactivo y no podrá acceder.`
-                      : `${user.firstName} ${user.lastName} ya puede iniciar sesión.`,
+                      ? `${user.firstName} ${user.lastName} quedó inactivo.`
+                      : `${user.firstName} ${user.lastName} quedó activo.`,
                     type: "success",
                   })
                 } catch (error) {
                   toast.add({
                     title: "No se pudo actualizar el estado",
-                    description: getErrorMessage(
-                      error,
-                      "Revisa el usuario e inténtalo de nuevo."
-                    ),
+                    description: getErrorMessage(error, "Inténtalo de nuevo."),
                     type: "error",
                   })
                 }

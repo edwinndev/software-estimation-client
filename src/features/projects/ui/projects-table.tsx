@@ -1,17 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import {
-  Activity,
-  Bot,
-  Cpu,
-  Layers,
-  Pen,
-  Sliders,
-  Trash,
-  TrendingUp,
-} from "lucide-react"
+import Link from "next/link"
+import { Activity, Bot, Cpu, Layers, Sliders, TrendingUp } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -21,12 +12,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { cn } from "@/lib/utils"
 import { formatDate } from "@/lib/format"
 import type { Project } from "../types/project-types"
 import { ProjectDeleteDialog } from "./project-delete-dialog"
-import { ProjectEditDialog } from "./project-edit-dialog"
+import { ProjectsRowActions } from "./projects-row-actions"
 
 interface ProjectsTableProps {
   projects: Project[]
@@ -52,6 +43,17 @@ const TIPO_ICONS = {
   mantenimiento_predictivo: TrendingUp,
   integracion: Layers,
   investigacion: Layers,
+}
+
+const TIPO_COLORS: Record<string, string> = {
+  monitoreo: "text-blue-500",
+  automatizacion: "text-emerald-500",
+  monitoreo_automatizacion: "text-emerald-500",
+  telemetria: "text-amber-500",
+  control_supervision: "text-purple-500",
+  mantenimiento_predictivo: "text-rose-500",
+  integracion: "text-cyan-500",
+  investigacion: "text-cyan-500",
 }
 
 const getInitials = (name: string) => {
@@ -86,48 +88,50 @@ const getEstadoInfo = (estado: string) => {
 }
 
 export const ProjectsTable = ({ projects }: ProjectsTableProps) => {
-  const router = useRouter()
-  const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [deletingProject, setDeletingProject] = useState<Project | null>(null)
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead></TableHead>
           <TableHead>Nombre</TableHead>
           <TableHead>Tipo</TableHead>
           <TableHead>Responsable</TableHead>
           <TableHead>Estado</TableHead>
           <TableHead>Fecha Inicio</TableHead>
           <TableHead>Fecha Fin</TableHead>
-          <TableHead>Acciones</TableHead>
+          <TableHead className="w-28 text-right">Acciones</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {projects.map((project) => {
           const estadoInfo = getEstadoInfo(project.estado)
           const TipoIcon = TIPO_ICONS[project.tipo as keyof typeof TIPO_ICONS]
+          const tipoColor =
+            TIPO_COLORS[project.tipo as keyof typeof TIPO_COLORS]
 
           return (
             <TableRow
               key={project.id}
-              className="hover:bg-muted/50 cursor-pointer transition-colors"
+              className="hover:bg-muted/50 transition-colors"
             >
-              <TableCell>
-                <input
-                  type="checkbox"
-                  aria-label={`Ver información general de ${project.nombre}`}
-                  className="accent-primary size-4 cursor-pointer"
-                  onChange={() => router.push(`/projects/${project.id}`)}
-                  onClick={(event) => event.stopPropagation()}
-                />
+              <TableCell className="font-medium">
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="hover:text-primary transition-colors hover:underline"
+                >
+                  {project.nombre}
+                </Link>
               </TableCell>
-              <TableCell className="font-medium">{project.nombre}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
                   {TipoIcon ? (
-                    <TipoIcon className="text-muted-foreground size-4" />
+                    <TipoIcon
+                      className={cn(
+                        "size-4",
+                        tipoColor || "text-muted-foreground"
+                      )}
+                    />
                   ) : null}
                   <span>{TIPO_LABELS[project.tipo] ?? project.tipo}</span>
                 </div>
@@ -148,32 +152,10 @@ export const ProjectsTable = ({ projects }: ProjectsTableProps) => {
               <TableCell>{formatDate(project.fecha_inicio)}</TableCell>
               <TableCell>{formatDate(project.fecha_fin)}</TableCell>
               <TableCell>
-                <div className="flex items-center gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={`Editar ${project.nombre}`}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      setEditingProject(project)
-                    }}
-                  >
-                    <Pen />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={`Eliminar ${project.nombre}`}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      setDeletingProject(project)
-                    }}
-                  >
-                    <Trash className="text-destructive" />
-                  </Button>
-                </div>
+                <ProjectsRowActions
+                  project={project}
+                  onDelete={setDeletingProject}
+                />
               </TableCell>
             </TableRow>
           )
@@ -181,15 +163,10 @@ export const ProjectsTable = ({ projects }: ProjectsTableProps) => {
       </TableBody>
       <ProjectDeleteDialog
         isOpen={deletingProject !== null}
-        projectId={deletingProject?.id ?? null}
-        projectName={deletingProject?.nombre}
+        projectId={deletingProject ? deletingProject.id : ""}
+        projectName={deletingProject ? deletingProject.nombre : ""}
         onClose={() => setDeletingProject(null)}
         onSuccess={() => setDeletingProject(null)}
-      />
-      <ProjectEditDialog
-        isOpen={editingProject !== null}
-        project={editingProject}
-        onClose={() => setEditingProject(null)}
       />
     </Table>
   )

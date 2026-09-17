@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form"
 import { SaveIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { toast } from "@/components/ui/toast"
 import { getErrorMessage, getFieldError } from "@/lib/form-errors"
 import { useResetPassword } from "../hooks/use-reset-password"
@@ -34,16 +34,13 @@ export const ResetPasswordForm = ({ email }: ResetPasswordFormProps) => {
         })
         toast.add({
           title: "Contraseña actualizada",
-          description: "Ya puedes iniciar sesión con tu nueva contraseña.",
+          description: "Ya puedes iniciar sesión.",
           type: "success",
         })
       } catch (error) {
         toast.add({
           title: "No se pudo guardar la contraseña",
-          description: getErrorMessage(
-            error,
-            "Revisa los datos e inténtalo de nuevo."
-          ),
+          description: getErrorMessage(error, "Inténtalo de nuevo."),
           type: "error",
         })
       }
@@ -80,6 +77,7 @@ export const ResetPasswordForm = ({ email }: ResetPasswordFormProps) => {
               label="Nueva contraseña"
               htmlFor="reset-password"
               error={error}
+              required
               hint="Mínimo 8 caracteres, con al menos una letra y un número."
             >
               <PasswordInput
@@ -104,6 +102,7 @@ export const ResetPasswordForm = ({ email }: ResetPasswordFormProps) => {
               label="Confirmar contraseña"
               htmlFor="reset-confirm-password"
               error={error}
+              required
             >
               <PasswordInput
                 id="reset-confirm-password"
@@ -118,19 +117,18 @@ export const ResetPasswordForm = ({ email }: ResetPasswordFormProps) => {
         }}
       </form.Field>
 
-      <form.Subscribe selector={(state) => state.isSubmitting}>
-        {(isSubmitting) => (
-          <Button
-            type="submit"
-            disabled={isSubmitting || resetPassword.isPending}
-          >
+      <FormSubmitButton
+        form={form}
+        schema={resetPasswordSchema}
+        isPending={resetPassword.isPending}
+      >
+        {({ isBusy }) => (
+          <>
             <SaveIcon />
-            {isSubmitting || resetPassword.isPending
-              ? "Guardando..."
-              : "Guardar contraseña"}
-          </Button>
+            {isBusy ? "Guardando..." : "Guardar contraseña"}
+          </>
         )}
-      </form.Subscribe>
+      </FormSubmitButton>
     </form>
   )
 }
