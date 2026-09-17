@@ -43,8 +43,9 @@ src/features/{feature}/
 - **Feature Entrypoint (`index.ts`)**: `src/features/{feature}/index.ts` must export only the main UI view component named `{feature}-view.tsx` (e.g., `users-view.tsx` -> `UsersView`).
 - **UI Modularization (`ui/`)**: Avoid large, monolithic files. Break down views into small, focused, and reusable sub-components placed inside `src/features/{feature}/ui/` (e.g., `component-one.tsx`, `component-two.tsx`).
 - **Forms & Validation**: Use **TanStack Form** along with **Zod** for all form handling and validation. Define Zod schemas inside `schemas/`.
-- **Hooks & State Management**: Always use **TanStack Query** (React Query) within the `hooks/` directory for data fetching, mutations, and caching.
-- **Services (API Layer)**: Implement services in `services/` using `localStorage` for now. Structure them as mock async API services to ensure seamless future transition to a backend API.
+- **Hooks & State Management**: Always use **TanStack Query** (React Query) within the `hooks/` directory for data fetching, mutations, and caching. Hooks must not show toasts or alerts.
+- **UI Feedback**: Show toasts and alerts from `ui/` components after `mutateAsync`. Use the shadcn toast (`toast.add` from `@/components/ui/toast`) and mount `<Toaster />` in `src/components/providers.tsx`. Do not add `sonner` or other toast libraries.
+- **Services (API Layer)**: Implement services in `services/` using `localStorage` for now. Structure them as mock async API services. Name list methods `get{Entities}(query: QueryRequest)` or `search{Entities}(query)`, singles `get{Entity}`, writes `create{Entity}` / `update{Entity}` / `delete{Entity}`. Lists use `QueryRequest` (`filters` + `pagination` with 0-based `pageNumber` and `pageSize` 20) and return `PaginatedResponse<T, "{entity}Response">`.
 - **Types**: Define TypeScript interfaces/types inside `types/`.
 
 ## 4. GitFlow and Commit Guidelines
