@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/components/ui/toast"
-import { useDeleteProfile } from "../hooks/use-profiles"
+import { useDeleteProfile } from "../hooks"
 import type { Profile } from "../types"
 
 type DeleteProfileDialogProps = {

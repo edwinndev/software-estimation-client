@@ -23,7 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/toast"
 import { getFieldError } from "@/lib/form-errors"
-import { useUpdateProfile } from "../hooks/use-profiles"
+import { useUpdateProfile } from "../hooks"
 import type { Profile } from "../types"
 
 const cerSchema = z.object({
