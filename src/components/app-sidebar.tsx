@@ -60,16 +60,6 @@ const projectModules = [
     url: "/projects/1/risks",
     icon: ShieldAlertIcon,
   },
-  {
-    title: "Reportes y análisis",
-    url: "/projects/1/reports",
-    icon: FileBarChartIcon,
-  },
-  {
-    title: "Historial y auditoría",
-    url: "/projects/1/history",
-    icon: HistoryIcon,
-  },
 ]
 
 const administrationModules = [
@@ -84,6 +74,12 @@ const administrationModules = [
     url: "/users",
     icon: UsersIcon,
     permission: PERMISSIONS.USER_READ,
+  },
+  {
+    title: "Reportes del Sistema",
+    url: "/reports",
+    icon: FileBarChartIcon,
+    permission: PERMISSIONS.USER_READ, // Assuming admin has this, ideally PERMISSIONS.REPORTS_READ but keeping it simple based on existing
   },
 ]
 

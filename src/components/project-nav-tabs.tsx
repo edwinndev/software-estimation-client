@@ -8,8 +8,6 @@ import {
   CalculatorIcon,
   DollarSignIcon,
   ShieldAlertIcon,
-  FileBarChartIcon,
-  HistoryIcon,
 } from "lucide-react"
 
 export const ProjectNavTabs = () => {
@@ -43,16 +41,6 @@ export const ProjectNavTabs = () => {
       title: "Riesgos",
       href: `/projects/${projectId}/risks`,
       icon: ShieldAlertIcon,
-    },
-    {
-      title: "Reportes",
-      href: `/projects/${projectId}/reports`,
-      icon: FileBarChartIcon,
-    },
-    {
-      title: "Historial",
-      href: `/projects/${projectId}/history`,
-      icon: HistoryIcon,
     },
   ]
 
