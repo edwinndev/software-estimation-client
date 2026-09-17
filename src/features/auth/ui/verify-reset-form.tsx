@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form"
 import { KeyRoundIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
 import { getErrorMessage, getFieldError } from "@/lib/form-errors"
@@ -30,16 +30,13 @@ export const VerifyResetForm = ({ email }: VerifyResetFormProps) => {
         await verifyCode.mutateAsync({ email, code: value.code })
         toast.add({
           title: "Código verificado",
-          description: "Ya puedes crear una nueva contraseña para esta cuenta.",
+          description: "Ya puedes crear una nueva contraseña.",
           type: "success",
         })
       } catch (error) {
         toast.add({
           title: "No se pudo verificar el código",
-          description: getErrorMessage(
-            error,
-            "Revisa el código e inténtalo de nuevo."
-          ),
+          description: getErrorMessage(error, "Inténtalo de nuevo."),
           type: "error",
         })
       }
@@ -76,6 +73,7 @@ export const VerifyResetForm = ({ email }: VerifyResetFormProps) => {
               label="Código"
               htmlFor="reset-code"
               error={error}
+              required
               hint="Revisa la consola del navegador. El código dura 10 minutos."
             >
               <Input
@@ -94,16 +92,18 @@ export const VerifyResetForm = ({ email }: VerifyResetFormProps) => {
         }}
       </form.Field>
 
-      <form.Subscribe selector={(state) => state.isSubmitting}>
-        {(isSubmitting) => (
-          <Button type="submit" disabled={isSubmitting || verifyCode.isPending}>
+      <FormSubmitButton
+        form={form}
+        schema={verifyResetSchema}
+        isPending={verifyCode.isPending}
+      >
+        {({ isBusy }) => (
+          <>
             <KeyRoundIcon />
-            {isSubmitting || verifyCode.isPending
-              ? "Verificando..."
-              : "Verificar código"}
-          </Button>
+            {isBusy ? "Verificando..." : "Verificar código"}
+          </>
         )}
-      </form.Subscribe>
+      </FormSubmitButton>
     </form>
   )
 }

@@ -52,8 +52,8 @@ export const NavUser = ({ user }: { user: Session }) => {
               className="aria-expanded:bg-muted w-full"
               render={<DropdownMenuTrigger />}
             >
-              <Avatar className="size-8 rounded-lg">
-                <AvatarFallback className="rounded-lg">
+              <Avatar className="size-8 rounded-md">
+                <AvatarFallback className="rounded-md">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -74,8 +74,8 @@ export const NavUser = ({ user }: { user: Session }) => {
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <Avatar className="size-8 rounded-lg">
-                      <AvatarFallback className="rounded-lg">
+                    <Avatar className="size-8 rounded-md">
+                      <AvatarFallback className="rounded-md">
                         {initials}
                       </AvatarFallback>
                     </Avatar>

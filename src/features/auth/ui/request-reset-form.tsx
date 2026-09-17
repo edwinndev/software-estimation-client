@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form"
 import { MailIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
 import { getErrorMessage, getFieldError } from "@/lib/form-errors"
@@ -26,17 +26,13 @@ export const RequestResetForm = () => {
         await requestReset.mutateAsync(value)
         toast.add({
           title: "Código enviado",
-          description:
-            "Revisa la consola del navegador. El código dura 10 minutos.",
+          description: "Revisa tu correo para continuar.",
           type: "success",
         })
       } catch (error) {
         toast.add({
           title: "No se pudo enviar el código",
-          description: getErrorMessage(
-            error,
-            "Revisa el correo e inténtalo de nuevo."
-          ),
+          description: getErrorMessage(error, "Inténtalo de nuevo."),
           type: "error",
         })
       }
@@ -73,6 +69,7 @@ export const RequestResetForm = () => {
               label="Correo electrónico"
               htmlFor="reset-email"
               error={error}
+              required
             >
               <Input
                 id="reset-email"
@@ -89,19 +86,18 @@ export const RequestResetForm = () => {
         }}
       </form.Field>
 
-      <form.Subscribe selector={(state) => state.isSubmitting}>
-        {(isSubmitting) => (
-          <Button
-            type="submit"
-            disabled={isSubmitting || requestReset.isPending}
-          >
+      <FormSubmitButton
+        form={form}
+        schema={requestResetSchema}
+        isPending={requestReset.isPending}
+      >
+        {({ isBusy }) => (
+          <>
             <MailIcon />
-            {isSubmitting || requestReset.isPending
-              ? "Enviando..."
-              : "Enviar código"}
-          </Button>
+            {isBusy ? "Enviando..." : "Enviar código"}
+          </>
         )}
-      </form.Subscribe>
+      </FormSubmitButton>
     </form>
   )
 }
