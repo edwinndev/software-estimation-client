@@ -64,6 +64,8 @@ export const adaptCostData = (
         taskName: assignment.taskName,
         profileId: profile.profileId,
         profileName: profile.profileName,
+        profileRole: profile.profileRole,
+        profileEmail: profile.profileEmail,
         estimatedHours: assignment.hours,
         cer: profile.cer,
       }

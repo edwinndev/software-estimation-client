@@ -1,19 +1,12 @@
-interface ReportsPageProps {
+import { ReportsView } from "@/features/reports/ui/reports-view"
+
+type ReportsPageProps = {
   params: Promise<{ projectId: string }>
 }
 
-const ReportsPage = async ({ params }: ReportsPageProps) => {
+const ProjectReportsPage = async ({ params }: ReportsPageProps) => {
   const { projectId } = await params
-
-  return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold tracking-tight">Reportes y análisis</h1>
-      <p className="text-muted-foreground text-sm">
-        Visualización consolidada de estimaciones base vs contingencia y
-        exportación de reportes para el proyecto #{projectId}.
-      </p>
-    </div>
-  )
+  return <ReportsView projectId={projectId} />
 }
 
-export default ReportsPage
+export default ProjectReportsPage

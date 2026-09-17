@@ -6,8 +6,8 @@ export const CostsEmptyState = () => {
       <CardContent className="py-12 text-center">
         <p className="font-medium">Aún no hay costos calculados</p>
         <p className="text-muted-foreground mt-1 text-sm">
-          El resumen estará disponible cuando existan tareas con horas y
-          perfiles técnicos asignados.
+          Crea tareas con perfiles en Historias y tareas, asigna horas en
+          Estimación y registra el CER de cada perfil. El costo se calcula solo.
         </p>
       </CardContent>
     </Card>

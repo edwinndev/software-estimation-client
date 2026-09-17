@@ -2,25 +2,50 @@
 
 import * as React from "react"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
-import { DayPicker, getDefaultClassNames } from "react-day-picker"
+import { DayPicker, getDefaultClassNames, type Matcher } from "react-day-picker"
 import { es } from "date-fns/locale"
+import { startOfDay } from "date-fns"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-function Calendar({
+type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+  minDate?: Date
+  maxDate?: Date
+}
+
+const Calendar = ({
   className,
   classNames,
   showOutsideDays = true,
   locale = es,
+  minDate,
+  maxDate,
+  disabled,
   ...props
-}: React.ComponentProps<typeof DayPicker>) {
+}: CalendarProps) => {
   const defaultClassNames = getDefaultClassNames()
+  const rangeMatchers: Matcher[] = []
+  if (minDate) {
+    rangeMatchers.push({ before: startOfDay(minDate) })
+  }
+  if (maxDate) {
+    rangeMatchers.push({ after: startOfDay(maxDate) })
+  }
+
+  const extraMatchers: Matcher[] =
+    disabled == null ? [] : Array.isArray(disabled) ? disabled : [disabled]
+
+  const mergedDisabled =
+    rangeMatchers.length === 0 && extraMatchers.length === 0
+      ? undefined
+      : [...rangeMatchers, ...extraMatchers]
 
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       locale={locale}
+      disabled={mergedDisabled}
       className={cn("bg-popover p-3", className)}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),
@@ -71,7 +96,7 @@ function Calendar({
           defaultClassNames.outside
         ),
         disabled: cn(
-          "text-muted-foreground opacity-50",
+          "text-muted-foreground pointer-events-none opacity-30",
           defaultClassNames.disabled
         ),
         hidden: cn("invisible", defaultClassNames.hidden),

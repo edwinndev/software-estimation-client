@@ -26,4 +26,6 @@ export type ProjectFilters = {
   tipo: string
   responsable: string
   estado: string
+  fecha_inicio: string
+  fecha_fin: string
 }

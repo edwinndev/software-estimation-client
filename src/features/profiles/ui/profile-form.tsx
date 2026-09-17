@@ -1,9 +1,13 @@
 "use client"
 
 import { useForm } from "@tanstack/react-form"
+import { SaveIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { NumberInput } from "@/components/ui/number-input"
 import {
   Select,
   SelectContent,
@@ -12,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/toast"
-import { getFieldError } from "@/lib/form-errors"
+import { getErrorMessage, getFieldError } from "@/lib/form-errors"
 import {
   profileSchema,
   type ProfileFormValues,
@@ -42,8 +46,8 @@ export const ProfileForm = ({
   const defaultValues: ProfileFormValues = {
     name: profile?.name ?? "",
     role: profile?.role ?? "Frontend",
-    hourlyRate: profile?.hourlyRate ?? 40,
-    currency: profile?.currency ?? "USD",
+    hourlyRate: profile?.hourlyRate ?? 0,
+    currency: profile?.currency ?? "PEN",
     experienceLevel: profile?.experienceLevel ?? "Mid",
     email: profile?.email ?? "",
     isActive: profile?.isActive ?? true,
@@ -60,25 +64,22 @@ export const ProfileForm = ({
           })
           toast.add({
             title: "Perfil actualizado",
-            description: `El perfil "${value.name}" ha sido actualizado exitosamente.`,
+            description: `Los datos de ${value.name} se guardaron correctamente.`,
             type: "success",
           })
         } else {
           await createProfileMutation.mutateAsync(value)
           toast.add({
             title: "Perfil creado",
-            description: `El perfil técnico "${value.name}" ha sido registrado.`,
+            description: `${value.name} se registró correctamente.`,
             type: "success",
           })
         }
         onSuccess?.()
       } catch (error) {
         toast.add({
-          title: "Error",
-          description:
-            error instanceof Error
-              ? error.message
-              : "No se pudo guardar el perfil. Intenta nuevamente.",
+          title: "No se pudo guardar el perfil",
+          description: getErrorMessage(error, "Inténtalo de nuevo."),
           type: "error",
         })
       }
@@ -230,21 +231,18 @@ export const ProfileForm = ({
           {(field) => (
             <div className="space-y-1.5">
               <Label htmlFor={field.name}>Costo estándar / hora (CER)</Label>
-              <div className="relative">
-                <Input
-                  id={field.name}
-                  type="number"
-                  step="0.5"
-                  min="1"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) =>
-                    field.handleChange(e.target.valueAsNumber || 0)
-                  }
-                  placeholder="Ej. 45"
-                  disabled={isSubmitting}
-                />
-              </div>
+              <NumberInput
+                id={field.name}
+                value={field.state.value}
+                min={0}
+                max={9999}
+                step={0.5}
+                disabled={isSubmitting}
+                invalid={Boolean(getFieldError(field.state.meta.errors))}
+                className=""
+                onBlur={field.handleBlur}
+                onChange={field.handleChange}
+              />
               {getFieldError(field.state.meta.errors) ? (
                 <p className="text-destructive text-xs">
                   {getFieldError(field.state.meta.errors)}
@@ -267,17 +265,17 @@ export const ProfileForm = ({
             <div className="space-y-1.5">
               <Label htmlFor={field.name}>Moneda</Label>
               <Select
-                value={field.state.value || "USD"}
-                onValueChange={(val) => {
-                  if (val) field.handleChange(val)
+                value="PEN"
+                onValueChange={() => {
+                  field.handleChange("PEN")
                 }}
                 disabled
               >
                 <SelectTrigger id={field.name} className="w-full">
-                  <SelectValue placeholder="USD ($)" />
+                  <SelectValue placeholder="PEN (S/)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="USD">USD ($)</SelectItem>
+                  <SelectItem value="PEN">PEN (S/)</SelectItem>
                 </SelectContent>
               </Select>
               {getFieldError(field.state.meta.errors) ? (
@@ -320,6 +318,22 @@ export const ProfileForm = ({
         )}
       </form.Field>
 
+      <form.Field name="isActive">
+        {(field) => (
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id={field.name}
+              checked={field.state.value}
+              disabled={isSubmitting}
+              onCheckedChange={(checked) =>
+                field.handleChange(checked === true)
+              }
+            />
+            <Label htmlFor={field.name}>Perfil activo</Label>
+          </div>
+        )}
+      </form.Field>
+
       <div className="flex justify-end gap-2 pt-3">
         {onCancel && (
           <Button
@@ -328,16 +342,26 @@ export const ProfileForm = ({
             onClick={onCancel}
             disabled={isSubmitting}
           >
+            <XIcon />
             Cancelar
           </Button>
         )}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting
-            ? "Guardando..."
-            : isEditing
-              ? "Actualizar perfil"
-              : "Registrar perfil"}
-        </Button>
+        <FormSubmitButton
+          form={form}
+          schema={profileSchema}
+          isPending={isSubmitting}
+        >
+          {({ isBusy }) => (
+            <>
+              <SaveIcon />
+              {isBusy
+                ? "Guardando..."
+                : isEditing
+                  ? "Actualizar perfil"
+                  : "Registrar perfil"}
+            </>
+          )}
+        </FormSubmitButton>
       </div>
     </form>
   )

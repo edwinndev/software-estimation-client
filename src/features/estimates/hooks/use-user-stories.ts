@@ -1,39 +1,53 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { invalidateReportQueries } from "@/features/reports/hooks/query-keys"
 import {
   userStoriesService,
-  UserStoryItem,
+  type UserStoryItem,
 } from "../services/user-stories.service"
-import { StoryPoints } from "../types"
+import type { StoryPoints } from "../types"
 
-const USER_STORIES_KEY = ["user-stories"] as const
-const ASSIGNMENTS_KEY = ["story-points-assignments"] as const
-
-export const useUserStories = (projectId: string = "1") => {
+export const useUserStories = (projectId: string) => {
   return useQuery<UserStoryItem[]>({
-    queryKey: [...USER_STORIES_KEY, projectId],
+    queryKey: ["user-stories", projectId],
     queryFn: () => userStoriesService.getUserStories(projectId),
   })
 }
 
-export const useStoryPointsAssignments = () => {
+export const useStoryPointsAssignments = (projectId: string) => {
   return useQuery<Record<string, StoryPoints>>({
-    queryKey: ASSIGNMENTS_KEY,
-    queryFn: () => userStoriesService.getAssignments(),
+    queryKey: ["story-points-assignments", projectId],
+    queryFn: () => userStoriesService.getAssignments(projectId),
   })
 }
 
-export const useAssignStoryPoints = () => {
+export const useAssignStoryPoints = (projectId: string) => {
   const queryClient = useQueryClient()
 
-  // Recibe { storyId, points } exactamente como lo llama tu formulario
   return useMutation({
-    mutationFn: ({ storyId, points }: { storyId: string; points: number }) =>
-      userStoriesService.assignStoryPoints(storyId, points as StoryPoints),
+    mutationFn: ({
+      storyId,
+      points,
+    }: {
+      storyId: string
+      points: StoryPoints
+    }) => userStoriesService.assignStoryPoints(projectId, storyId, points),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ASSIGNMENTS_KEY })
-      queryClient.invalidateQueries({ queryKey: USER_STORIES_KEY })
+      queryClient.invalidateQueries({
+        queryKey: ["story-points-assignments", projectId],
+      })
+      queryClient.invalidateQueries({ queryKey: ["user-stories", projectId] })
+      queryClient.invalidateQueries({
+        queryKey: ["sprint-calculation", projectId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["task-hours", projectId],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["project-costs", projectId],
+      })
+      invalidateReportQueries(queryClient)
     },
   })
 }

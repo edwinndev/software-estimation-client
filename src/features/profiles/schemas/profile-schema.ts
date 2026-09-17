@@ -15,7 +15,7 @@ export const profileSchema = z.object({
   hourlyRate: z
     .number({ message: "El costo horario (CER) debe ser un número válido." })
     .positive({ message: "El costo horario (CER) debe ser mayor a 0." }),
-  currency: z.string().min(1, { message: "Por favor especifica una moneda." }),
+  currency: z.literal("PEN"),
   experienceLevel: z.enum(EXPERIENCE_LEVELS, {
     message: "Por favor selecciona un nivel de experiencia válido.",
   }),

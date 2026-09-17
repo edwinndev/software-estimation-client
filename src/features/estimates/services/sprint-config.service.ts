@@ -1,9 +1,7 @@
+import { requireProjectAction } from "@/features/projects/utils/require-project-action"
 import type { SprintConfig } from "../types"
 
-/**
- * PMGT-33 + PMGT-35: Configuración del Equipo y Sprint.
- */
-const STORAGE_KEY = "sprint-config"
+const STORAGE_KEY = "software-estimation:sprint-config"
 const SIMULATED_DELAY_MS = 200
 
 const delay = (ms: number) =>
@@ -17,15 +15,14 @@ const DEFAULT_CONFIG: SprintConfig = {
   unit: "dias",
 }
 
+const storageKey = (projectId: string) => `${STORAGE_KEY}:${projectId}`
+
 export const sprintConfigService = {
-  async get(projectId?: string): Promise<SprintConfig> {
+  async get(projectId: string): Promise<SprintConfig> {
     await delay(SIMULATED_DELAY_MS)
     if (!isBrowser()) return DEFAULT_CONFIG
 
-    const key = projectId ? `${STORAGE_KEY}:${projectId}` : STORAGE_KEY
-    const raw =
-      window.localStorage.getItem(key) ||
-      window.localStorage.getItem(STORAGE_KEY)
+    const raw = window.localStorage.getItem(storageKey(projectId))
     if (!raw) return DEFAULT_CONFIG
 
     try {
@@ -39,14 +36,11 @@ export const sprintConfigService = {
     }
   },
 
-  async save(config: SprintConfig, projectId?: string): Promise<SprintConfig> {
+  async save(projectId: string, config: SprintConfig): Promise<SprintConfig> {
+    await requireProjectAction(projectId, "editEstimation")
     await delay(SIMULATED_DELAY_MS)
     if (isBrowser()) {
-      const json = JSON.stringify(config)
-      if (projectId) {
-        window.localStorage.setItem(`${STORAGE_KEY}:${projectId}`, json)
-      }
-      window.localStorage.setItem(STORAGE_KEY, json)
+      window.localStorage.setItem(storageKey(projectId), JSON.stringify(config))
     }
     return config
   },

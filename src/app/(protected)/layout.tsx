@@ -11,9 +11,9 @@ import { RequireAuth } from "@/features/auth/ui/require-auth"
 const ProtectedLayout = ({ children }: { children: ReactNode }) => {
   return (
     <RequireAuth>
-      <SidebarProvider>
+      <SidebarProvider className="h-svh overflow-hidden">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="min-h-0 overflow-hidden">
           <header className="bg-background flex h-16 shrink-0 items-center gap-2 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="-ml-1" />
@@ -26,7 +26,7 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => {
               </span>
             </div>
           </header>
-          <main className="flex-1 p-6">{children}</main>
+          <div className="min-h-0 flex-1 overflow-y-auto p-6">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </RequireAuth>

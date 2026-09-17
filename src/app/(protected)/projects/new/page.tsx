@@ -1,7 +1,7 @@
-import { ProjectsNewView } from "@/features/projects"
+import { ProjectCreateView } from "@/features/projects"
 
 const NewProjectPage = () => {
-  return <ProjectsNewView />
+  return <ProjectCreateView />
 }
 
 export default NewProjectPage

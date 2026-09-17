@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-
+import { SaveIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { NumberInput } from "@/components/ui/number-input"
 import {
   Select,
   SelectContent,
@@ -12,16 +12,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { SaveIcon } from "lucide-react"
-
+import { toast } from "@/components/ui/toast"
+import { getErrorMessage } from "@/lib/form-errors"
+import { isSchemaValid } from "@/lib/form-valid"
 import {
   useSaveSprintConfig,
   useSprintConfig,
 } from "../hooks/use-sprint-config"
+import { sprintConfigSchema } from "../schemas/sprint-config-schema"
 import type { SprintConfig } from "../types"
+import { useProjectAccess } from "@/features/projects/hooks/use-project-access"
 
-export const SprintTeamConfigForm = () => {
-  const { data: config, isLoading } = useSprintConfig()
+type SprintTeamConfigFormProps = {
+  projectId: string
+}
+
+export const SprintTeamConfigForm = ({
+  projectId,
+}: SprintTeamConfigFormProps) => {
+  const { data: config, isLoading } = useSprintConfig(projectId)
 
   if (isLoading || !config) {
     return (
@@ -29,95 +38,110 @@ export const SprintTeamConfigForm = () => {
     )
   }
 
-  return <SprintTeamConfigFields initialConfig={config} />
+  return <SprintTeamConfigFields projectId={projectId} initialConfig={config} />
 }
 
 const SprintTeamConfigFields = ({
+  projectId,
   initialConfig,
 }: {
+  projectId: string
   initialConfig: SprintConfig
 }) => {
-  const saveConfig = useSaveSprintConfig()
+  const saveConfig = useSaveSprintConfig(projectId)
+  const access = useProjectAccess(projectId)
+  const canWrite = access.canEditEstimation
+  const [velocity, setVelocity] = useState(initialConfig.velocity)
+  const [duration, setDuration] = useState(initialConfig.duration)
+  const [unit, setUnit] = useState<SprintConfig["unit"]>(initialConfig.unit)
+  const canSubmit = isSchemaValid(sprintConfigSchema, {
+    velocity,
+    duration,
+    unit,
+  })
 
-  const [velocity, setVelocity] = useState(String(initialConfig.velocity))
-  const [duration, setDuration] = useState(String(initialConfig.duration))
-  const [unit, setUnit] = useState<SprintConfig["unit"]>(
-    initialConfig.unit || "dias"
-  )
-  const [saved, setSaved] = useState(false)
-
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    saveConfig.mutate(
-      {
-        velocity: Number(velocity),
-        duration: Number(duration),
+    if (!canSubmit || !canWrite) return
+
+    try {
+      await saveConfig.mutateAsync({
+        velocity,
+        duration,
         unit,
-      },
-      { onSuccess: () => setSaved(true) }
-    )
+      })
+      toast.add({
+        title: "Configuración guardada",
+        description: "Los parámetros del sprint se actualizaron.",
+        type: "success",
+      })
+    } catch (error) {
+      toast.add({
+        title: "No se pudo guardar la configuración",
+        description: getErrorMessage(error, "Inténtalo de nuevo."),
+        type: "error",
+      })
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="velocity">Velocidad del equipo (SP/sprint)</Label>
-        <Input
+        <NumberInput
           id="velocity"
-          type="number"
-          min={1}
           value={velocity}
-          onChange={(event) => {
-            setVelocity(event.target.value)
-            setSaved(false)
-          }}
-          placeholder="Ej. 20"
+          min={0}
+          max={9999}
+          step={1}
+          disabled={!canWrite}
+          invalid={false}
+          className=""
+          onBlur={() => undefined}
+          onChange={setVelocity}
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="duration">Duración del Sprint</Label>
         <div className="flex gap-2">
-          <Input
+          <NumberInput
             id="duration"
-            type="number"
-            min={1}
             value={duration}
-            onChange={(event) => {
-              setDuration(event.target.value)
-              setSaved(false)
-            }}
-            className="w-24"
+            min={0}
+            max={9999}
+            step={1}
+            disabled={!canWrite}
+            invalid={false}
+            className="w-40"
+            onBlur={() => undefined}
+            onChange={setDuration}
           />
           <Select
             value={unit}
-            onValueChange={(value) => {
+            disabled={!canWrite}
+            onValueChange={(value) =>
               setUnit((value as SprintConfig["unit"]) ?? "dias")
-              setSaved(false)
-            }}
+            }
           >
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Unidad" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="dias">dias</SelectItem>
+              <SelectItem value="dias">días</SelectItem>
               <SelectItem value="semanas">semanas</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <Button type="submit" disabled={saveConfig.isPending}>
-          <SaveIcon data-icon="inline-start" />
-          {saveConfig.isPending ? "Guardando..." : "Guardar Configuración"}
-        </Button>
-        {saved && !saveConfig.isPending && (
-          <span className="text-muted-foreground text-sm">
-            Configuración guardada ✓
-          </span>
-        )}
-      </div>
+      <Button
+        type="submit"
+        disabled={!canWrite || !canSubmit || saveConfig.isPending}
+      >
+        <SaveIcon data-icon="inline-start" />
+        {saveConfig.isPending ? "Guardando..." : "Guardar Configuración"}
+      </Button>
     </form>
   )
 }

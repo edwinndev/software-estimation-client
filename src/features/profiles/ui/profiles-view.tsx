@@ -1,7 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { PlusIcon } from "lucide-react"
 import { DataTable } from "@/components/data-table"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { TABLE_PAGE_SIZE } from "@/lib/pagination"
 import type { FilterRequest, QueryRequest } from "@/types/api"
 import { useProfiles } from "../hooks"
 import type { Profile } from "../types"
@@ -16,7 +20,7 @@ export const ProfilesView = () => {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRole, setSelectedRole] = useState("")
   const [pageNumber, setPageNumber] = useState(0)
-  const pageSize = 10
+  const pageSize = TABLE_PAGE_SIZE
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [assignCerProfile, setAssignCerProfile] = useState<Profile | null>(null)
@@ -77,52 +81,59 @@ export const ProfilesView = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Gestión de perfiles técnicos y CER
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Administra los roles técnicos, niveles de experiencia y costos
-          estándar por recurso por hora (CER).
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Gestión de perfiles técnicos y CER
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Administra los roles técnicos, niveles de experiencia y costos
+            estándar por recurso por hora (CER).
+          </p>
+        </div>
+        <Button type="button" onClick={handleOpenCreate} className="shrink-0">
+          <PlusIcon />
+          Nuevo perfil
+        </Button>
       </div>
 
       <ProfileStats profiles={profiles} />
 
-      <div className="flex flex-col gap-4">
-        <ProfileFilters
-          searchQuery={searchQuery}
-          onSearchChange={(val) => {
-            setSearchQuery(val)
-            setPageNumber(0)
-          }}
-          selectedRole={selectedRole}
-          onRoleChange={(val) => {
-            setSelectedRole(val)
-            setPageNumber(0)
-          }}
-          onOpenCreateDialog={handleOpenCreate}
-        />
-
-        <DataTable
-          isLoading={isLoading}
-          isError={isError}
-          errorMessage={
-            error?.message ?? "Error al cargar los perfiles técnicos."
-          }
-          isEmpty={profiles.length === 0}
-          emptyMessage="No se encontraron perfiles técnicos. Registra el primer perfil técnico."
-          pagination={paginationMeta}
-          onPageChange={setPageNumber}
-        >
-          <ProfileTable
-            profiles={profiles}
-            onEdit={handleEdit}
-            onAssignCer={(profile) => setAssignCerProfile(profile)}
-            onDelete={handleDelete}
+      <Card>
+        <CardContent className="flex w-full flex-col gap-4">
+          <ProfileFilters
+            searchQuery={searchQuery}
+            onSearchChange={(val) => {
+              setSearchQuery(val)
+              setPageNumber(0)
+            }}
+            selectedRole={selectedRole}
+            onRoleChange={(val) => {
+              setSelectedRole(val)
+              setPageNumber(0)
+            }}
           />
-        </DataTable>
-      </div>
+
+          <DataTable
+            isLoading={isLoading}
+            isError={isError}
+            errorMessage={
+              error?.message ?? "Error al cargar los perfiles técnicos."
+            }
+            isEmpty={profiles.length === 0}
+            emptyMessage="No se encontraron perfiles técnicos. Registra el primer perfil técnico."
+            pagination={paginationMeta}
+            onPageChange={setPageNumber}
+          >
+            <ProfileTable
+              profiles={profiles}
+              onEdit={handleEdit}
+              onAssignCer={(profile) => setAssignCerProfile(profile)}
+              onDelete={handleDelete}
+            />
+          </DataTable>
+        </CardContent>
+      </Card>
 
       <ProfileDialog
         open={dialogOpen}
