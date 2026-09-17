@@ -11,8 +11,15 @@ import {
 import { RefreshCwIcon } from "lucide-react"
 import { useSprintCalculation } from "../hooks/use-sprint-calculation"
 
-export const SprintCalculation = () => {
-  const { calculation, isRecalculating, recalculate } = useSprintCalculation()
+interface SprintCalculationProps {
+  projectId?: string
+}
+
+export const SprintCalculation = ({
+  projectId,
+}: SprintCalculationProps = {}) => {
+  const { calculation, isRecalculating, recalculate } =
+    useSprintCalculation(projectId)
 
   const handleRecalculate = () => {
     void recalculate()

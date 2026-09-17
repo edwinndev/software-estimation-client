@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/toast"
-import { useUpdateProfile } from "../hooks/use-profiles"
+import { getFieldError } from "@/lib/form-errors"
+import { useUpdateProfile } from "../hooks"
 import type { Profile } from "../types"
 
 const cerSchema = z.object({
@@ -137,14 +138,11 @@ export const AssignCerDialog = ({
                       autoFocus
                     />
                   </div>
-                  {field.state.meta.errors.length > 0 && (
+                  {getFieldError(field.state.meta.errors) ? (
                     <p className="text-destructive text-xs">
-                      {typeof field.state.meta.errors[0] === "string"
-                        ? field.state.meta.errors[0]
-                        : (field.state.meta.errors[0] as { message?: string })
-                            ?.message}
+                      {getFieldError(field.state.meta.errors)}
                     </p>
-                  )}
+                  ) : null}
                 </div>
               )}
             </form.Field>

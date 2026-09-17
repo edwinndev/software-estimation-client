@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,22 +15,29 @@ import { PlusIcon, SaveIcon, XIcon } from "lucide-react"
 
 const TASK_HOURS_STORAGE_KEY = "task-hours-entries"
 const PROFILES_STORAGE_KEY = "intecx_profiles"
+const getBacklogKey = (projectId: string = "1") =>
+  `software-estimation:backlog:${projectId}`
 
 interface TechnicalProfileItem {
   id: string
   name: string
 }
 
-const MOCK_TASKS = [
-  { id: "t1", title: "Diseñar endpoint de login" },
-  { id: "t2", title: "Crear tabla de usuarios en BD" },
-  { id: "t3", title: "Maquetar pantalla de listado" },
-]
+interface TaskItem {
+  id: string
+  title: string
+}
 
 const FALLBACK_TECHNICAL_PROFILES: TechnicalProfileItem[] = [
-  { id: "p1", name: "Backend" },
-  { id: "p2", name: "Frontend" },
-  { id: "p3", name: "QA" },
+  { id: "Frontend", name: "Frontend" },
+  { id: "Backend", name: "Backend" },
+  { id: "Fullstack", name: "Fullstack" },
+  { id: "QA", name: "QA" },
+  { id: "DevOps", name: "DevOps" },
+  { id: "UI/UX Designer", name: "UI/UX Designer" },
+  { id: "Product Manager", name: "Product Manager" },
+  { id: "Tech Lead", name: "Tech Lead" },
+  { id: "Functional Analyst", name: "Functional Analyst" },
 ]
 
 interface ProfileAssignment {
@@ -58,10 +65,34 @@ const createEmptyRow = (): ProfileAssignment => ({
 export const TaskHoursForm = () => {
   const [taskId, setTaskId] = useState("")
 
-  // Inicialización tipada sin usar any
+  const loadTasksFromStorage = (): TaskItem[] => {
+    if (typeof window === "undefined") return []
+    const stored = localStorage.getItem(getBacklogKey("1"))
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as {
+          tasks?: Array<{ id: string; title?: string; name?: string }>
+        }
+        if (parsed.tasks && parsed.tasks.length > 0) {
+          return parsed.tasks.map((t) => ({
+            id: t.id,
+            title: t.title || t.name || "Tarea sin título",
+          }))
+        }
+      } catch {
+        return []
+      }
+    }
+    return []
+  }
+
+  const [tasks, setTasks] = useState<TaskItem[]>(loadTasksFromStorage)
+
   const [profiles] = useState<TechnicalProfileItem[]>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(PROFILES_STORAGE_KEY)
+      const saved =
+        localStorage.getItem(PROFILES_STORAGE_KEY) ||
+        localStorage.getItem("profiles")
       if (saved) {
         try {
           return JSON.parse(saved) as TechnicalProfileItem[]
@@ -76,6 +107,15 @@ export const TaskHoursForm = () => {
   const [profileRows, setProfileRows] = useState<ProfileAssignment[]>([
     createEmptyRow(),
   ])
+
+  useEffect(() => {
+    const handleStorage = () => setTasks(loadTasksFromStorage())
+    window.addEventListener("storage", handleStorage)
+    return () => window.removeEventListener("storage", handleStorage)
+  }, [])
+
+  // Encontrar la tarea seleccionada para extraer su título
+  const selectedTask = tasks.find((t) => t.id === taskId)
 
   const addProfileRow = () => {
     setProfileRows([...profileRows, createEmptyRow()])
@@ -107,16 +147,15 @@ export const TaskHoursForm = () => {
     event.preventDefault()
     if (!canSubmit) return
 
-    const task = MOCK_TASKS.find((item) => item.id === taskId)
-    if (!task) return
+    const taskRealName = selectedTask ? selectedTask.title : "Tarea Técnica"
 
     const newEntries: HoursEntry[] = profileRows.map((row) => {
       const profile = profiles.find((item) => item.id === row.profileId)
       return {
         taskId,
-        taskTitle: task.title,
+        taskTitle: taskRealName,
         profileId: row.profileId,
-        profileName: profile ? profile.name : "",
+        profileName: profile ? profile.name : row.profileId,
         hours: Number(row.hours),
         updatedAt: new Date().toISOString(),
       }
@@ -135,20 +174,23 @@ export const TaskHoursForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      {/* Selector de Tarea */}
+      {/* Selector de Tarea mostrando el nombre legible */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="task" className="text-sm font-medium">
           Tarea
         </Label>
         <Select
           value={taskId}
-          onValueChange={(value) => setTaskId(value ?? "")}
+          onValueChange={(value) => setTaskId(value || "")}
         >
           <SelectTrigger id="task" className="w-full">
-            <SelectValue placeholder="Selecciona una tarea" />
+            <SelectValue placeholder="Selecciona una tarea">
+              {/* Le forzamos a pintar el nombre de la tarea */}
+              {selectedTask ? selectedTask.title : undefined}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {MOCK_TASKS.map((task) => (
+            {tasks.map((task) => (
               <SelectItem key={task.id} value={task.id}>
                 {task.title}
               </SelectItem>
@@ -157,7 +199,7 @@ export const TaskHoursForm = () => {
         </Select>
       </div>
 
-      {/* Perfil y Horas con etiquetas arriba bien alineadas */}
+      {/* Perfil y Horas */}
       <div className="flex flex-col gap-3">
         {profileRows.map((row, index) => (
           <div
@@ -171,11 +213,13 @@ export const TaskHoursForm = () => {
               <Select
                 value={row.profileId}
                 onValueChange={(value) =>
-                  updateProfileRow(row.rowId, "profileId", value ?? "")
+                  updateProfileRow(row.rowId, "profileId", value || "")
                 }
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecciona perfil técnico" />
+                  <SelectValue placeholder="Selecciona perfil técnico">
+                    {profiles.find((p) => p.id === row.profileId)?.name}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {profiles.map((profile) => (
