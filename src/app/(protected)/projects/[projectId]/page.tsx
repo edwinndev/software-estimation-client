@@ -1,4 +1,4 @@
-import { ProjectDetailView } from "@/features/projects"
+import { redirect } from "next/navigation"
 
 interface ProjectDetailPageProps {
   params: Promise<{ projectId: string }>
@@ -7,7 +7,7 @@ interface ProjectDetailPageProps {
 const ProjectDetailPage = async ({ params }: ProjectDetailPageProps) => {
   const { projectId } = await params
 
-  return <ProjectDetailView projectId={projectId} />
+  redirect(`/projects/${projectId}/backlog`)
 }
 
 export default ProjectDetailPage

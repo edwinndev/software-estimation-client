@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import { FolderKanbanIcon, PlusIcon } from "lucide-react"
 
 import { DataTable } from "@/components/data-table"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { buttonVariants } from "@/components/ui/button"
 
 import { usePagination } from "@/hooks"
 import { TABLE_PAGE_SIZE } from "@/lib/pagination"
@@ -109,42 +111,48 @@ export const ProjectsView = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card>
-        <CardHeader>
-          <ProjectToolbar
-            search={search}
-            activeFilters={activeFilters}
-            filters={filters}
-            onSearchChange={(value) => {
-              setSearch(value)
-              resetPage()
-            }}
-            onOpenFilters={() => setFiltersOpen(true)}
-            onRemoveFilter={(key) => {
-              setFilters((prev) => ({ ...prev, [key]: "" }))
-              resetPage()
-            }}
-          />
-        </CardHeader>
+      <div className="flex flex-col gap-3">
+        <ProjectToolbar
+          search={search}
+          activeFilters={activeFilters}
+          filters={filters}
+          onSearchChange={(value) => {
+            setSearch(value)
+            resetPage()
+          }}
+          onOpenFilters={() => setFiltersOpen(true)}
+          onRemoveFilter={(key) => {
+            setFilters((prev) => ({ ...prev, [key]: "" }))
+            resetPage()
+          }}
+          actions={
+            <Link
+              href="/projects/new"
+              className={buttonVariants({ className: "shrink-0" })}
+            >
+              <PlusIcon />
+              Nuevo proyecto
+            </Link>
+          }
+        />
 
-        <CardContent>
-          <DataTable
-            isLoading={isLoading}
-            isError={false}
-            errorMessage="No se pudieron cargar los proyectos."
-            isEmpty={pagination.projectResponse.length === 0}
-            emptyMessage={
-              activeFilters > 0
-                ? "No hay proyectos que coincidan con los filtros."
-                : "Aún no hay proyectos registrados."
-            }
-            pagination={pagination}
-            onPageChange={setPageNumber}
-          >
-            <ProjectsTable projects={pagination.projectResponse} />
-          </DataTable>
-        </CardContent>
-      </Card>
+        <DataTable
+          isLoading={isLoading}
+          isError={false}
+          errorMessage="No se pudieron cargar los proyectos."
+          isEmpty={pagination.projectResponse.length === 0}
+          emptyIcon={FolderKanbanIcon}
+          emptyMessage={
+            activeFilters > 0
+              ? "No hay proyectos que coincidan con los filtros."
+              : "Aún no hay proyectos registrados."
+          }
+          pagination={pagination}
+          onPageChange={setPageNumber}
+        >
+          <ProjectsTable projects={pagination.projectResponse} />
+        </DataTable>
+      </div>
 
       <ProjectsFiltersDrawer
         open={filtersOpen}
