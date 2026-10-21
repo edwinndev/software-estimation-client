@@ -23,8 +23,8 @@ export const TeamSwitcher = () => {
             />
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">Intecx Industries</span>
-              <span className="text-muted-foreground truncate text-xs">
-                Software estimation
+              <span className="text-sidebar-foreground/75 truncate text-xs font-normal">
+                Estimación de software
               </span>
             </div>
           </Link>
