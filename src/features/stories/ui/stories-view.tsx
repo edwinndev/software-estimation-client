@@ -533,7 +533,7 @@ export const StoriesView = ({ projectId }: { projectId: string }) => {
             }
           }}
         >
-          <DialogContent className="sm:max-w-3xl">
+          <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-3xl">
             <DialogHeader>
               <DialogTitle>
                 {taskDialog && taskDialog.task ? "Editar tarea" : "Nueva tarea"}
