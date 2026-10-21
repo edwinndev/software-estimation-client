@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CheckIcon, PencilIcon, XIcon } from "lucide-react"
+import { CheckIcon, ClockIcon, PencilIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { NumberInput } from "@/components/ui/number-input"
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table"
 import { toast } from "@/components/ui/toast"
 import { getErrorMessage } from "@/lib/form-errors"
+import { TableEmptyState } from "@/components/table-empty-state"
 import { useTaskHours, useUpdateTaskHours } from "../hooks/use-task-hours"
 import type { TaskHourEntry } from "../types"
 import { useProjectAccess } from "@/features/projects/hooks/use-project-access"
@@ -109,10 +110,10 @@ export const TaskHoursTable = ({ projectId }: TaskHoursTableProps) => {
 
   if (entries.length === 0) {
     return (
-      <p className="text-muted-foreground py-6 text-center text-sm">
-        No hay tareas en el backlog. Crea historias y tareas para calcular las
-        horas automáticamente según la estimación y los perfiles asignados.
-      </p>
+      <TableEmptyState
+        message="No hay tareas en el backlog. Crea historias y tareas para calcular las horas automáticamente según la estimación y los perfiles asignados."
+        icon={ClockIcon}
+      />
     )
   }
 

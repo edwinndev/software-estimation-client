@@ -68,7 +68,7 @@ export const GlobalReportsView = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -92,52 +92,73 @@ export const GlobalReportsView = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        {/* Proyectos - Teal (Verde medio celeste) sólido */}
+        <Card className="border-0 bg-teal-600 text-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Proyectos</CardTitle>
-            <FolderKanbanIcon className="text-muted-foreground size-4" />
+            <CardTitle className="text-sm font-medium text-teal-100">
+              Proyectos
+            </CardTitle>
+            <FolderKanbanIcon className="size-5 text-white/90" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{report.totalProjects}</p>
-            <p className="text-muted-foreground mt-1 text-xs">
+            <p className="text-2xl font-bold tracking-tight text-white">
+              {report.totalProjects}
+            </p>
+            <p className="mt-1 text-xs text-teal-100/80">
               {report.totalEstimatesCompleted} con estimación
             </p>
           </CardContent>
         </Card>
-        <Card>
+
+        {/* Puntos de historia - Violeta oscuro / Mora sólido */}
+        <Card className="border-0 bg-violet-800 text-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-purple-100">
               Puntos de historia
             </CardTitle>
-            <CalculatorIcon className="text-muted-foreground size-4" />
+            <CalculatorIcon className="size-5 text-white/90" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
+            <p className="text-2xl font-bold tracking-tight text-white">
               {report.totalSystemStoryPoints}
             </p>
+            <p className="mt-1 text-xs text-purple-100/80">
+              Total acumulado del sistema
+            </p>
           </CardContent>
         </Card>
-        <Card>
+
+        {/* Tiempo base - Ámbar / Miel sólido */}
+        <Card className="border-0 bg-amber-600 text-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiempo base</CardTitle>
-            <FileTextIcon className="text-muted-foreground size-4" />
+            <CardTitle className="text-sm font-medium text-amber-100">
+              Tiempo base
+            </CardTitle>
+            <FileTextIcon className="size-5 text-white/90" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
+            <p className="text-2xl font-bold tracking-tight text-white">
               {report.totalSystemBaseTime.toFixed(1)} días
             </p>
+            <p className="mt-1 text-xs text-amber-100/80">
+              Suma de todos los proyectos
+            </p>
           </CardContent>
         </Card>
-        <Card>
+
+        {/* Costo total - Carbón grafito / Pizarra sólido */}
+        <Card className="border-0 bg-slate-800 text-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Costo total</CardTitle>
-            <TrendingUpIcon className="text-muted-foreground size-4" />
+            <CardTitle className="text-sm font-medium text-slate-200">
+              Costo total
+            </CardTitle>
+            <TrendingUpIcon className="size-5 text-white/90" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
+            <p className="text-2xl font-bold tracking-tight text-white">
               {formatCurrency(report.totalSystemCost)}
             </p>
-            <p className="text-muted-foreground mt-1 text-xs">
+            <p className="mt-1 text-xs text-slate-300">
               Incluye {formatCurrency(report.totalSystemContingencyCost)} de
               contingencia
             </p>

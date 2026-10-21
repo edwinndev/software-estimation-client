@@ -1,5 +1,6 @@
 "use client"
 
+import { BookOpenIcon } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/toast"
 import { getErrorMessage } from "@/lib/form-errors"
+import { TableEmptyState } from "@/components/table-empty-state"
 import { useAssignStoryPoints, useUserStories } from "../hooks/use-user-stories"
 import { STORY_POINTS_OPTIONS } from "../types"
 import { userStoriesService } from "../services/user-stories.service"
@@ -74,6 +76,15 @@ export const UserStoryTable = ({ projectId }: UserStoryTableProps) => {
     )
   }
 
+  if (stories.length === 0) {
+    return (
+      <TableEmptyState
+        message="No hay historias de usuario en el backlog. Crea historias en Historias y tareas para visualizarlas aquí."
+        icon={BookOpenIcon}
+      />
+    )
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <p className="text-muted-foreground text-sm">
@@ -90,51 +101,37 @@ export const UserStoryTable = ({ projectId }: UserStoryTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {stories.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={2}
-                className="text-muted-foreground py-6 text-center text-sm"
-              >
-                No hay historias de usuario en el backlog. Crea historias en
-                Historias y tareas para visualizarlas aquí.
+          {stories.map((story) => (
+            <TableRow key={story.id}>
+              <TableCell>
+                <span className="text-sm font-medium">
+                  {story.code} - {story.title}
+                </span>
+              </TableCell>
+              <TableCell>
+                <Select
+                  disabled={!canWrite}
+                  value={story.storyPoints > 0 ? String(story.storyPoints) : ""}
+                  onValueChange={(value) => {
+                    if (value) {
+                      void handleAssign(story, value)
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sin asignar" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STORY_POINTS_OPTIONS.map((points) => (
+                      <SelectItem key={points} value={String(points)}>
+                        {points} SP
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </TableCell>
             </TableRow>
-          ) : (
-            stories.map((story) => (
-              <TableRow key={story.id}>
-                <TableCell>
-                  <span className="text-sm font-medium">
-                    {story.code} - {story.title}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <Select
-                    disabled={!canWrite}
-                    value={
-                      story.storyPoints > 0 ? String(story.storyPoints) : ""
-                    }
-                    onValueChange={(value) => {
-                      if (value) {
-                        void handleAssign(story, value)
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Sin asignar" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {STORY_POINTS_OPTIONS.map((points) => (
-                        <SelectItem key={points} value={String(points)}>
-                          {points} SP
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
+          ))}
         </TableBody>
       </Table>
     </div>

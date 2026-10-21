@@ -1,5 +1,6 @@
 "use client"
 
+import { ReceiptIcon } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -16,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { formatCurrency } from "@/lib/format"
+import { TableEmptyState } from "@/components/table-empty-state"
 import type { TaskCost } from "../types/task-cost"
 import { CostProfileIdentity } from "./cost-profile-identity"
 
@@ -34,41 +36,48 @@ export const TaskCostsTable = ({ taskCosts }: TaskCostsTableProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Tarea</TableHead>
-              <TableHead>Perfil</TableHead>
-              <TableHead className="text-right">Horas</TableHead>
-              <TableHead className="text-right">Costo</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {taskCosts.map((task) => (
-              <TableRow key={task.taskId}>
-                <TableCell className="font-medium">{task.taskName}</TableCell>
-                <TableCell>
-                  <div className="flex flex-col gap-2">
-                    {task.profiles.map((profile) => (
-                      <CostProfileIdentity
-                        key={profile.profileId}
-                        name={profile.profileName}
-                        role={profile.profileRole}
-                        email={profile.profileEmail}
-                      />
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {task.totalHours} h
-                </TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {formatCurrency(task.totalCost)}
-                </TableCell>
+        {taskCosts.length === 0 ? (
+          <TableEmptyState
+            message="No hay costos calculados. Asigna horas y perfiles a las tareas para ver los costos."
+            icon={ReceiptIcon}
+          />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tarea</TableHead>
+                <TableHead>Perfil</TableHead>
+                <TableHead className="text-right">Horas</TableHead>
+                <TableHead className="text-right">Costo</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {taskCosts.map((task) => (
+                <TableRow key={task.taskId}>
+                  <TableCell className="font-medium">{task.taskName}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-2">
+                      {task.profiles.map((profile) => (
+                        <CostProfileIdentity
+                          key={profile.profileId}
+                          name={profile.profileName}
+                          role={profile.profileRole}
+                          email={profile.profileEmail}
+                        />
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {task.totalHours} h
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {formatCurrency(task.totalCost)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   )

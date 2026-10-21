@@ -4,7 +4,6 @@ import Link from "next/link"
 import { usePathname, useParams } from "next/navigation"
 import {
   ArrowLeftIcon,
-  FolderIcon,
   ListTodoIcon,
   CalculatorIcon,
   BanknoteIcon,
@@ -28,12 +27,6 @@ export const ProjectNavTabs = () => {
   const { data: project } = useProject(projectId)
 
   const tabs = [
-    {
-      title: "General",
-      href: `/projects/${projectId}`,
-      icon: FolderIcon,
-      exact: true,
-    },
     {
       title: "Historias y tareas",
       href: `/projects/${projectId}/backlog`,
@@ -107,9 +100,8 @@ export const ProjectNavTabs = () => {
       <nav className="flex flex-wrap items-center gap-1 border-b pb-2">
         {tabs.map((tab) => {
           const Icon = tab.icon
-          const isActive = tab.exact
-            ? pathname === tab.href
-            : pathname === tab.href || pathname.startsWith(`${tab.href}/`)
+          const isActive =
+            pathname === tab.href || pathname.startsWith(`${tab.href}/`)
 
           return (
             <Link

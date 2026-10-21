@@ -1,9 +1,11 @@
 "use client"
 
+import type { LucideIcon } from "lucide-react"
 import type { ReactNode } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { PaginationMeta } from "@/types/api"
 import { DataTablePagination } from "./data-table-pagination"
+import { TableEmptyState } from "./table-empty-state"
 
 type DataTableProps = {
   children: ReactNode
@@ -12,6 +14,7 @@ type DataTableProps = {
   errorMessage: string
   isEmpty: boolean
   emptyMessage: string
+  emptyIcon?: LucideIcon
   pagination: PaginationMeta
   onPageChange: (pageNumber: number) => void
 }
@@ -23,6 +26,7 @@ export const DataTable = ({
   errorMessage,
   isEmpty,
   emptyMessage,
+  emptyIcon,
   pagination,
   onPageChange,
 }: DataTableProps) => {
@@ -41,7 +45,7 @@ export const DataTable = ({
   }
 
   if (isEmpty) {
-    return <p className="text-muted-foreground text-sm">{emptyMessage}</p>
+    return <TableEmptyState message={emptyMessage} icon={emptyIcon} />
   }
 
   return (

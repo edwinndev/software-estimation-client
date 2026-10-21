@@ -24,7 +24,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { DateRangeFields } from "@/components/ui/date-range-fields"
+import { DatePicker } from "@/components/ui/datepicker"
 import { DescriptionHint } from "@/components/ui/description-hint"
 import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { Input } from "@/components/ui/input"
@@ -226,10 +226,8 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
       }}
       className="flex w-full flex-col gap-6"
     >
-      <fieldset
-        disabled={fieldsLocked}
-        className="flex flex-col gap-5 border-0 p-0 disabled:opacity-70"
-      >
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {/* Row 1 - Col 1: Nombre */}
         <form.Field name="nombre">
           {(field) => (
             <div className="flex flex-col gap-1.5">
@@ -240,6 +238,7 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
                 id={field.name}
                 name={field.name}
                 value={field.state.value}
+                disabled={fieldsLocked}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 placeholder="Ingresa el nombre del proyecto"
@@ -254,42 +253,7 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
           )}
         </form.Field>
 
-        <form.Field
-          name="descripcion"
-          validators={{
-            onChange: projectSchema.shape.descripcion,
-            onBlur: projectSchema.shape.descripcion,
-          }}
-        >
-          {(field) => {
-            const error = getFieldError(field.state.meta.errors)
-            const length = field.state.value.trim().length
-
-            return (
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor={field.name}>Descripción</Label>
-                <Textarea
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  maxLength={500}
-                  placeholder="Ingresa una descripción del proyecto (opcional)"
-                  aria-invalid={Boolean(error)}
-                />
-                <DescriptionHint
-                  error={error}
-                  hint="Opcional. Si la escribes, usa al menos 10 caracteres (máx. 500)."
-                  length={length}
-                  limit={500}
-                  invalidCount={length > 0 && length < 10}
-                />
-              </div>
-            )
-          }}
-        </form.Field>
-
+        {/* Row 1 - Col 2: Tipo */}
         <form.Field name="tipo">
           {(field) => (
             <div className="flex flex-col gap-1.5">
@@ -298,6 +262,7 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
               </Label>
               <Select
                 value={field.state.value}
+                disabled={fieldsLocked}
                 onValueChange={(value) => field.handleChange(value ?? "")}
               >
                 <SelectTrigger id={field.name} className="w-full">
@@ -341,27 +306,7 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
           )}
         </form.Field>
 
-        <form.Field name="fecha_inicio">
-          {(startField) => (
-            <form.Field name="fecha_fin">
-              {(endField) => (
-                <DateRangeFields
-                  startId={startField.name}
-                  endId={endField.name}
-                  startLabel="Fecha prevista de inicio"
-                  endLabel="Fecha prevista de entrega"
-                  startValue={startField.state.value}
-                  endValue={endField.state.value}
-                  startError={getFieldError(startField.state.meta.errors)}
-                  endError={getFieldError(endField.state.meta.errors)}
-                  onStartSelect={startField.handleChange}
-                  onEndSelect={endField.handleChange}
-                />
-              )}
-            </form.Field>
-          )}
-        </form.Field>
-
+        {/* Row 1 - Col 3: Responsable */}
         <form.Field name="responsable">
           {(field) => (
             <div className="flex flex-col gap-1.5">
@@ -371,6 +316,7 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
               </Label>
               <Select
                 value={field.state.value}
+                disabled={fieldsLocked}
                 onValueChange={(value) => field.handleChange(value ?? "")}
               >
                 <SelectTrigger id={field.name} className="w-full">
@@ -382,8 +328,8 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
                       return selected ? (
                         <div className="flex items-center gap-2">
                           <UserRound className="text-muted-foreground h-4 w-4" />
-                          <span>
-                            {getFullName(selected)} - {`(${selected.email})`}
+                          <span className="truncate">
+                            {getFullName(selected)}
                           </span>
                         </div>
                       ) : (
@@ -407,9 +353,6 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-muted-foreground text-xs">
-                Solo se muestran usuarios registrados en el sistema
-              </p>
               {field.state.meta.errors.length > 0 && (
                 <p className="text-destructive text-xs">
                   {field.state.meta.errors.join(", ")}
@@ -418,10 +361,61 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
             </div>
           )}
         </form.Field>
-      </fieldset>
 
-      {isEditing && (
-        <div className="mt-2 border-t pt-4">
+        {/* Row 2 - Col 1: Fecha prevista de inicio */}
+        <form.Field name="fecha_inicio">
+          {(startField) => (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={startField.name}>
+                Fecha prevista de inicio{" "}
+                <span className="text-destructive">*</span>
+              </Label>
+              <DatePicker
+                id={startField.name}
+                value={startField.state.value}
+                disabled={fieldsLocked}
+                maxDate={form.getFieldValue("fecha_fin")}
+                invalid={Boolean(getFieldError(startField.state.meta.errors))}
+                placeholder="Selecciona fecha de inicio"
+                onSelect={startField.handleChange}
+              />
+              {startField.state.meta.errors.length > 0 && (
+                <p className="text-destructive text-xs">
+                  {startField.state.meta.errors.join(", ")}
+                </p>
+              )}
+            </div>
+          )}
+        </form.Field>
+
+        {/* Row 2 - Col 2: Fecha prevista de entrega */}
+        <form.Field name="fecha_fin">
+          {(endField) => (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={endField.name}>
+                Fecha prevista de entrega{" "}
+                <span className="text-destructive">*</span>
+              </Label>
+              <DatePicker
+                id={endField.name}
+                value={endField.state.value}
+                disabled={fieldsLocked}
+                minDate={form.getFieldValue("fecha_inicio")}
+                invalid={Boolean(getFieldError(endField.state.meta.errors))}
+                placeholder="Selecciona fecha de entrega"
+                onSelect={endField.handleChange}
+              />
+              {endField.state.meta.errors.length > 0 && (
+                <p className="text-destructive text-xs">
+                  {endField.state.meta.errors.join(", ")}
+                </p>
+              )}
+            </div>
+          )}
+        </form.Field>
+
+        {/* Row 2 - Col 3: Estado del proyecto */}
+        {isEditing ? (
           <form.Field name="estado">
             {(field) => (
               <div className="flex flex-col gap-1.5">
@@ -468,11 +462,65 @@ export const ProjectForm = ({ project }: ProjectFormProps) => {
                     ))}
                   </SelectContent>
                 </Select>
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-destructive text-xs">
+                    {field.state.meta.errors.join(", ")}
+                  </p>
+                )}
               </div>
             )}
           </form.Field>
+        ) : (
+          <div className="flex flex-col gap-1.5 opacity-80">
+            <Label>Estado inicial</Label>
+            <div className="border-input bg-muted text-muted-foreground flex h-9 w-full items-center gap-2 rounded-md border px-3 text-sm">
+              <FileText className="h-4 w-4 text-amber-500" />
+              <span>Borrador (predeterminado)</span>
+            </div>
+          </div>
+        )}
+
+        {/* Row 3 - Full Width: Descripción */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-3">
+          <form.Field
+            name="descripcion"
+            validators={{
+              onChange: projectSchema.shape.descripcion,
+              onBlur: projectSchema.shape.descripcion,
+            }}
+          >
+            {(field) => {
+              const error = getFieldError(field.state.meta.errors)
+              const length = field.state.value.trim().length
+
+              return (
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor={field.name}>Descripción</Label>
+                  <Textarea
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    disabled={fieldsLocked}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    maxLength={500}
+                    rows={3}
+                    placeholder="Ingresa una descripción del proyecto (opcional)"
+                    aria-invalid={Boolean(error)}
+                  />
+                  <DescriptionHint
+                    error={error}
+                    hint="Opcional. Si la escribes, usa al menos 10 caracteres (máx. 500)."
+                    length={length}
+                    limit={500}
+                    invalidCount={length > 0 && length < 10}
+                  />
+                </div>
+              )
+            }}
+          </form.Field>
         </div>
-      )}
+      </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
         <Button

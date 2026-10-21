@@ -41,7 +41,7 @@ export const UsersTable = ({ users, onDelete }: UsersTableProps) => {
       </TableHeader>
       <TableBody>
         {users.map((user) => {
-          const role = ROLE_BY_VALUE[user.role]
+          const role = ROLE_BY_VALUE[user.role] ?? null
           const RoleIcon = ROLE_ITEM_ICON
 
           return (
@@ -56,7 +56,7 @@ export const UsersTable = ({ users, onDelete }: UsersTableProps) => {
               <TableCell>
                 <Badge variant="secondary">
                   <RoleIcon />
-                  {role.label}
+                  {role ? role.label : user.role}
                 </Badge>
               </TableCell>
               <TableCell>
