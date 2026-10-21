@@ -1,6 +1,6 @@
 "use client"
 
-import { FileDownIcon } from "lucide-react"
+import { FileDownIcon, HistoryIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, formatDate } from "@/lib/format"
 import { timeUnitLabel } from "@/lib/calendar-time"
+import { TableEmptyState } from "@/components/table-empty-state"
 import type { ReportSnapshot } from "../types"
 import { riskLevelLabel, riskLevelVariant } from "../utils/report-labels"
 
@@ -30,11 +31,7 @@ export const ReportHistoryTable = ({
   onExport,
 }: ReportHistoryTableProps) => {
   if (snapshots.length === 0) {
-    return (
-      <p className="text-muted-foreground py-8 text-center text-sm">
-        {emptyLabel}
-      </p>
-    )
+    return <TableEmptyState message={emptyLabel} icon={HistoryIcon} />
   }
 
   return (

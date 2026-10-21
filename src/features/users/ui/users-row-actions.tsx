@@ -57,20 +57,30 @@ export const UsersRowActions = ({ user, onDelete }: UsersRowActionsProps) => {
             }
           >
             <PencilIcon />
-            <span className="sr-only">Gestionar usuario</span>
+            <span className="sr-only">Editar usuario</span>
           </TooltipTrigger>
-          <TooltipContent>Gestionar usuario</TooltipContent>
+          <TooltipContent>Editar usuario</TooltipContent>
         </Tooltip>
       ) : null}
 
       <DropdownMenu>
-        <DropdownMenuTrigger
-          className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
-          aria-label="Más acciones"
-        >
-          <MoreHorizontalIcon />
-          <span className="sr-only">Más acciones</span>
-        </DropdownMenuTrigger>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <DropdownMenuTrigger
+                className={buttonVariants({
+                  variant: "ghost",
+                  size: "icon-sm",
+                })}
+                aria-label="Más acciones"
+              />
+            }
+          >
+            <MoreHorizontalIcon />
+            <span className="sr-only">Más acciones</span>
+          </TooltipTrigger>
+          <TooltipContent>Más acciones</TooltipContent>
+        </Tooltip>
         <DropdownMenuContent align="end" className="min-w-48">
           {canWriteUsers ? (
             <DropdownMenuItem

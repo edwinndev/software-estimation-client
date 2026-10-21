@@ -1,7 +1,8 @@
 "use client"
 
-import { BanIcon, CircleCheckIcon } from "lucide-react"
+import { BanIcon, CircleCheckIcon, UsersIcon } from "lucide-react"
 import { StatusBadge } from "@/components/status-badge"
+import { TableEmptyState } from "@/components/table-empty-state"
 import { formatCurrency } from "@/lib/format"
 import {
   Table,
@@ -27,6 +28,15 @@ export const ProfileTable = ({
   onAssignCer,
   onDelete,
 }: ProfileTableProps) => {
+  if (profiles.length === 0) {
+    return (
+      <TableEmptyState
+        message="No hay perfiles técnicos registrados. Agrega perfiles para asignarlos a los proyectos."
+        icon={UsersIcon}
+      />
+    )
+  }
+
   return (
     <div className="rounded-md border">
       <Table>

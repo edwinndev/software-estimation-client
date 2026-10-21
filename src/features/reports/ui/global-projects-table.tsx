@@ -1,5 +1,6 @@
 "use client"
 
+import { BarChart2Icon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/table"
 import { formatCurrency } from "@/lib/format"
 import { timeUnitLabel } from "@/lib/calendar-time"
+import { TableEmptyState } from "@/components/table-empty-state"
 import type { ProjectReportSummary } from "../types"
 import {
   projectStatusLabel,
@@ -27,6 +29,15 @@ type GlobalProjectsTableProps = {
 export const GlobalProjectsTable = ({
   summaries,
 }: GlobalProjectsTableProps) => {
+  if (summaries.length === 0) {
+    return (
+      <TableEmptyState
+        message="No hay proyectos registrados."
+        icon={BarChart2Icon}
+      />
+    )
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -86,16 +97,6 @@ export const GlobalProjectsTable = ({
             </TableRow>
           )
         })}
-        {summaries.length === 0 ? (
-          <TableRow>
-            <TableCell
-              colSpan={6}
-              className="text-muted-foreground py-6 text-center"
-            >
-              No hay proyectos registrados.
-            </TableCell>
-          </TableRow>
-        ) : null}
       </TableBody>
     </Table>
   )
