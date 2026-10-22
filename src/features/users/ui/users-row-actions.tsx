@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import {
+  MailIcon,
   MoreHorizontalIcon,
   PencilIcon,
   PowerIcon,
@@ -23,6 +24,7 @@ import {
 import { usePermissions } from "@/features/auth/hooks/use-permissions"
 import { useSession } from "@/features/auth/hooks/use-session"
 import { getErrorMessage } from "@/lib/form-errors"
+import { useResendInvitation } from "../hooks/use-resend-invitation"
 import { useUpdateUserStatus } from "../hooks/use-update-user-status"
 import type { User } from "../types"
 
@@ -35,6 +37,7 @@ export const UsersRowActions = ({ user, onDelete }: UsersRowActionsProps) => {
   const { data: session } = useSession()
   const { canWriteUsers, canDeleteUsers } = usePermissions()
   const updateStatus = useUpdateUserStatus()
+  const resendInvitation = useResendInvitation()
   const isCurrentUser = session ? session.userId === user.id : false
 
   if (!canWriteUsers && !canDeleteUsers) {
@@ -111,6 +114,30 @@ export const UsersRowActions = ({ user, onDelete }: UsersRowActionsProps) => {
             >
               <PowerIcon />
               {user.isActive ? "Desactivar usuario" : "Activar usuario"}
+            </DropdownMenuItem>
+          ) : null}
+          {canWriteUsers ? (
+            <DropdownMenuItem
+              disabled={!user.isActive || resendInvitation.isPending}
+              onClick={async () => {
+                try {
+                  await resendInvitation.mutateAsync(user.id)
+                  toast.add({
+                    title: "Invitación reenviada",
+                    description: `Se envió un nuevo código OTP a ${user.email}.`,
+                    type: "success",
+                  })
+                } catch (error) {
+                  toast.add({
+                    title: "No se pudo reenviar la invitación",
+                    description: getErrorMessage(error, "Inténtalo de nuevo."),
+                    type: "error",
+                  })
+                }
+              }}
+            >
+              <MailIcon />
+              Reenviar invitación
             </DropdownMenuItem>
           ) : null}
           {canDeleteUsers ? (

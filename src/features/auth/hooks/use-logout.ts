@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
+import { getRefreshToken } from "@/lib/api"
 import { authService } from "../services/auth-service"
+import { clearSession } from "../utils/session"
 import { authQueryKeys } from "./use-session"
 
 export const useLogout = () => {
@@ -8,7 +10,14 @@ export const useLogout = () => {
   const router = useRouter()
 
   return useMutation({
-    mutationFn: authService.logout,
+    mutationFn: async () => {
+      const refreshToken = getRefreshToken()
+      try {
+        await authService.logout(refreshToken ? { refreshToken } : undefined)
+      } finally {
+        clearSession()
+      }
+    },
     onSuccess: () => {
       queryClient.setQueryData(authQueryKeys.session, null)
       queryClient.removeQueries({ queryKey: ["users"] })

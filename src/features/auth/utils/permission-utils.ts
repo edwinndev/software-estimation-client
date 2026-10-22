@@ -1,4 +1,4 @@
-import { PATH_PERMISSIONS, type PermissionCode } from "../constants/permissions"
+import { PATH_PERMISSIONS, type PermissionCode } from "@/enumeration/permission"
 
 export const hasPermission = (granted: string[], required: PermissionCode) =>
   granted.includes(required)

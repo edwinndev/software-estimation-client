@@ -8,7 +8,7 @@ type ForgotPasswordStepPageProps = {
   step: ForgotPasswordStep
 }
 
-const getSearchEmail = (value: string | string[] | undefined) => {
+const getSearchValue = (value: string | string[] | undefined) => {
   if (typeof value === "string") {
     return value
   }
@@ -20,11 +20,17 @@ export const ForgotPasswordStepPage = async ({
   searchParams,
   step,
 }: ForgotPasswordStepPageProps) => {
-  const email = getSearchEmail((await searchParams).email)
+  const params = await searchParams
+  const email = getSearchValue(params.email)
+  const code = getSearchValue(params.code)
 
   if (!email) {
     redirect("/forgot-password")
   }
 
-  return <ForgotPasswordView step={step} email={email} />
+  if (step === "reset" && !code) {
+    redirect(`/forgot-password/verify?email=${encodeURIComponent(email)}`)
+  }
+
+  return <ForgotPasswordView step={step} email={email} code={code} />
 }

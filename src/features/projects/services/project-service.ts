@@ -9,12 +9,12 @@ import {
 import { QueryRequest, PaginatedResponse, FilterOperator } from "@/types/api"
 import { paginateQuery } from "@/lib/pagination"
 import { readJson, removeJson, STORAGE_KEYS, writeJson } from "@/lib/storage"
-import { authService } from "@/features/auth/services/auth-service"
+import { readSession } from "@/features/auth/utils/session"
 import { Project } from "../types/project-types"
 import { ProjectFormValues } from "../schemas/project-schema"
 
 const getCurrentUser = async () => {
-  const session = await authService.getSession()
+  const session = readSession()
   if (session) {
     return {
       id: session.userId,

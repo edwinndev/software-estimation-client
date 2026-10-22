@@ -95,7 +95,7 @@ export const NavUser = ({ user }: { user: Session }) => {
                         {fullName}
                       </span>
                       <span className="text-sidebar-foreground/70 truncate text-xs">
-                        {ROLE_LABELS[user.role]}
+                        {user.roleName || ROLE_LABELS[user.role]}
                       </span>
                     </div>
                   </div>

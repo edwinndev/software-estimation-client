@@ -46,28 +46,10 @@ export const purgeMockSeedData = () => {
       }
     }
 
-    // In users, retain admin account and real users, clean mock users
-    const storedUsers = ls.getItem(STORAGE_KEYS.USERS)
-    if (storedUsers) {
-      try {
-        const parsed = JSON.parse(storedUsers)
-        if (Array.isArray(parsed)) {
-          const cleanUsers = parsed.filter(
-            (u: { email?: string; id?: string }) =>
-              u.email === "jcvargas.dev@gmail.com" ||
-              (!u.id?.startsWith("user-dev-") &&
-                !u.id?.startsWith("user-qa-") &&
-                !u.id?.startsWith("user-pm-") &&
-                !u.id?.startsWith("user-po-") &&
-                !u.id?.startsWith("user-arch-") &&
-                !u.id?.startsWith("user-lead-"))
-          )
-          ls.setItem(STORAGE_KEYS.USERS, JSON.stringify(cleanUsers))
-        }
-      } catch {
-        ls.removeItem(STORAGE_KEYS.USERS)
-      }
-    }
+    // Legacy local auth/users mocks (now served by the API)
+    ls.removeItem("software-estimation:users")
+    ls.removeItem("software-estimation:password-reset")
+    ls.removeItem("software-estimation:auth-tokens")
 
     // Remove mock backlog, story points, sprint configs, task hours, risks, reports for p1-p8
     for (let i = 1; i <= 8; i++) {
