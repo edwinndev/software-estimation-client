@@ -19,7 +19,7 @@ import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import { usePermissions } from "@/features/auth/hooks/use-permissions"
 import { useSession } from "@/features/auth/hooks/use-session"
-import { PERMISSIONS } from "@/features/auth/constants/permissions"
+import { PERMISSIONS } from "@/enumeration/permission"
 import {
   FolderKanbanIcon,
   FileBarChartIcon,

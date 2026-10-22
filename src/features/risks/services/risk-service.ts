@@ -1,22 +1,22 @@
+import {
+  DEFAULT_RISK_LEVEL,
+  getRiskDefaultMargin,
+  isRiskLevel,
+  type RiskLevel,
+} from "@/enumeration/risk-level"
 import { requireProjectAction } from "@/features/projects/utils/require-project-action"
-import { EstimationImpact, RiskConfig, RiskLevel } from "../types"
-
-const DEFAULT_MARGINS: Record<RiskLevel, number> = {
-  low: 5,
-  medium: 15,
-  high: 25,
-}
+import type { EstimationImpact, RiskConfig } from "../types"
 
 const DEFAULT_CONFIG: RiskConfig = {
-  level: "medium",
-  contingencyMargin: 15,
+  level: DEFAULT_RISK_LEVEL,
+  contingencyMargin: getRiskDefaultMargin(DEFAULT_RISK_LEVEL),
 }
 
 const storageKey = (projectId: string) => `risk_config_${projectId}`
 
 export const riskService = {
   getDefaultMargin: (level: RiskLevel): number => {
-    return DEFAULT_MARGINS[level]
+    return getRiskDefaultMargin(level)
   },
 
   getConfig: async (projectId: string): Promise<RiskConfig> => {
@@ -31,12 +31,9 @@ export const riskService = {
 
     try {
       const parsed = JSON.parse(raw) as RiskConfig
-      const level: RiskLevel =
-        parsed.level === "low" ||
-        parsed.level === "medium" ||
-        parsed.level === "high"
-          ? parsed.level
-          : DEFAULT_CONFIG.level
+      const level: RiskLevel = isRiskLevel(parsed.level)
+        ? parsed.level
+        : DEFAULT_CONFIG.level
       return {
         level,
         contingencyMargin:

@@ -1,11 +1,13 @@
-export type RiskLevel = "low" | "medium" | "high"
+import type { RiskLevel } from "@/enumeration/risk-level"
 
-export interface RiskConfig {
+export type { RiskLevel }
+
+export type RiskConfig = {
   level: RiskLevel
   contingencyMargin: number
 }
 
-export interface EstimationImpact {
+export type EstimationImpact = {
   originalTime: number
   originalCost: number
   contingencyTime: number
