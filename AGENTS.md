@@ -8,58 +8,36 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Mandatory Development Guidelines
+# Guías de desarrollo
 
-## 1. Syntax and Functions
+## Sintaxis
 
-- Always use arrow functions for components, hooks, utilities, and functions.
+- Siempre funciones flecha.
 
-## 2. Styling and Global CSS
+## UI
 
-- Do not modify `globals.css` (or `global.css`). Keep all global styles intact and use component-level styling/Tailwind utility classes.
-- Always use **shadcn/ui** components.
-- Install shadcn/ui components via CLI commands (e.g., `npx shadcn@latest add <component-name>`).
-- Avoid using `asChild` on shadcn components (e.g., `<Button asChild>`); style the child component directly (e.g., using `buttonVariants()`) or wrap cleanly.
+- No modificar `globals.css`.
+- Usar componentes **shadcn/ui** (instalar con CLI). No usar `asChild`.
 
-## 3. Feature Architecture and Structure
-
-All features must be implemented under the `src/features/{feature}` directory following this structure:
+## Estructura
 
 ```
+src/enumeration/          Enums de dominio (un archivo cada uno)
+src/lib/api/              Cliente HTTP + JWT
 src/features/{feature}/
-├── ui/
-│   ├── {feature}-view.tsx
-│   ├── component-one.tsx
-│   └── component-two.tsx
-├── hooks/
-├── services/
-├── schemas/
-├── types/
-└── index.ts
+  ui/  hooks/  services/  schemas/  types/  index.ts
 ```
 
-### Module Rules:
+- `index.ts` exporta solo la vista principal (`*-view`).
+- UI en piezas pequeñas dentro de `ui/`.
+- Formularios: TanStack Form + Zod (`schemas/`).
+- Datos: TanStack Query en `hooks/` (sin toasts ahí).
+- Toasts solo desde `ui/` con `toast.add`.
+- `services/`: solo llamar endpoints (`apiClient`). Sin validación ni reglas.
+- Enums en `src/enumeration/`. Tipos DTO/modelo en `types/`.
+- Listados: `QueryRequest` → `PaginatedResponse<T, "{entity}Response">`.
 
-- **Feature Entrypoint (`index.ts`)**: `src/features/{feature}/index.ts` must export only the main UI view component named `{feature}-view.tsx` (e.g., `users-view.tsx` -> `UsersView`).
-- **UI Modularization (`ui/`)**: Avoid large, monolithic files. Break down views into small, focused, and reusable sub-components placed inside `src/features/{feature}/ui/` (e.g., `component-one.tsx`, `component-two.tsx`).
-- **Forms & Validation**: Use **TanStack Form** along with **Zod** for all form handling and validation. Define Zod schemas inside `schemas/`.
-- **Hooks & State Management**: Always use **TanStack Query** (React Query) within the `hooks/` directory for data fetching, mutations, and caching. Hooks must not show toasts or alerts.
-- **UI Feedback**: Show toasts and alerts from `ui/` components after `mutateAsync`. Use the shadcn toast (`toast.add` from `@/components/ui/toast`) and mount `<Toaster />` in `src/components/providers.tsx`. Do not add `sonner` or other toast libraries.
-- **Services (API Layer)**: Implement services in `services/` using `localStorage` for now. Structure them as mock async API services. Name list methods `get{Entities}(query: QueryRequest)` or `search{Entities}(query)`, singles `get{Entity}`, writes `create{Entity}` / `update{Entity}` / `delete{Entity}`. Lists use `QueryRequest` (`filters` + `pagination` with 0-based `pageNumber` and `pageSize` 20) and return `PaginatedResponse<T, "{entity}Response">`.
-- **Types**: Define TypeScript interfaces/types inside `types/`.
+## Git
 
-## 4. GitFlow and Commit Guidelines
-
-### Branch Naming Convention:
-
-- Always create feature branches using the format: `feature/{feature}` (e.g., `feature/projects`, `feature/estimation`, `feature/costs`).
-
-### Commit Message Guidelines:
-
-- Write all commit messages in English.
-- Keep commit messages concise (maximum 15 words).
-- Use the following prefixes depending on the type of change:
-  - **`feat`**: Introduces a new feature or functionality (e.g., `feat: add estimation view and sprint calculator`).
-  - **`fix`**: Fixes a bug or unexpected behavior (e.g., `fix: resolve sidebar active item highlight`).
-  - **`ref`**: Refactors code without changing external behavior (e.g., `ref: extract user table to separate component`).
-  - **`style`**: Changes related to styling, formatting, or UI design adjustments without logic changes (e.g., `style: update color tokens in globals css`).
+- Rama: `feature/{feature}`
+- Commits en inglés, máx. 15 palabras, prefijos: `feat`, `fix`, `ref`, `style`
