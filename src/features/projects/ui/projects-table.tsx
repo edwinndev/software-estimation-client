@@ -100,7 +100,7 @@ export const ProjectsTable = ({ projects }: ProjectsTableProps) => {
           <TableHead>Estado</TableHead>
           <TableHead>Fecha Inicio</TableHead>
           <TableHead>Fecha Fin</TableHead>
-          <TableHead className="w-28 text-right">Acciones</TableHead>
+          <TableHead className="w-32 text-right">Acciones</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -117,7 +117,7 @@ export const ProjectsTable = ({ projects }: ProjectsTableProps) => {
             >
               <TableCell className="font-medium">
                 <Link
-                  href={`/projects/${project.id}`}
+                  href={`/projects/${project.id}/backlog`}
                   className="hover:text-primary transition-colors hover:underline"
                 >
                   {project.nombre}

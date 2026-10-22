@@ -1,5 +1,6 @@
 "use client"
 
+import { type ReactNode } from "react"
 import { FilterIcon, SearchIcon, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -15,6 +16,7 @@ type ProjectToolbarProps = {
   onSearchChange: (search: string) => void
   onOpenFilters: () => void
   onRemoveFilter: (key: keyof ProjectFilters) => void
+  actions?: ReactNode
 }
 
 export const ProjectToolbar = ({
@@ -24,6 +26,7 @@ export const ProjectToolbar = ({
   onSearchChange,
   onOpenFilters,
   onRemoveFilter,
+  actions,
 }: ProjectToolbarProps) => {
   return (
     <div className="flex flex-col gap-3">
@@ -54,6 +57,8 @@ export const ProjectToolbar = ({
             </Badge>
           )}
         </Button>
+
+        {actions}
       </div>
 
       {activeFilters > (search ? 1 : 0) && (

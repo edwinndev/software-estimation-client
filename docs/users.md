@@ -1,17 +1,22 @@
 # Usuarios
 
-Listado, filtros y CRUD de cuentas internas. El mock en `localStorage` usa el mismo contrato que la API.
+Listado, filtros y CRUD de cuentas internas. Habla con la API real.
 
 Tamaño por defecto: **20** (`TABLE_PAGE_SIZE`). `pageNumber` es **base 0**.
 
 ## CRUD del servicio
 
 ```
-usersService.getUsers(query)     POST /users/search
-usersService.getUser(id)         GET /users/:id
-usersService.createUser(body)    POST /users
-usersService.updateUser(body)    PUT /users/:id
-usersService.deleteUser(id)      DELETE /users/:id
+usersService.getUsers(query)              POST /api/v1/users/search
+usersService.getUser(id)                  GET /api/v1/users/:id
+usersService.createUser(body)             POST /api/v1/users
+usersService.updateUser(body)             PUT /api/v1/users/:id
+usersService.updateUserStatus(body)       PATCH /api/v1/users/:id/status
+usersService.deleteUser(id)               DELETE /api/v1/users/:id
+usersService.resendInvitation(id)         POST /api/v1/users/:id/resend-invitation
+usersService.uploadAvatar(id, file)       PUT /api/v1/users/:id/avatar
+usersService.deleteAvatar(id)             DELETE /api/v1/users/:id/avatar
+rolesService.getRoles(activeOnly)         GET /api/v1/roles?activeOnly=true
 ```
 
 ## QueryRequest
@@ -33,6 +38,24 @@ usersService.deleteUser(id)      DELETE /users/:id
 
 Operadores: `EQ`, `NE`, `LK`, `IN`, `GT`, `LT`, `GE`, `LE`, `BT`.
 
+Filtros de usuario en backend: `search`, `firstName`, `lastName`, `email`, `isActive`, `role` (código), `createdAt`.
+
+## CreateUser / UpdateUser
+
+Alta (sin contraseña; la API envía OTP de invitación):
+
+```json
+{
+  "firstName": "Laura",
+  "lastName": "Gómez",
+  "email": "laura.gomez@intecx.com",
+  "roleId": "uuid-del-rol",
+  "isActive": true
+}
+```
+
+No se puede asignar el rol de sistema (`admin`).
+
 ## UserSearchResponse
 
 `PaginatedResponse<User, "userResponse">`
@@ -47,47 +70,27 @@ Operadores: `EQ`, `NE`, `LK`, `IN`, `GT`, `LT`, `GE`, `LE`, `BT`.
 | `hasNext`       | Hay página siguiente             |
 | `hasPrevious`   | Hay página anterior              |
 
-## Cómo listar
+## Modelo User (API)
 
-La página de la tabla sale de `usePagination`. Si cambia un filtro o la búsqueda, llama `resetPage()`.
-
-```tsx
-const { pageNumber, pageSize, setPageNumber, resetPage } = usePagination()
-const debouncedSearch = useDebounce(search, 500)
-
-const query: QueryRequest = {
-  filters: apiFilters,
-  pagination: {
-    pageNumber,
-    pageSize,
-    orderBy: "createdAt",
-    sortDirection: "DESC",
-  },
+```ts
+{
+  ;(id,
+    firstName,
+    lastName,
+    email,
+    isActive,
+    roleId,
+    roleCode,
+    roleName,
+    avatar,
+    createdAt,
+    updatedAt)
 }
-
-const { data, isLoading, isError } = useUsers(query)
-const pagination = data ?? emptyPage
-
-<DataTable
-  isLoading={isLoading}
-  isError={isError}
-  errorMessage="No se pudieron cargar los usuarios."
-  isEmpty={pagination.userResponse.length === 0}
-  emptyMessage="No hay registros."
-  pagination={pagination}
-  onPageChange={setPageNumber}
->
-  <UsersTable users={pagination.userResponse} />
-</DataTable>
 ```
-
-`emptyPage` debe usar los mismos campos de `PaginationMeta` (`pageNumber: 0`, `pageSize: TABLE_PAGE_SIZE`, `totalElements: 0`, `hasNext: false`, `hasPrevious: false`).
-
-Ejemplo real: `src/features/users/ui/users-view.tsx`.
 
 ## JSON de getUsers
 
-`POST /users/search`
+`POST /api/v1/users/search`
 
 ```json
 {
@@ -97,8 +100,13 @@ Ejemplo real: `src/features/users/ui/users-view.tsx`.
       "firstName": "Laura",
       "lastName": "Gómez",
       "email": "laura.gomez@intecx.com",
-      "role": "estimator",
-      "createdAt": "2026-03-12T14:20:00.000Z"
+      "isActive": true,
+      "roleId": "...",
+      "roleCode": "estimator",
+      "roleName": "ESTIMADOR",
+      "avatar": null,
+      "createdAt": "2026-03-12T14:20:00",
+      "updatedAt": null
     }
   ],
   "pageNumber": 0,

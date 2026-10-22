@@ -1,5 +1,5 @@
 import type { CurrencyCode } from "@/lib/format"
-import type { ExperienceLevelValue, TechnicalRoleValue } from "./role"
+import type { ExperienceLevelValue, TechnicalRoleValue } from "@/enumeration"
 
 export type Profile = {
   id: string

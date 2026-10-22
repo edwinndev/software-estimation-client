@@ -1,5 +1,6 @@
 "use client"
 
+import { type ReactNode } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { SearchIcon, XIcon } from "lucide-react"
@@ -10,6 +11,7 @@ type ProfileFiltersProps = {
   onSearchChange: (value: string) => void
   selectedRole: string
   onRoleChange: (value: string) => void
+  actions?: ReactNode
 }
 
 export const ProfileFilters = ({
@@ -17,6 +19,7 @@ export const ProfileFilters = ({
   onSearchChange,
   selectedRole,
   onRoleChange,
+  actions,
 }: ProfileFiltersProps) => {
   const hasFilters = Boolean(
     searchQuery ||
@@ -59,6 +62,7 @@ export const ProfileFilters = ({
           Limpiar
         </Button>
       ) : null}
+      {actions}
     </div>
   )
 }

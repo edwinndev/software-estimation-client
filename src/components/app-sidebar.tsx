@@ -14,13 +14,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from "@/components/ui/sidebar"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import { usePermissions } from "@/features/auth/hooks/use-permissions"
 import { useSession } from "@/features/auth/hooks/use-session"
-import { PERMISSIONS } from "@/features/auth/constants/permissions"
+import { PERMISSIONS } from "@/enumeration/permission"
 import {
   FolderKanbanIcon,
   FileBarChartIcon,
@@ -94,7 +93,7 @@ export const AppSidebar = ({
             tooltip={item.title}
             render={<Link href={item.url} />}
           >
-            <Icon className="size-4 shrink-0" />
+            <Icon className="size-4 shrink-0 text-[#03DDAB]" />
             <span className="truncate">{item.title}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -130,7 +129,6 @@ export const AppSidebar = ({
       <SidebarFooter>
         {session ? <NavUser user={session} /> : null}
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }

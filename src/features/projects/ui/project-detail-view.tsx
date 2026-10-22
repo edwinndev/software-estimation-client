@@ -58,11 +58,7 @@ export const ProjectDetailView = ({ projectId }: ProjectDetailViewProps) => {
   return (
     <div className="flex flex-col gap-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Editar proyecto</CardTitle>
-          <CardDescription>Modifica los detalles del proyecto.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ProjectForm project={project} />
         </CardContent>
       </Card>

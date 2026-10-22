@@ -256,7 +256,7 @@ export const TaskForm = ({
 
   return (
     <form
-      className="grid gap-4"
+      className="grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1"
       onSubmit={(event) => {
         event.preventDefault()
         void form.handleSubmit()
@@ -372,7 +372,7 @@ export const TaskForm = ({
                   técnicos y CER.
                 </p>
               ) : (
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <div className="grid max-h-64 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2">
                   {assignableProfiles.map((profile) => {
                     const option = findOption(PROFILE_OPTIONS, profile.role)
                     const Icon = option?.icon ?? UserRound

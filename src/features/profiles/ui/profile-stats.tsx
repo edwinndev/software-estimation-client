@@ -17,45 +17,52 @@ export const ProfileStats = ({ profiles }: ProfileStatsProps) => {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <Card>
+      {/* Total de perfiles - Teal (Verde medio celeste) sólido */}
+      <Card className="border-0 bg-teal-600 text-white shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-muted-foreground text-sm font-medium">
+          <CardTitle className="text-sm font-medium text-teal-100">
             Total de perfiles
           </CardTitle>
-          <UsersIcon className="text-muted-foreground size-4" />
+          <UsersIcon className="size-5 text-white/90" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalProfiles}</div>
-          <p className="text-muted-foreground text-xs">
+          <div className="text-2xl font-bold tracking-tight text-white">
+            {totalProfiles}
+          </div>
+          <p className="mt-1 text-xs text-teal-100/80">
             {activeProfiles} activos para proyectos
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      {/* CER promedio - Borgoña / Vino sólido */}
+      <Card className="border-0 bg-rose-700 text-white shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-muted-foreground text-sm font-medium">
+          <CardTitle className="text-sm font-medium text-rose-100">
             CER promedio por hora
           </CardTitle>
-          <BanknoteIcon className="text-muted-foreground size-4" />
+          <BanknoteIcon className="size-5 text-white/90" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(avgCer)}</div>
-          <p className="text-muted-foreground text-xs">
+          <div className="text-2xl font-bold tracking-tight text-white">
+            {formatCurrency(avgCer)}
+          </div>
+          <p className="mt-1 text-xs text-rose-100/80">
             Costo estándar promedio por hora
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Cobertura de seniority - Carbón grafito / Pizarra sólido */}
+      <Card className="border-0 bg-slate-800 text-white shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-muted-foreground text-sm font-medium">
+          <CardTitle className="text-sm font-medium text-slate-200">
             Cobertura de seniority
           </CardTitle>
-          <AwardIcon className="text-muted-foreground size-4" />
+          <AwardIcon className="size-5 text-white/90" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-2xl font-bold tracking-tight text-white">
             {
               profiles.filter(
                 (p) =>
@@ -63,9 +70,7 @@ export const ProfileStats = ({ profiles }: ProfileStatsProps) => {
               ).length
             }
           </div>
-          <p className="text-muted-foreground text-xs">
-            Recursos Senior / Lead
-          </p>
+          <p className="mt-1 text-xs text-slate-300">Recursos Senior / Lead</p>
         </CardContent>
       </Card>
     </div>

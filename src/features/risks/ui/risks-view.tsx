@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { NumberInput } from "@/components/ui/number-input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/components/ui/toast"
+import { RISK_LEVEL_LABELS } from "@/enumeration/risk-level"
 import { getErrorMessage } from "@/lib/form-errors"
 import { toCalendarDays } from "@/lib/calendar-time"
 import { formatCurrency } from "@/lib/format"
@@ -160,7 +161,7 @@ export const RisksView = ({ projectId }: RisksViewProps) => {
       <p className="text-muted-foreground border-t pt-4 text-sm">
         El nivel de riesgo{" "}
         <span className="font-semibold">
-          {level === "low" ? "bajo" : level === "high" ? "alto" : "medio"}
+          {RISK_LEVEL_LABELS[level].toLowerCase()}
         </span>{" "}
         aplica un margen del <span className="font-semibold">{margin}%</span>{" "}
         sobre el tiempo ({impact.totalTime.toFixed(1)} días) y el costo (

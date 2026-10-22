@@ -11,7 +11,7 @@ export {
   type TechnicalRoleDefinition,
   type TechnicalRoleValue,
   type TechnicalRoleType,
-} from "./role"
+} from "@/enumeration"
 export type {
   CreateProfilePayload,
   Profile,

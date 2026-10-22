@@ -2,9 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { PlusIcon } from "lucide-react"
+import { PlusIcon, UsersIcon } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/data-table"
 import { useDebounce, usePagination } from "@/hooks"
 import { TABLE_PAGE_SIZE } from "@/lib/pagination"
@@ -103,54 +102,56 @@ export const UsersView = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-primary text-2xl font-bold tracking-tight">
-            Gestión de Usuarios (Admin)
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Crea, edita y elimina las cuentas internas de la plataforma.
-          </p>
-        </div>
-        {canWriteUsers ? (
-          <Link href="/users/new" className={buttonVariants()}>
-            <PlusIcon />
-            Nuevo usuario
-          </Link>
-        ) : null}
+      <div>
+        <h1 className="text-foreground text-2xl font-bold tracking-tight">
+          Gestión de Usuarios
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          Crea, edita y elimina las cuentas internas de la plataforma.
+        </p>
       </div>
 
-      <Card>
-        <CardContent className="flex flex-col gap-4">
-          <UsersToolbar
-            search={search}
-            activeFilters={activeFilters}
-            onSearchChange={(value) => {
-              setSearch(value)
-              resetPage()
-            }}
-            onOpenFilters={() => setFiltersOpen(true)}
+      <div className="flex flex-col gap-3">
+        <UsersToolbar
+          search={search}
+          activeFilters={activeFilters}
+          onSearchChange={(value) => {
+            setSearch(value)
+            resetPage()
+          }}
+          onOpenFilters={() => setFiltersOpen(true)}
+          actions={
+            canWriteUsers ? (
+              <Link
+                href="/users/new"
+                className={buttonVariants({ className: "shrink-0" })}
+              >
+                <PlusIcon />
+                Nuevo usuario
+              </Link>
+            ) : null
+          }
+        />
+        <DataTable
+          isLoading={isLoading}
+          isError={isError}
+          errorMessage="No se pudieron cargar los usuarios."
+          isEmpty={pagination.userResponse.length === 0}
+          emptyIcon={UsersIcon}
+          emptyMessage={
+            hasFilters
+              ? "No hay usuarios que coincidan con los filtros."
+              : "Aún no hay usuarios registrados."
+          }
+          pagination={pagination}
+          onPageChange={setPageNumber}
+        >
+          <UsersTable
+            users={pagination.userResponse}
+            onDelete={setDeletingUser}
           />
-          <DataTable
-            isLoading={isLoading}
-            isError={isError}
-            errorMessage="No se pudieron cargar los usuarios."
-            isEmpty={pagination.userResponse.length === 0}
-            emptyMessage={
-              hasFilters
-                ? "No hay usuarios que coincidan con los filtros."
-                : "Aún no hay usuarios registrados."
-            }
-            pagination={pagination}
-            onPageChange={setPageNumber}
-          >
-            <UsersTable
-              users={pagination.userResponse}
-              onDelete={setDeletingUser}
-            />
-          </DataTable>
-        </CardContent>
-      </Card>
+        </DataTable>
+      </div>
 
       <UsersFiltersDrawer
         open={filtersOpen}

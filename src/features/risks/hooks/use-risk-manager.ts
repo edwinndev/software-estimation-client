@@ -3,8 +3,12 @@
 import { useMemo, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { invalidateReportQueries } from "@/features/reports/hooks/query-keys"
+import {
+  DEFAULT_RISK_LEVEL,
+  getRiskDefaultMargin,
+  type RiskLevel,
+} from "@/enumeration/risk-level"
 import { riskService } from "../services/risk-service"
-import type { RiskLevel } from "../types"
 
 type UseRiskManagerProps = {
   projectId: string
@@ -14,8 +18,8 @@ type UseRiskManagerProps = {
 
 export const RISK_CONFIG_QUERY_KEY = ["risk-config"]
 
-const DEFAULT_LEVEL: RiskLevel = "medium"
-const DEFAULT_MARGIN = 15
+const DEFAULT_LEVEL: RiskLevel = DEFAULT_RISK_LEVEL
+const DEFAULT_MARGIN = getRiskDefaultMargin(DEFAULT_RISK_LEVEL)
 
 export const useRiskManager = ({
   projectId,

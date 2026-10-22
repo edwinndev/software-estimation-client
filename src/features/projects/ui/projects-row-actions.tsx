@@ -1,7 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { MoreHorizontalIcon, PencilIcon, TrashIcon } from "lucide-react"
+import {
+  FolderKanbanIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  TrashIcon,
+} from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -37,7 +42,25 @@ export const ProjectsRowActions = ({
         <TooltipTrigger
           render={
             <Link
-              href={`/projects/${project.id}`}
+              href={`/projects/${project.id}/backlog`}
+              className={buttonVariants({
+                variant: "ghost",
+                size: "icon-sm",
+              })}
+            />
+          }
+        >
+          <FolderKanbanIcon />
+          <span className="sr-only">Gestionar proyecto</span>
+        </TooltipTrigger>
+        <TooltipContent>Gestionar proyecto</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Link
+              href={`/projects/${project.id}/edit`}
               className={buttonVariants({
                 variant: "ghost",
                 size: "icon-sm",
@@ -46,19 +69,29 @@ export const ProjectsRowActions = ({
           }
         >
           <PencilIcon />
-          <span className="sr-only">Gestionar proyecto</span>
+          <span className="sr-only">Editar proyecto</span>
         </TooltipTrigger>
-        <TooltipContent>Gestionar proyecto</TooltipContent>
+        <TooltipContent>Editar proyecto</TooltipContent>
       </Tooltip>
 
       <DropdownMenu>
-        <DropdownMenuTrigger
-          className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
-          aria-label="Más acciones"
-        >
-          <MoreHorizontalIcon />
-          <span className="sr-only">Más acciones</span>
-        </DropdownMenuTrigger>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <DropdownMenuTrigger
+                className={buttonVariants({
+                  variant: "ghost",
+                  size: "icon-sm",
+                })}
+                aria-label="Más acciones"
+              />
+            }
+          >
+            <MoreHorizontalIcon />
+            <span className="sr-only">Más acciones</span>
+          </TooltipTrigger>
+          <TooltipContent>Más acciones</TooltipContent>
+        </Tooltip>
         <DropdownMenuContent align="end" className="min-w-48">
           <DropdownMenuItem
             variant="destructive"

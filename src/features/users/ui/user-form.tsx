@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useForm } from "@tanstack/react-form"
 import { useRouter } from "next/navigation"
 import { SaveIcon, XIcon } from "lucide-react"
@@ -7,12 +8,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { AuthField } from "@/features/auth/ui/auth-field"
-import { PasswordInput } from "@/features/auth/ui/password-input"
-import { DEFAULT_USER_ROLE, isUserRole } from "@/features/auth/types"
 import { FormSubmitButton } from "@/components/ui/form-submit-button"
 import { toast } from "@/components/ui/toast"
 import { getErrorMessage, getFieldError } from "@/lib/form-errors"
 import { useCreateUser } from "../hooks/use-create-user"
+import { useRoles } from "../hooks/use-roles"
 import { useUpdateUser } from "../hooks/use-update-user"
 import { createUserSchema } from "../schemas/create-user-schema"
 import { updateUserSchema } from "../schemas/update-user-schema"
@@ -27,18 +27,24 @@ export const UserForm = ({ user }: UserFormProps) => {
   const router = useRouter()
   const createUser = useCreateUser()
   const updateUser = useUpdateUser()
+  const { data: roles = [], isLoading: isLoadingRoles } = useRoles(true)
   const isEditing = Boolean(user)
   const isPending = createUser.isPending || updateUser.isPending
   const error = createUser.error || updateUser.error
+  const assignableRoles = roles.filter((role) => !role.isSystem)
+  const defaultRoleId =
+    user?.roleId ||
+    assignableRoles.find((role) => role.code === "estimator")?.id ||
+    assignableRoles[0]?.id ||
+    ""
 
   const form = useForm({
     defaultValues: {
       firstName: user ? user.firstName : "",
       lastName: user ? user.lastName : "",
       email: user ? user.email : "",
-      role: user ? user.role : DEFAULT_USER_ROLE,
-      password: "",
-      confirmPassword: "",
+      roleId: defaultRoleId,
+      isActive: user ? user.isActive : true,
     },
     validators: {
       onSubmit: isEditing ? updateUserSchema : createUserSchema,
@@ -51,8 +57,8 @@ export const UserForm = ({ user }: UserFormProps) => {
             firstName: value.firstName,
             lastName: value.lastName,
             email: value.email,
-            role: value.role,
-            password: value.password,
+            roleId: value.roleId,
+            isActive: value.isActive,
           })
           toast.add({
             title: "Usuario actualizado",
@@ -64,26 +70,32 @@ export const UserForm = ({ user }: UserFormProps) => {
             firstName: value.firstName,
             lastName: value.lastName,
             email: value.email,
-            role: value.role,
-            password: value.password,
+            roleId: value.roleId,
+            isActive: true,
           })
           toast.add({
             title: "Usuario creado",
-            description: `La cuenta de ${value.firstName} ${value.lastName} se creó correctamente.`,
+            description: `Se envió una invitación OTP a ${value.email} para activar la cuenta.`,
             type: "success",
           })
         }
 
         router.push("/users")
-      } catch (error) {
+      } catch (submitError) {
         toast.add({
           title: "No se pudo guardar el usuario",
-          description: getErrorMessage(error, "Inténtalo de nuevo."),
+          description: getErrorMessage(submitError, "Inténtalo de nuevo."),
           type: "error",
         })
       }
     },
   })
+
+  useEffect(() => {
+    if (!form.state.values.roleId && defaultRoleId) {
+      form.setFieldValue("roleId", defaultRoleId)
+    }
+  }, [defaultRoleId, form])
 
   return (
     <form
@@ -178,7 +190,7 @@ export const UserForm = ({ user }: UserFormProps) => {
         }}
       </form.Field>
 
-      <form.Field name="role">
+      <form.Field name="roleId">
         {(field) => {
           const fieldError = getFieldError(field.state.meta.errors)
 
@@ -188,68 +200,21 @@ export const UserForm = ({ user }: UserFormProps) => {
               htmlFor="user-role"
               error={fieldError}
               required
+              hint={
+                isEditing
+                  ? undefined
+                  : "El usuario recibirá un correo con un código OTP para crear su contraseña."
+              }
             >
               <RoleSelect
                 id="user-role"
                 value={field.state.value}
-                onValueChange={(value) => {
-                  if (isUserRole(value)) {
-                    field.handleChange(value)
-                  }
-                }}
-              />
-            </AuthField>
-          )
-        }}
-      </form.Field>
-
-      <form.Field name="password">
-        {(field) => {
-          const fieldError = getFieldError(field.state.meta.errors)
-
-          return (
-            <AuthField
-              label={isEditing ? "Nueva contraseña" : "Contraseña"}
-              htmlFor="user-password"
-              error={fieldError}
-              required={!isEditing}
-              hint={
-                isEditing
-                  ? "Déjala vacía si no quieres cambiarla."
-                  : "Mínimo 8 caracteres, con al menos una letra y un número."
-              }
-            >
-              <PasswordInput
-                id="user-password"
-                autoComplete="new-password"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(fieldError)}
-              />
-            </AuthField>
-          )
-        }}
-      </form.Field>
-
-      <form.Field name="confirmPassword">
-        {(field) => {
-          const fieldError = getFieldError(field.state.meta.errors)
-
-          return (
-            <AuthField
-              label="Confirmar contraseña"
-              htmlFor="user-confirm-password"
-              error={fieldError}
-              required={!isEditing}
-            >
-              <PasswordInput
-                id="user-confirm-password"
-                autoComplete="new-password"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(fieldError)}
+                roles={roles}
+                excludeSystem={!isEditing}
+                disabled={
+                  isLoadingRoles || (!isEditing && assignableRoles.length === 0)
+                }
+                onValueChange={(value) => field.handleChange(value)}
               />
             </AuthField>
           )
@@ -269,7 +234,7 @@ export const UserForm = ({ user }: UserFormProps) => {
         <FormSubmitButton
           form={form}
           schema={isEditing ? updateUserSchema : createUserSchema}
-          isPending={isPending}
+          isPending={isPending || isLoadingRoles}
         >
           {({ isBusy }) => (
             <>
