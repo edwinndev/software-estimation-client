@@ -9,7 +9,7 @@ export const useVerifyResetCode = () => {
     mutationFn: authService.verifyResetCode,
     onSuccess: (_data, input) => {
       router.push(
-        `/forgot-password/reset?email=${encodeURIComponent(input.email)}`
+        `/forgot-password/reset?email=${encodeURIComponent(input.email)}&code=${encodeURIComponent(input.code)}`
       )
     },
   })

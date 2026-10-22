@@ -1,6 +1,4 @@
-import { getRolePermissions } from "../constants/permissions"
-import { canAccessPath as canAccessGrantedPath } from "../utils/permission-utils"
-import type { UserRoleValue } from "./role"
+import type { UserRoleValue } from "@/enumeration/user-role"
 
 export type Session = {
   userId: string
@@ -8,7 +6,7 @@ export type Session = {
   lastName: string
   email: string
   role: UserRoleValue
+  roleId: string
+  roleName: string
+  permissions: string[]
 }
-
-export const canAccessPath = (role: UserRoleValue, pathname: string) =>
-  canAccessGrantedPath(getRolePermissions(role), pathname)

@@ -1,8 +1,4 @@
-import {
-  PERMISSIONS,
-  getRolePermissions,
-  type PermissionCode,
-} from "../constants/permissions"
+import { PERMISSIONS, type PermissionCode } from "@/enumeration/permission"
 import {
   canAccessPath,
   hasAllPermissions as hasAllGranted,
@@ -13,7 +9,7 @@ import { useSession } from "./use-session"
 
 export const usePermissions = () => {
   const { data: session } = useSession()
-  const permissions = session ? getRolePermissions(session.role) : []
+  const permissions = session?.permissions ?? []
 
   return {
     permissions,

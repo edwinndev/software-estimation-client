@@ -16,10 +16,11 @@ export const AuthSplitCard = ({ children }: { children: ReactNode }) => {
         <div className="absolute inset-0 bg-black/55" />
         <div className="absolute right-8 bottom-8 left-8 text-white">
           <p className="text-2xl font-semibold tracking-tight">
-            Estima software en un solo lugar
+            Portal interno de estimación
           </p>
           <p className="mt-2 max-w-sm text-sm text-white/80">
-            Proyectos, costos y accesos conectados para tu equipo.
+            Acceso restringido al equipo. Inicia sesión con tu cuenta
+            corporativa.
           </p>
         </div>
       </div>

@@ -10,16 +10,18 @@ import { VerifyResetForm } from "./verify-reset-form"
 type ForgotPasswordViewProps = {
   step: "request" | "verify" | "reset"
   email: string
+  code?: string
 }
 
 const copy = {
   request: {
     title: "Olvidé mi contraseña",
-    description: "Ingresa tu correo y te generamos un código de verificación.",
+    description:
+      "Ingresa tu correo y te enviaremos un código de verificación por email.",
   },
   verify: {
     title: "Ingresa el código",
-    description: "Escribe el código de 6 dígitos que aparece en la consola.",
+    description: "Escribe el código de 6 dígitos que recibiste en tu correo.",
   },
   reset: {
     title: "Nueva contraseña",
@@ -30,6 +32,7 @@ const copy = {
 export const ForgotPasswordView = ({
   step,
   email,
+  code = "",
 }: ForgotPasswordViewProps) => {
   const content = copy[step]
 
@@ -49,7 +52,9 @@ export const ForgotPasswordView = ({
 
         {step === "request" ? <RequestResetForm /> : null}
         {step === "verify" ? <VerifyResetForm email={email} /> : null}
-        {step === "reset" ? <ResetPasswordForm email={email} /> : null}
+        {step === "reset" ? (
+          <ResetPasswordForm email={email} code={code} />
+        ) : null}
 
         <Link href="/login" className="text-muted-foreground text-sm underline">
           Volver al inicio de sesión

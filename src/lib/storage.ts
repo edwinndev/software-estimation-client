@@ -1,9 +1,7 @@
 export const STORAGE_KEYS = {
-  USERS: "software-estimation:users",
   PROJECTS: "software_estimation_projects",
   PROFILES: "software-estimation:profiles",
   SESSION: "software-estimation:session",
-  PASSWORD_RESET: "software-estimation:password-reset",
 } as const
 
 export const readJson = <T>(key: string): T | null => {

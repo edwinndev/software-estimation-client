@@ -7,15 +7,25 @@ export {
   ROLE_OPTIONS,
   USER_ROLES,
   UserRole,
-  type RoleDefinition,
+  type UserRoleDefinition as RoleDefinition,
   type UserRoleValue,
-} from "./role"
-export { getFullName, getInitials, type User, type UserAccount } from "./user"
-export { canAccessPath, type Session } from "./session"
-export { PERMISSIONS, type PermissionCode } from "../constants/permissions"
+} from "@/enumeration/user-role"
+export {
+  getFullName,
+  getInitials,
+  withRoleAlias,
+  type User,
+  type UserWithRoleAlias,
+} from "./user"
+export type { Session } from "./session"
+export type { FileAttachment } from "./file-attachment"
+export type { RoleResponse } from "./role-response"
+export type { AuthResponse } from "./auth-response"
+export { PERMISSIONS, type PermissionCode } from "@/enumeration/permission"
 export type { LoginInput } from "./login"
 export type { LoginResponse } from "./login-response"
 export type { RequestPasswordReset } from "./request-password-reset"
 export type { VerifyResetCode } from "./verify-reset-code"
 export type { ResetPassword } from "./reset-password"
-export type { PasswordReset } from "./password-reset"
+export type { UpdateProfile } from "./update-profile"
+export type { ChangePassword } from "./change-password"

@@ -36,6 +36,8 @@ import {
 export const MyProfileView = () => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [pendingPhoto, setPendingPhoto] = useState<string | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [isSavingAvatar, setIsSavingAvatar] = useState(false)
   const { data: session, isLoading } = useSession()
   const { avatar, saveAvatar, removeAvatar } = useUserAvatar(session?.userId)
 
@@ -81,10 +83,11 @@ export const MyProfileView = () => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (!file.type.startsWith("image/")) {
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"]
+    if (!allowedTypes.includes(file.type)) {
       toast.add({
         title: "Archivo inválido",
-        description: "Por favor selecciona una imagen válida (JPG, PNG, WebP).",
+        description: "Por favor selecciona una imagen JPG o PNG.",
         type: "error",
       })
       return
@@ -104,6 +107,7 @@ export const MyProfileView = () => {
       const dataUrl = event.target?.result as string
       if (dataUrl) {
         setPendingPhoto(dataUrl)
+        setPendingFile(file)
         toast.add({
           title: "Imagen cargada en vista previa",
           description: "Haz clic en 'Subir foto' para confirmar el cambio.",
@@ -115,19 +119,34 @@ export const MyProfileView = () => {
     e.target.value = ""
   }
 
-  const handleConfirmUpload = () => {
-    if (!pendingPhoto) return
-    saveAvatar(pendingPhoto)
-    setPendingPhoto(null)
-    toast.add({
-      title: "Foto guardada",
-      description: "Tu foto de perfil se actualizó correctamente.",
-      type: "success",
-    })
+  const handleConfirmUpload = async () => {
+    if (!pendingFile) return
+
+    setIsSavingAvatar(true)
+    try {
+      await saveAvatar(pendingFile)
+      setPendingPhoto(null)
+      setPendingFile(null)
+      toast.add({
+        title: "Foto guardada",
+        description: "Tu foto de perfil se actualizó correctamente.",
+        type: "success",
+      })
+    } catch (error) {
+      toast.add({
+        title: "No se pudo subir la foto",
+        description:
+          error instanceof Error ? error.message : "Inténtalo de nuevo.",
+        type: "error",
+      })
+    } finally {
+      setIsSavingAvatar(false)
+    }
   }
 
   const handleCancelPending = () => {
     setPendingPhoto(null)
+    setPendingFile(null)
     toast.add({
       title: "Cancelado",
       description: "Se descartó la imagen seleccionada.",
@@ -135,14 +154,24 @@ export const MyProfileView = () => {
     })
   }
 
-  const handleRemovePhoto = () => {
+  const handleRemovePhoto = async () => {
     setPendingPhoto(null)
-    removeAvatar()
-    toast.add({
-      title: "Foto eliminada",
-      description: "Se restauró el avatar predeterminado con tus iniciales.",
-      type: "info",
-    })
+    setPendingFile(null)
+    try {
+      await removeAvatar()
+      toast.add({
+        title: "Foto eliminada",
+        description: "Se restauró el avatar predeterminado con tus iniciales.",
+        type: "info",
+      })
+    } catch (error) {
+      toast.add({
+        title: "No se pudo eliminar la foto",
+        description:
+          error instanceof Error ? error.message : "Inténtalo de nuevo.",
+        type: "error",
+      })
+    }
   }
 
   return (
@@ -191,7 +220,7 @@ export const MyProfileView = () => {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/png,image/jpeg,image/jpg"
               className="hidden"
               onChange={handleFileChange}
             />
@@ -209,10 +238,11 @@ export const MyProfileView = () => {
                     type="button"
                     variant="default"
                     className="w-full"
-                    onClick={handleConfirmUpload}
+                    disabled={isSavingAvatar}
+                    onClick={() => void handleConfirmUpload()}
                   >
                     <UploadCloudIcon className="mr-1.5 size-4" />
-                    Subir foto
+                    {isSavingAvatar ? "Subiendo..." : "Subir foto"}
                   </Button>
                   <Button
                     type="button"
@@ -242,7 +272,7 @@ export const MyProfileView = () => {
                     type="button"
                     variant="ghost"
                     className="text-destructive hover:text-destructive hover:bg-destructive/10 w-full"
-                    onClick={handleRemovePhoto}
+                    onClick={() => void handleRemovePhoto()}
                   >
                     <Trash2Icon className="mr-1.5 size-4" />
                     Quitar foto
@@ -252,7 +282,7 @@ export const MyProfileView = () => {
             )}
 
             <p className="text-muted-foreground text-center text-xs">
-              Formatos JPG, PNG o WebP. Máximo 2MB.
+              Formatos JPG o PNG. Máximo 2MB.
             </p>
           </CardContent>
         </Card>

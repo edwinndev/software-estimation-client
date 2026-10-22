@@ -47,16 +47,16 @@ export const MyProfileDialog = ({
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (!file.type.startsWith("image/")) {
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"]
+    if (!allowedTypes.includes(file.type)) {
       toast.add({
         title: "Archivo inválido",
-        description: "Por favor selecciona una imagen válida.",
+        description: "Por favor selecciona una imagen JPG o PNG.",
         type: "error",
       })
       return
     }
 
-    // Limit to 2MB to keep localStorage healthy
     if (file.size > 2 * 1024 * 1024) {
       toast.add({
         title: "Imagen muy pesada",
@@ -66,31 +66,45 @@ export const MyProfileDialog = ({
       return
     }
 
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string
-      if (dataUrl) {
-        saveAvatar(dataUrl)
+    void (async () => {
+      try {
+        await saveAvatar(file)
         toast.add({
           title: "Foto actualizada",
           description: "Tu foto de perfil se guardó correctamente.",
           type: "success",
         })
+      } catch (error) {
+        toast.add({
+          title: "No se pudo subir la foto",
+          description:
+            error instanceof Error ? error.message : "Inténtalo de nuevo.",
+          type: "error",
+        })
       }
-    }
-    reader.readAsDataURL(file)
+    })()
 
-    // Reset input value so same image can be re-selected if needed
     e.target.value = ""
   }
 
   const handleRemovePhoto = () => {
-    removeAvatar()
-    toast.add({
-      title: "Foto eliminada",
-      description: "Se restauró el avatar con tus iniciales.",
-      type: "info",
-    })
+    void (async () => {
+      try {
+        await removeAvatar()
+        toast.add({
+          title: "Foto eliminada",
+          description: "Se restauró el avatar con tus iniciales.",
+          type: "info",
+        })
+      } catch (error) {
+        toast.add({
+          title: "No se pudo eliminar la foto",
+          description:
+            error instanceof Error ? error.message : "Inténtalo de nuevo.",
+          type: "error",
+        })
+      }
+    })()
   }
 
   const handleCopyId = async () => {
@@ -148,7 +162,7 @@ export const MyProfileDialog = ({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/png,image/jpeg,image/jpg"
               className="hidden"
               onChange={handleFileChange}
             />
@@ -202,7 +216,7 @@ export const MyProfileDialog = ({
                 <span>Rol</span>
               </div>
               <Badge variant="secondary" className="font-medium">
-                {ROLE_LABELS[user.role] ?? user.role}
+                {user.roleName || ROLE_LABELS[user.role] || user.role}
               </Badge>
             </div>
 

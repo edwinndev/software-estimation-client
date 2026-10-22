@@ -1,3 +1,3 @@
-import type { Session } from "./session"
+import type { AuthResponse } from "./auth-response"
 
-export type LoginResponse = Session
+export type LoginResponse = AuthResponse

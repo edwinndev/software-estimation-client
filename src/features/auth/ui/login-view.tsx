@@ -14,7 +14,7 @@ export const LoginView = () => {
             Iniciar sesión
           </h1>
           <p className="text-muted-foreground text-sm">
-            Ingresa las credenciales asignadas por el administrador.
+            Ingresa tu correo y contraseña para continuar.
           </p>
         </div>
         <LoginForm />

@@ -13,9 +13,10 @@ import { PasswordInput } from "./password-input"
 
 type ResetPasswordFormProps = {
   email: string
+  code: string
 }
 
-export const ResetPasswordForm = ({ email }: ResetPasswordFormProps) => {
+export const ResetPasswordForm = ({ email, code }: ResetPasswordFormProps) => {
   const resetPassword = useResetPassword()
 
   const form = useForm({
@@ -30,7 +31,8 @@ export const ResetPasswordForm = ({ email }: ResetPasswordFormProps) => {
       try {
         await resetPassword.mutateAsync({
           email,
-          password: value.password,
+          code,
+          newPassword: value.password,
         })
         toast.add({
           title: "Contraseña actualizada",
