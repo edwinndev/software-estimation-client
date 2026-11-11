@@ -180,4 +180,9 @@
   .dark ::-webkit-scrollbar-thumb:hover {
     background-color: oklch(0.5 0.025 260);
   }
+
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+  }
 }
