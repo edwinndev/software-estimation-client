@@ -1,9 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { PlusIcon, UsersIcon } from "lucide-react"
-import { buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/data-table"
 import { useDebounce, usePagination } from "@/hooks"
 import { TABLE_PAGE_SIZE } from "@/lib/pagination"
@@ -15,7 +14,10 @@ import {
 import { usePermissions } from "@/features/auth/hooks/use-permissions"
 import { useUsers } from "../hooks/use-users"
 import type { User, UserFilters, UserSearchResponse } from "../types"
+import { ResendInvitationDialog } from "./resend-invitation-dialog"
+import { ToggleUserStatusDialog } from "./toggle-user-status-dialog"
 import { UserDeleteDialog } from "./user-delete-dialog"
+import { UserDialog } from "./user-dialog"
 import { UsersFiltersDrawer } from "./users-filters-drawer"
 import { UsersTable } from "./users-table"
 import { UsersToolbar } from "./users-toolbar"
@@ -39,7 +41,12 @@ export const UsersView = () => {
     role: "",
   })
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
   const [deletingUser, setDeletingUser] = useState<User | null>(null)
+  const [resendingUser, setResendingUser] = useState<User | null>(null)
+  const [togglingStatusUser, setTogglingStatusUser] = useState<User | null>(null)
+
   const debouncedSearch = useDebounce(search, 500)
   const hasFilters =
     debouncedSearch.length > 0 ||
@@ -100,6 +107,16 @@ export const UsersView = () => {
   const pagination = data || emptyPage
   const { canWriteUsers } = usePermissions()
 
+  const handleOpenCreate = () => {
+    setEditingUser(null)
+    setDialogOpen(true)
+  }
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user)
+    setDialogOpen(true)
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -122,13 +139,14 @@ export const UsersView = () => {
           onOpenFilters={() => setFiltersOpen(true)}
           actions={
             canWriteUsers ? (
-              <Link
-                href="/users/new"
-                className={buttonVariants({ className: "shrink-0" })}
+              <Button
+                type="button"
+                onClick={handleOpenCreate}
+                className="shrink-0"
               >
                 <PlusIcon />
                 Nuevo usuario
-              </Link>
+              </Button>
             ) : null
           }
         />
@@ -148,6 +166,9 @@ export const UsersView = () => {
         >
           <UsersTable
             users={pagination.userResponse}
+            onEdit={handleEdit}
+            onToggleStatus={setTogglingStatusUser}
+            onResendInvitation={setResendingUser}
             onDelete={setDeletingUser}
           />
         </DataTable>
@@ -160,6 +181,37 @@ export const UsersView = () => {
         onApply={(nextFilters) => {
           setFilters(nextFilters)
           resetPage()
+        }}
+      />
+
+      <UserDialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open)
+          if (!open) {
+            setEditingUser(null)
+          }
+        }}
+        user={editingUser}
+      />
+
+      <ResendInvitationDialog
+        open={Boolean(resendingUser)}
+        user={resendingUser}
+        onOpenChange={(open) => {
+          if (!open) {
+            setResendingUser(null)
+          }
+        }}
+      />
+
+      <ToggleUserStatusDialog
+        open={Boolean(togglingStatusUser)}
+        user={togglingStatusUser}
+        onOpenChange={(open) => {
+          if (!open) {
+            setTogglingStatusUser(null)
+          }
         }}
       />
 

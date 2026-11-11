@@ -23,10 +23,19 @@ import { UsersRowActions } from "./users-row-actions"
 
 type UsersTableProps = {
   users: User[]
+  onEdit?: (user: User) => void
+  onToggleStatus?: (user: User) => void
+  onResendInvitation?: (user: User) => void
   onDelete: (user: User) => void
 }
 
-export const UsersTable = ({ users, onDelete }: UsersTableProps) => {
+export const UsersTable = ({
+  users,
+  onEdit,
+  onToggleStatus,
+  onResendInvitation,
+  onDelete,
+}: UsersTableProps) => {
   return (
     <Table>
       <TableHeader>
@@ -68,7 +77,13 @@ export const UsersTable = ({ users, onDelete }: UsersTableProps) => {
               </TableCell>
               <TableCell>{formatDate(user.createdAt)}</TableCell>
               <TableCell>
-                <UsersRowActions user={user} onDelete={onDelete} />
+                <UsersRowActions
+                  user={user}
+                  onEdit={onEdit}
+                  onToggleStatus={onToggleStatus}
+                  onResendInvitation={onResendInvitation}
+                  onDelete={onDelete}
+                />
               </TableCell>
             </TableRow>
           )
