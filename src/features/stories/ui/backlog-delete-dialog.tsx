@@ -1,16 +1,7 @@
 "use client"
 
-import { useEffect } from "react"
-import { createPortal } from "react-dom"
-import { TrashIcon, XIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { TrashIcon } from "lucide-react"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 
 type BacklogDeleteDialogProps = {
   open: boolean
@@ -31,77 +22,31 @@ export const BacklogDeleteDialog = ({
   onClose,
   onConfirm,
 }: BacklogDeleteDialogProps) => {
-  useEffect(() => {
-    if (!open) {
-      return
-    }
-
-    document.body.style.overflow = "hidden"
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isPending) {
-        onClose()
+  return (
+    <ConfirmDialog
+      open={open}
+      onOpenChange={(val) => {
+        if (!val) {
+          onClose()
+        }
+      }}
+      title={title}
+      icon={<TrashIcon className="size-6" />}
+      tone="destructive"
+      confirmText={confirmLabel}
+      confirmLoadingText="Eliminando..."
+      confirmIcon={<TrashIcon />}
+      confirmVariant="destructive"
+      isLoading={isPending}
+      onConfirm={onConfirm}
+      onCancel={onClose}
+      description={
+        <>
+          ¿Seguro que quieres eliminar{" "}
+          <span className="text-foreground font-semibold">{itemName}</span>?
+          Esta acción no se puede deshacer.
+        </>
       }
-    }
-
-    document.addEventListener("keydown", onKeyDown)
-
-    return () => {
-      document.body.style.removeProperty("overflow")
-      document.removeEventListener("keydown", onKeyDown)
-    }
-  }, [isPending, onClose, open])
-
-  if (!open) {
-    return null
-  }
-
-  const canInteract = !isPending
-
-  return createPortal(
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={() => {
-          if (canInteract) {
-            onClose()
-          }
-        }}
-      />
-      <Card className="relative z-10 w-full max-w-sm shadow-lg">
-        <CardHeader className="justify-items-center text-center">
-          <div className="bg-destructive/10 text-destructive mx-auto flex size-14 items-center justify-center rounded-full">
-            <TrashIcon className="size-7" />
-          </div>
-          <CardTitle>{title}</CardTitle>
-          <CardDescription>
-            ¿Seguro que quieres eliminar{" "}
-            <span className="text-foreground font-semibold">{itemName}</span>?
-            Esta acción no se puede deshacer.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter className="justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={!canInteract}
-            onClick={onClose}
-          >
-            <XIcon />
-            Cancelar
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            disabled={!canInteract}
-            onClick={onConfirm}
-          >
-            <TrashIcon />
-            {isPending ? "Eliminando..." : confirmLabel}
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>,
-    document.body
+    />
   )
 }
