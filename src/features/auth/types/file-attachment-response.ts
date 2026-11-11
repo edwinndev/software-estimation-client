@@ -1,4 +1,4 @@
-export type FileAttachment = {
+export type FileAttachmentResponse = {
   id: string
   type: "AVATAR" | "PDF"
   fileName: string
@@ -7,3 +7,5 @@ export type FileAttachment = {
   storagePath: string
   createdAt: string
 }
+
+export type FileAttachment = FileAttachmentResponse
