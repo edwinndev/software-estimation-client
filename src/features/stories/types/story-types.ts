@@ -20,6 +20,7 @@ export interface UserStory {
   description: string
   priority: "low" | "medium" | "high"
   status: StoryStatus
+  position: number
   createdAt: string
   updatedAt: string
 }
@@ -32,6 +33,7 @@ export interface BacklogTask {
   estimate: number
   status: TaskStatus
   profileIds: string[]
+  position: number
   createdAt: string
   updatedAt: string
 }
