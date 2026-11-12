@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -12,6 +12,15 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Card,
   CardContent,
@@ -57,7 +66,22 @@ import {
 } from "./story-options"
 
 export const StoriesView = ({ projectId }: { projectId: string }) => {
-  const backlog = useStories(projectId)
+  const [searchInput, setSearchInput] = useState("")
+  const [search, setSearch] = useState("")
+  const [priorityFilter, setPriorityFilter] = useState<
+    UserStory["priority"] | ""
+  >("")
+  const [statusFilter, setStatusFilter] = useState<UserStory["status"] | "">("")
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setSearch(searchInput.trim()), 300)
+    return () => window.clearTimeout(timeout)
+  }, [searchInput])
+
+  const backlog = useStories(projectId, {
+    search,
+    priority: priorityFilter,
+    status: statusFilter,
+  })
   const access = useProjectAccess(projectId)
   const canWrite = access.canEditBacklog
   const [storyDialog, setStoryDialog] = useState<UserStory | "new" | null>(null)
@@ -232,15 +256,98 @@ export const StoriesView = ({ projectId }: { projectId: string }) => {
           Nueva historia
         </Button>
       </div>
-      {backlog.isLoading ? (
+      <div className="grid gap-3 md:grid-cols-[minmax(16rem,1fr)_12rem_12rem]">
+        <div className="grid gap-1.5">
+          <Label htmlFor="backlog-search">Buscar historias y tareas</Label>
+          <Input
+            id="backlog-search"
+            type="search"
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            placeholder="Título, descripción o código"
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="backlog-priority">Prioridad</Label>
+          <Select
+            value={priorityFilter || "all"}
+            onValueChange={(value) => {
+              const option = STORY_PRIORITY_OPTIONS.find(
+                (item) => item.value === value
+              )
+              setPriorityFilter(option?.value ?? "")
+            }}
+          >
+            <SelectTrigger id="backlog-priority" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {STORY_PRIORITY_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="backlog-status">Estado</Label>
+          <Select
+            value={statusFilter || "all"}
+            onValueChange={(value) => {
+              const option = STORY_STATUS_OPTIONS.find(
+                (item) => item.value === value
+              )
+              setStatusFilter(option?.value ?? "")
+            }}
+          >
+            <SelectTrigger id="backlog-status" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {STORY_STATUS_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      {backlog.isError ? (
+        <div
+          className="border-destructive/40 bg-destructive/5 flex items-center justify-between gap-4 rounded-md border p-4"
+          role="alert"
+        >
+          <p className="text-sm">
+            No se pudo cargar el backlog:{" "}
+            {getErrorMessage(backlog.error, "Error de comunicación")}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void backlog.refetch()}
+          >
+            Reintentar
+          </Button>
+        </div>
+      ) : null}
+      {backlog.isError ? null : backlog.isLoading ? (
         <p className="text-muted-foreground">Cargando backlog...</p>
       ) : stories.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="font-medium">Aún no hay historias de usuario</p>
+            <p className="font-medium">
+              {search || priorityFilter || statusFilter
+                ? "No hay resultados para estos filtros"
+                : "Aún no hay historias de usuario"}
+            </p>
             <p className="text-muted-foreground mt-1 text-sm">
-              Registra la primera historia para comenzar a desglosar el
-              proyecto.
+              {search || priorityFilter || statusFilter
+                ? "Prueba con otros términos o filtros."
+                : "Registra la primera historia para comenzar a desglosar el proyecto."}
             </p>
           </CardContent>
         </Card>
@@ -274,7 +381,11 @@ export const StoriesView = ({ projectId }: { projectId: string }) => {
                             ? "Subir historia"
                             : "La historia ya está al inicio"
                       }
-                      disabled={!canWrite || !canMoveStoryUp}
+                      disabled={
+                        !canWrite ||
+                        !canMoveStoryUp ||
+                        backlog.moveStory.isPending
+                      }
                       onClick={() => reorderStory(story.id, "up")}
                     >
                       <ChevronUpIcon />
@@ -287,7 +398,11 @@ export const StoriesView = ({ projectId }: { projectId: string }) => {
                             ? "Bajar historia"
                             : "La historia ya está al final"
                       }
-                      disabled={!canWrite || !canMoveStoryDown}
+                      disabled={
+                        !canWrite ||
+                        !canMoveStoryDown ||
+                        backlog.moveStory.isPending
+                      }
                       onClick={() => reorderStory(story.id, "down")}
                     >
                       <ChevronDownIcon />
@@ -435,7 +550,11 @@ export const StoriesView = ({ projectId }: { projectId: string }) => {
                                   ? "Subir tarea"
                                   : "La tarea ya está al inicio"
                             }
-                            disabled={!canWrite || !canMoveTaskUp}
+                            disabled={
+                              !canWrite ||
+                              !canMoveTaskUp ||
+                              backlog.moveTask.isPending
+                            }
                             onClick={() => reorderTask(task.id, "up")}
                           >
                             <ChevronUpIcon />
@@ -448,7 +567,11 @@ export const StoriesView = ({ projectId }: { projectId: string }) => {
                                   ? "Bajar tarea"
                                   : "La tarea ya está al final"
                             }
-                            disabled={!canWrite || !canMoveTaskDown}
+                            disabled={
+                              !canWrite ||
+                              !canMoveTaskDown ||
+                              backlog.moveTask.isPending
+                            }
                             onClick={() => reorderTask(task.id, "down")}
                           >
                             <ChevronDownIcon />
