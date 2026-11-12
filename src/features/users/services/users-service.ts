@@ -1,14 +1,10 @@
 import { apiClient } from "@/lib/api"
 import type { QueryRequest } from "@/types/api"
-import type { User } from "@/features/auth/types"
+import type { MessageResponse, UserResponse } from "@/features/auth/types"
 import type {
-  CreateUser,
-  CreateUserResponse,
-  GetUserResponse,
-  UpdateUser,
-  UpdateUserResponse,
-  UpdateUserStatus,
-  UpdateUserStatusResponse,
+  CreateUserRequest,
+  ToggleUserStatusPayload,
+  UpdateUserPayload,
   UserSearchResponse,
 } from "../types"
 
@@ -16,16 +12,16 @@ const getUsers = (query: QueryRequest) =>
   apiClient.post<UserSearchResponse>("/api/v1/users/search", query)
 
 const getUser = (userId: string) =>
-  apiClient.get<GetUserResponse>(`/api/v1/users/${userId}`)
+  apiClient.get<UserResponse>(`/api/v1/users/${userId}`)
 
-const createUser = (input: CreateUser) =>
-  apiClient.post<CreateUserResponse>("/api/v1/users", input)
+const createUser = (input: CreateUserRequest) =>
+  apiClient.post<UserResponse>("/api/v1/users", input)
 
-const updateUser = ({ userId, ...body }: UpdateUser) =>
-  apiClient.put<UpdateUserResponse>(`/api/v1/users/${userId}`, body)
+const updateUser = ({ userId, ...body }: UpdateUserPayload) =>
+  apiClient.put<UserResponse>(`/api/v1/users/${userId}`, body)
 
-const updateUserStatus = ({ userId, isActive }: UpdateUserStatus) =>
-  apiClient.patch<UpdateUserStatusResponse>(`/api/v1/users/${userId}/status`, {
+const updateUserStatus = ({ userId, isActive }: ToggleUserStatusPayload) =>
+  apiClient.patch<UserResponse>(`/api/v1/users/${userId}/status`, {
     isActive,
   })
 
@@ -33,14 +29,14 @@ const deleteUser = (userId: string) =>
   apiClient.delete(`/api/v1/users/${userId}`)
 
 const resendInvitation = (userId: string) =>
-  apiClient.post<{ message: string }>(
+  apiClient.post<MessageResponse>(
     `/api/v1/users/${userId}/resend-invitation`
   )
 
 const uploadAvatar = (userId: string, file: File) => {
   const formData = new FormData()
   formData.append("file", file)
-  return apiClient.request<User>(`/api/v1/users/${userId}/avatar`, {
+  return apiClient.request<UserResponse>(`/api/v1/users/${userId}/avatar`, {
     method: "PUT",
     formData,
   })

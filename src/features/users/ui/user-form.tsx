@@ -21,9 +21,11 @@ import { RoleSelect } from "./role-select"
 
 type UserFormProps = {
   user: User | null
+  onSuccess?: () => void
+  onCancel?: () => void
 }
 
-export const UserForm = ({ user }: UserFormProps) => {
+export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
   const router = useRouter()
   const createUser = useCreateUser()
   const updateUser = useUpdateUser()
@@ -80,7 +82,11 @@ export const UserForm = ({ user }: UserFormProps) => {
           })
         }
 
-        router.push("/users")
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          router.push("/users")
+        }
       } catch (submitError) {
         toast.add({
           title: "No se pudo guardar el usuario",
@@ -221,12 +227,18 @@ export const UserForm = ({ user }: UserFormProps) => {
         }}
       </form.Field>
 
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end gap-2 pt-2">
         <Button
           type="button"
           variant="outline"
           disabled={isPending}
-          onClick={() => router.push("/users")}
+          onClick={() => {
+            if (onCancel) {
+              onCancel()
+            } else {
+              router.push("/users")
+            }
+          }}
         >
           <XIcon />
           Cancelar
@@ -241,8 +253,8 @@ export const UserForm = ({ user }: UserFormProps) => {
               <SaveIcon />
               {isBusy
                 ? isEditing
-                  ? "Actualizando usuario..."
-                  : "Guardando usuario..."
+                  ? "Actualizando..."
+                  : "Guardando..."
                 : isEditing
                   ? "Actualizar usuario"
                   : "Guardar usuario"}

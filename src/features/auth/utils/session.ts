@@ -1,6 +1,6 @@
 import { apiClient, getAccessToken } from "@/lib/api"
 import { readJson, removeJson, STORAGE_KEYS, writeJson } from "@/lib/storage"
-import type { AuthResponse, Session, User } from "../types"
+import type { AuthResponse, Session, UserResponse } from "../types"
 
 export const readSession = () => readJson<Session>(STORAGE_KEYS.SESSION)
 
@@ -14,7 +14,7 @@ export const clearSession = () => {
 }
 
 export const sessionFromUser = (
-  user: User,
+  user: UserResponse,
   permissions: string[]
 ): Session => ({
   userId: user.id,

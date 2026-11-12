@@ -8,14 +8,13 @@ import {
   PowerIcon,
   TrashIcon,
 } from "lucide-react"
-import { buttonVariants } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/toast"
 import {
   Tooltip,
   TooltipContent,
@@ -23,21 +22,25 @@ import {
 } from "@/components/ui/tooltip"
 import { usePermissions } from "@/features/auth/hooks/use-permissions"
 import { useSession } from "@/features/auth/hooks/use-session"
-import { getErrorMessage } from "@/lib/form-errors"
-import { useResendInvitation } from "../hooks/use-resend-invitation"
-import { useUpdateUserStatus } from "../hooks/use-update-user-status"
 import type { User } from "../types"
 
 type UsersRowActionsProps = {
   user: User
+  onEdit?: (user: User) => void
+  onToggleStatus?: (user: User) => void
+  onResendInvitation?: (user: User) => void
   onDelete: (user: User) => void
 }
 
-export const UsersRowActions = ({ user, onDelete }: UsersRowActionsProps) => {
+export const UsersRowActions = ({
+  user,
+  onEdit,
+  onToggleStatus,
+  onResendInvitation,
+  onDelete,
+}: UsersRowActionsProps) => {
   const { data: session } = useSession()
   const { canWriteUsers, canDeleteUsers } = usePermissions()
-  const updateStatus = useUpdateUserStatus()
-  const resendInvitation = useResendInvitation()
   const isCurrentUser = session ? session.userId === user.id : false
 
   if (!canWriteUsers && !canDeleteUsers) {
@@ -50,16 +53,28 @@ export const UsersRowActions = ({ user, onDelete }: UsersRowActionsProps) => {
         <Tooltip>
           <TooltipTrigger
             render={
-              <Link
-                href={`/users/${user.id}/edit`}
-                className={buttonVariants({
-                  variant: "ghost",
-                  size: "icon-sm",
-                })}
-              />
+              onEdit ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onEdit(user)}
+                >
+                  <PencilIcon />
+                  <span className="sr-only">Editar usuario</span>
+                </Button>
+              ) : (
+                <Link
+                  href={`/users/${user.id}/edit`}
+                  className={buttonVariants({
+                    variant: "ghost",
+                    size: "icon-sm",
+                  })}
+                />
+              )
             }
           >
-            <PencilIcon />
+            {onEdit ? null : <PencilIcon />}
             <span className="sr-only">Editar usuario</span>
           </TooltipTrigger>
           <TooltipContent>Editar usuario</TooltipContent>
@@ -87,28 +102,10 @@ export const UsersRowActions = ({ user, onDelete }: UsersRowActionsProps) => {
         <DropdownMenuContent align="end" className="min-w-48">
           {canWriteUsers ? (
             <DropdownMenuItem
-              disabled={isCurrentUser || updateStatus.isPending}
-              onClick={async () => {
-                try {
-                  await updateStatus.mutateAsync({
-                    userId: user.id,
-                    isActive: !user.isActive,
-                  })
-                  toast.add({
-                    title: user.isActive
-                      ? "Usuario desactivado"
-                      : "Usuario activado",
-                    description: user.isActive
-                      ? `${user.firstName} ${user.lastName} quedó inactivo.`
-                      : `${user.firstName} ${user.lastName} quedó activo.`,
-                    type: "success",
-                  })
-                } catch (error) {
-                  toast.add({
-                    title: "No se pudo actualizar el estado",
-                    description: getErrorMessage(error, "Inténtalo de nuevo."),
-                    type: "error",
-                  })
+              disabled={isCurrentUser}
+              onClick={() => {
+                if (onToggleStatus) {
+                  onToggleStatus(user)
                 }
               }}
             >
@@ -118,21 +115,10 @@ export const UsersRowActions = ({ user, onDelete }: UsersRowActionsProps) => {
           ) : null}
           {canWriteUsers ? (
             <DropdownMenuItem
-              disabled={!user.isActive || resendInvitation.isPending}
-              onClick={async () => {
-                try {
-                  await resendInvitation.mutateAsync(user.id)
-                  toast.add({
-                    title: "Invitación reenviada",
-                    description: `Se envió un nuevo código OTP a ${user.email}.`,
-                    type: "success",
-                  })
-                } catch (error) {
-                  toast.add({
-                    title: "No se pudo reenviar la invitación",
-                    description: getErrorMessage(error, "Inténtalo de nuevo."),
-                    type: "error",
-                  })
+              disabled={!user.isActive}
+              onClick={() => {
+                if (onResendInvitation) {
+                  onResendInvitation(user)
                 }
               }}
             >

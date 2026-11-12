@@ -74,7 +74,7 @@ export const VerifyResetForm = ({ email }: VerifyResetFormProps) => {
               htmlFor="reset-code"
               error={error}
               required
-              hint="Revisa la consola del navegador. El código dura 10 minutos."
+              hint="El código dura 10 minutos."
             >
               <Input
                 id="reset-code"

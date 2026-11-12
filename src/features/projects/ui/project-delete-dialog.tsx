@@ -1,16 +1,7 @@
 "use client"
 
-import { useEffect } from "react"
-import { createPortal } from "react-dom"
-import { TrashIcon, XIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { TrashIcon } from "lucide-react"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { toast } from "@/components/ui/toast"
 import { getErrorMessage } from "@/lib/form-errors"
 import { useProjects } from "../hooks/use-projects"
@@ -31,27 +22,6 @@ export const ProjectDeleteDialog = ({
   onSuccess,
 }: ProjectDeleteDialogProps) => {
   const { deleteProject, isDeleting } = useProjects()
-
-  useEffect(() => {
-    if (!isOpen) {
-      return
-    }
-
-    document.body.style.overflow = "hidden"
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isDeleting) {
-        onClose()
-      }
-    }
-
-    document.addEventListener("keydown", onKeyDown)
-
-    return () => {
-      document.body.style.removeProperty("overflow")
-      document.removeEventListener("keydown", onKeyDown)
-    }
-  }, [isDeleting, isOpen, onClose])
 
   const handleConfirm = async () => {
     if (!projectId) return
@@ -74,56 +44,30 @@ export const ProjectDeleteDialog = ({
     }
   }
 
-  if (!isOpen || !projectId) {
-    return null
-  }
-
-  const canInteract = !isDeleting
-
-  return createPortal(
-    <div className="fixed inset-0 z-200 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={() => {
-          if (canInteract) {
-            onClose()
-          }
-        }}
-      />
-      <Card className="relative z-10 w-full max-w-sm shadow-lg">
-        <CardHeader className="justify-items-center text-center">
-          <div className="bg-destructive/10 text-destructive mx-auto flex size-14 items-center justify-center rounded-full">
-            <TrashIcon className="size-7" />
-          </div>
-          <CardTitle>Eliminar proyecto</CardTitle>
-          <CardDescription>
-            ¿Seguro que quieres eliminar el proyecto{" "}
-            <span className="text-foreground font-semibold">{projectName}</span>
-            ? Esta acción no se puede deshacer.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter className="justify-end gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={!canInteract}
-            onClick={onClose}
-          >
-            <XIcon />
-            Cancelar
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            disabled={!canInteract}
-            onClick={handleConfirm}
-          >
-            <TrashIcon />
-            {isDeleting ? "Eliminando..." : "Eliminar proyecto"}
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>,
-    document.body
+  return (
+    <ConfirmDialog
+      open={isOpen && Boolean(projectId)}
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose()
+        }
+      }}
+      title="Eliminar proyecto"
+      icon={<TrashIcon className="size-6" />}
+      tone="destructive"
+      confirmText="Eliminar proyecto"
+      confirmLoadingText="Eliminando..."
+      confirmIcon={<TrashIcon />}
+      confirmVariant="destructive"
+      isLoading={isDeleting}
+      onConfirm={handleConfirm}
+      description={
+        <>
+          ¿Seguro que quieres eliminar el proyecto{" "}
+          <span className="text-foreground font-semibold">{projectName}</span>
+          ? Esta acción no se puede deshacer.
+        </>
+      }
+    />
   )
 }

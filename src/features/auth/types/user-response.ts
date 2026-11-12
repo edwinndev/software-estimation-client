@@ -1,7 +1,7 @@
 import type { UserRoleValue } from "@/enumeration/user-role"
-import type { FileAttachment } from "./file-attachment"
+import type { FileAttachmentResponse } from "./file-attachment-response"
 
-export type User = {
+export type UserResponse = {
   id: string
   firstName: string
   lastName: string
@@ -10,13 +10,14 @@ export type User = {
   roleId: string
   roleCode: UserRoleValue
   roleName: string
-  avatar: FileAttachment | null
+  avatar: FileAttachmentResponse | null
   createdAt: string
   updatedAt: string | null
 }
 
-/** @deprecated Use `roleCode` — kept for UI helpers that expect `role`. */
-export type UserWithRoleAlias = User & {
+export type User = UserResponse
+
+export type UserWithRoleAlias = UserResponse & {
   role: UserRoleValue
 }
 
@@ -26,7 +27,7 @@ export const getFullName = (user: { firstName: string; lastName: string }) =>
 export const getInitials = (user: { firstName: string; lastName: string }) =>
   `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
 
-export const withRoleAlias = (user: User): UserWithRoleAlias => ({
+export const withRoleAlias = (user: UserResponse): UserWithRoleAlias => ({
   ...user,
   role: user.roleCode,
 })
