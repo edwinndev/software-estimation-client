@@ -4,32 +4,36 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { PROFILES_QUERY_KEY } from "@/features/profiles/hooks/use-profiles"
 import { invalidateReportQueries } from "@/features/reports/hooks/query-keys"
 import { storiesService } from "../services/stories-service"
-import type {
-  BacklogTask,
-  MoveDirection,
-  UserStory,
-} from "../types/story-types"
+import type { StoryFormValues, TaskFormValues } from "../schemas/story-schema"
+import type { MoveDirection, UserStory } from "../types/story-types"
 
-export const useStories = (projectId: string) => {
+type BacklogFilters = {
+  search?: string
+  priority?: UserStory["priority"] | ""
+  status?: UserStory["status"] | ""
+}
+
+export const useStories = (projectId: string, filters: BacklogFilters = {}) => {
   const queryClient = useQueryClient()
   const queryKey = ["backlog", projectId]
-  const refresh = () => {
-    queryClient.invalidateQueries({ queryKey })
-    queryClient.invalidateQueries({ queryKey: ["user-stories", projectId] })
-    queryClient.invalidateQueries({
-      queryKey: ["sprint-calculation", projectId],
-    })
-    queryClient.invalidateQueries({
-      queryKey: ["task-hours", projectId],
-    })
-    queryClient.invalidateQueries({
-      queryKey: ["project-costs", projectId],
-    })
-    invalidateReportQueries(queryClient)
-  }
+  const refresh = async () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey }),
+      queryClient.invalidateQueries({ queryKey: ["user-stories", projectId] }),
+      queryClient.invalidateQueries({
+        queryKey: ["sprint-calculation", projectId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["task-hours", projectId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["project-costs", projectId],
+      }),
+      invalidateReportQueries(queryClient),
+    ])
   const backlog = useQuery({
-    queryKey,
-    queryFn: () => storiesService.getStories(projectId),
+    queryKey: [...queryKey, filters],
+    queryFn: () => storiesService.getStories(projectId, filters),
   })
   const profiles = useQuery({
     queryKey: [...PROFILES_QUERY_KEY, "assignable"],
@@ -37,37 +41,27 @@ export const useStories = (projectId: string) => {
   })
   const useMutationAction = <TVariables>(
     mutationFn: (variables: TVariables) => Promise<unknown>
-  ) => useMutation({ mutationFn, onSuccess: refresh })
+  ) => useMutation({ mutationFn, onSettled: refresh })
 
   return {
     ...backlog,
     profiles: profiles.data ?? [],
-    createStory: useMutationAction(
-      (
-        values: Omit<
-          UserStory,
-          "id" | "projectId" | "code" | "createdAt" | "updatedAt"
-        >
-      ) => storiesService.createStory(projectId, values)
+    createStory: useMutationAction((values: StoryFormValues) =>
+      storiesService.createStory(projectId, values)
     ),
     updateStory: useMutationAction(
-      ({ id, values }: { id: string; values: Partial<UserStory> }) =>
+      ({ id, values }: { id: string; values: StoryFormValues }) =>
         storiesService.updateStory(projectId, id, values)
     ),
     deleteStory: useMutationAction((id: string) =>
       storiesService.deleteStory(projectId, id)
     ),
     createTask: useMutationAction(
-      ({
-        storyId,
-        values,
-      }: {
-        storyId: string
-        values: Omit<BacklogTask, "id" | "storyId" | "createdAt" | "updatedAt">
-      }) => storiesService.createTask(projectId, storyId, values)
+      ({ storyId, values }: { storyId: string; values: TaskFormValues }) =>
+        storiesService.createTask(projectId, storyId, values)
     ),
     updateTask: useMutationAction(
-      ({ id, values }: { id: string; values: Partial<BacklogTask> }) =>
+      ({ id, values }: { id: string; values: TaskFormValues }) =>
         storiesService.updateTask(projectId, id, values)
     ),
     deleteTask: useMutationAction((id: string) =>

@@ -38,14 +38,14 @@ import {
 
 type StoryFormProps = {
   initial: StoryFormValues | null
-  onSubmit: (values: StoryFormValues) => void
+  onSubmit: (values: StoryFormValues) => Promise<void>
   onCancel: () => void
 }
 
 type TaskFormProps = {
   profiles: TechnicalProfile[]
   initial: TaskFormValues | null
-  onSubmit: (values: TaskFormValues) => void
+  onSubmit: (values: TaskFormValues) => Promise<void>
   onCancel: () => void
 }
 
@@ -117,9 +117,9 @@ export const StoryForm = ({ initial, onSubmit, onCancel }: StoryFormProps) => {
     validators: {
       onSubmit: storySchema,
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       const result = storySchema.safeParse(value)
-      if (result.success) onSubmit(result.data)
+      if (result.success) await onSubmit(result.data)
     },
   })
 
@@ -248,9 +248,9 @@ export const TaskForm = ({
     validators: {
       onSubmit: taskSchema,
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       const result = taskSchema.safeParse(value)
-      if (result.success) onSubmit(result.data)
+      if (result.success) await onSubmit(result.data)
     },
   })
 
